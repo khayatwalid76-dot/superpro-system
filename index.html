@@ -718,10 +718,10 @@
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
-    <!-- Firebase Configuration -->
     <script>
+        // إعدادات Firebase الحقيقية
         const firebaseConfig = {
             apiKey: "AIzaSyClOXATkxQ8XLrorz80JhkUdxXjbcySr2E",
             authDomain: "superpro-system-8871f.firebaseapp.com",
@@ -729,13 +729,13 @@
             storageBucket: "superpro-system-8871f.firebasestorage.app",
             messagingSenderId: "318335312258",
             appId: "1:318335312258:web:42879aaee5fc8b9a126f9b",
-            measurementId: "G-X4RJQYCS7N"
+            measurementId: "G-X4RJQYCS7N",
+            databaseURL: "https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
-        
-        // تهيئة Firebase مرة واحدة فقط
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        console.log('تم تهيئة Firebase بنجاح');
     </script>
     
     <script src="cloud-storage.js"></script>
@@ -746,6 +746,8 @@
     <script src="force-import.js"></script>
     <script src="ultimate-fix.js"></script>
     <script src="real-data-import.js"></script>
+    <script src="vercel-firebase.js"></script>
+    <script src="auto-sync.js"></script>
     
     <script>
         // تهيئة التخزين السحابي
