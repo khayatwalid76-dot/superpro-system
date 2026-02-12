@@ -2,30 +2,11 @@
   publish = "."
   command = ""
 
-[build.environment]
-  NODE_VERSION = "18"
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# تحسين الأداء
-[build.processing]
-  skip_processing = false
-
-[build.processing.css]
-  bundle = true
-  minify = true
-
-[build.processing.js]
-  bundle = true
-  minify = true
-
-[build.processing.html]
-  pretty_urls = true
-
-# رؤوس الأمان والأداء
 [[headers]]
   for = "/*"
   [headers.values]
@@ -34,7 +15,6 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
   for = "*.js"
@@ -60,8 +40,3 @@
   for = "*.svg"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# ضغط الملفات
-[[edge_functions]]
-  path = "/api/*"
-  function = "api"
