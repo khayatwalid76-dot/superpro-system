@@ -2,12 +2,74 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SUPER_PRO SYSTEM - نظام إدارة الشركة المتكامل</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, user-scalable=yes" />
+    
+    <!-- SEO Meta Tags -->
+    <title>SUPER_PRO SYSTEM - نظام إدارة الشركة المتكامل | إدارة شركات احترافية</title>
+    <meta name="description" content="نظام إدارة متكامل باللغة العربية للشركات الصغيرة والمتوسطة. إدارة موظفين، عملاء، عقود، مالية، تقارير وتحليلات متقدمة." />
+    <meta name="keywords" content="نظام إدارة, إدارة شركات, برنامج محاسبة, إدارة موظفين, نظام عربي, برنامج أعمال, SUPER_PRO" />
+    <meta name="author" content="SUPER_PRO SYSTEM" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="ar" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://superpro-system.netlify.app/" />
+    <meta property="og:title" content="SUPER_PRO SYSTEM - نظام إدارة الشركة المتكامل" />
+    <meta property="og:description" content="نظام إدارة متكامل باللغة العربية للشركات الصغيرة والمتوسطة. إدارة احترافية بتصميم عصري." />
+    <meta property="og:image" content="https://superpro-system.netlify.app/superpro_bg.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ar_AR" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://superpro-system.netlify.app/" />
+    <meta property="twitter:title" content="SUPER_PRO SYSTEM - نظام إدارة الشركة المتكامل" />
+    <meta property="twitter:description" content="نظام إدارة متكامل باللغة العربية للشركات الصغيرة والمتوسطة." />
+    <meta property="twitter:image" content="https://superpro-system.netlify.app/superpro_bg.jpg" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3498db" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SUPER_PRO" />
+    <meta name="application-name" content="SUPER_PRO SYSTEM" />
+    <meta name="msapplication-TileColor" content="#3498db" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://superpro-system.netlify.app/" />
+    
+    <!-- DNS Prefetch for Performance -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//www.gstatic.com" />
+    
+    <!-- Preconnect for Critical Resources -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMzNDk4ZGIiLz4KPHBhdGggZD0iTTEwIDEwSDIyVjIySDEwVjEwWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMjAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8zXzMpIi8+CjxwYXRoIGQ9Ik05MCA0NUM2Mi44IDQ1IDQ1IDYyLjggNDUgOTBTNjIuOCAxMzUgOTAgMTM1UzEzNSAxMTcuMiAxMzUgOTBTMTE3LjIgNDUgOTAgNDVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNzUgNzVIMTA1VjEwNUg3NVY3NVoiIGZpbGw9IiMyYzNlNTAiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8zXzMiIHgxPSIwIiB5MT0iMCIgeDI9IjE4MCIgeTI9IjE4MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMmMzZTUwIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzM0OThkYiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPg==" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    
+    <!-- Google Fonts (Optimized) -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"></noscript>
     <style>
         :root {
             --primary: #2c3e50;
@@ -20,13 +82,14 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
             background: linear-gradient(rgba(255,255,255,.95), rgba(255,255,255,.95)),
                         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="%23f8f9fa" width="100" height="100"/></svg>');
             margin: 0;
             min-height: 100vh;
             color: #333;
             transition: all 0.3s;
+            scroll-behavior: smooth;
         }
 
         .app-container {
@@ -692,27 +755,68 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        /* أنماط جديدة للفترة */
-        .shift-badge {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: 600;
+        /* تحسينات الوصولية */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
         
-        .shift-badge.morning {
-            background: #ffeaa7;
-            color: #d35400;
+        .focus-visible {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
         }
         
-        .shift-badge.evening {
-            background: #a29bfe;
-            color: #2d3436;
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
         }
         
-        .shift-badge.full {
-            background: #74b9ff;
-            color: white;
+        /* تحسينات القراءة */
+        .high-contrast {
+            --primary: #000000;
+            --secondary: #0066cc;
+            --dark: #000000;
+            --light: #ffffff;
+            --success: #008000;
+            --danger: #cc0000;
+            --warning: #ff8c00;
+        }
+        
+        .large-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        
+        /* تحسينات الحركة */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* تحسينات الوضع الليلي للوصولية */
+        .dark-mode.high-contrast {
+            --primary: #ffffff;
+            --secondary: #66b3ff;
+            --dark: #ffffff;
+            --light: #000000;
+            --success: #66ff66;
+            --danger: #ff6666;
+            --warning: #ffcc66;
         }
     </style>
     
@@ -721,7 +825,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
     <script>
-        // إعدادات Firebase الحقيقية
+        // إعدادات Firebase (آمنة)
         const firebaseConfig = {
             apiKey: "AIzaSyClOXATkxQ8XLrorz80JhkUdxXjbcySr2E",
             authDomain: "superpro-system-8871f.firebaseapp.com",
@@ -738,16 +842,91 @@
         console.log('تم تهيئة Firebase بنجاح');
     </script>
     
-    <script src="cloud-storage.js"></script>
-    <script src="data-import.js"></script>
-    <script src="simple-import.js"></script>
-    <script src="full-data-import.js"></script>
-    <script src="my-data-import.js"></script>
-    <script src="force-import.js"></script>
-    <script src="ultimate-fix.js"></script>
-    <script src="real-data-import.js"></script>
-    <script src="vercel-firebase.js"></script>
-    <script src="auto-sync.js"></script>
+    <!-- ملف JavaScript الموحد -->
+    <script src="app.js"></script>
+    
+    <!-- تحسينات الأداء -->
+    <script src="performance.js"></script>
+    
+    <!-- نظام التدويل الدولي -->
+    <script src="i18n.js"></script>
+    
+    <!-- النسخ الاحتياطي المتقدم -->
+    <script src="backup-system.js"></script>
+    
+    <!-- نظام المصادقة والأدوار -->
+    <script src="auth-system.js"></script>
+    
+    <!-- نظام التقارير المتقدم -->
+    <script src="advanced-reports.js"></script>
+    
+    <!-- نظام سجلات التدقيق -->
+    <script src="audit-logs.js"></script>
+    
+    <!-- نظام الإشعارات المتقدم -->
+    <script src="notification-system.js"></script>
+    
+    <!-- واجهة برمجية REST API -->
+    <script src="rest-api.js"></script>
+    
+    <!-- نظام متعدد الشركات -->
+    <script src="multi-tenant.js"></script>
+    
+    <!-- Google Analytics (مع الموافقة) -->
+    <script src="analytics.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registered:', registration);
+                        
+                        // تحقق من وجود تحديثات
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // عرض إشعار بوجود تحديث
+                                    if (confirm('🔄 يتوفر تحديث جديد! هل تريد تحديث الصفحة؟')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // عرض زر التثبيت
+            const installBtn = document.createElement('button');
+            installBtn.className = 'btn btn-primary position-fixed';
+            installBtn.style.cssText = 'bottom: 80px; left: 20px; z-index: 1050; border-radius: 50px; padding: 12px 20px;';
+            installBtn.innerHTML = '<i class="fas fa-download me-2"></i> تثبيت التطبيق';
+            document.body.appendChild(installBtn);
+            
+            installBtn.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    document.body.removeChild(installBtn);
+                });
+            });
+        });
+    </script>
     
     <script>
         // تهيئة التخزين السحابي
@@ -830,17 +1009,38 @@
         <nav class="navbar navbar-expand-lg fixed-top">
             <div class="container-fluid">
                 <button type="button" class="btn btn-light mobile-menu-btn me-2" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <a class="navbar-brand fw-bold" href="#">
-                    <i class="fas fa-building me-2"></i>
-                    <span class="brand-text">SUPER_PRO CLEANING & SERVICE</span>
-                </a>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-light btn-sm me-2" id="darkModeToggle">
+                    <div class="d-flex align-items-center">
+                    <!-- ===== الإشعارات الذكية ===== -->
+                    <div class="notification-bell" id="notificationBell" role="button" aria-label="الإشعارات" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                        <span class="sr-only">لديك إشعارات جديدة</span>
+                    </div>
+                    
+                    <!-- ===== أزرار الوصولية ===== -->
+                    <div class="dropdown me-2">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="accessibilityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-universal-access"></i>
+                            <span class="sr-only">خيارات الوصولية</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accessibilityDropdown">
+                            <li><button class="dropdown-item" onclick="toggleHighContrast()" type="button">
+                                <i class="fas fa-adjust me-2"></i>تباين عالي
+                            </button></li>
+                            <li><button class="dropdown-item" onclick="toggleLargeText()" type="button">
+                                <i class="fas fa-text-height me-2"></i>نص كبير
+                            </button></li>
+                            <li><button class="dropdown-item" onclick="toggleDarkMode()" type="button">
+                                <i class="fas fa-moon me-2"></i>الوضع الليلي
+                            </button></li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-outline-light btn-sm me-2" id="darkModeToggle" aria-label="تبديل الوضع الليلي">
                         <i class="fas fa-moon"></i>
+                        <span class="sr-only">تبديل الوضع الليلي</span>
                     </button>
-                    <span id="current-date" class="text-white"></span>
+                    <span id="current-date" class="text-white" aria-live="polite"></span>
                 </div>
             </div>
         </nav>
@@ -2974,20 +3174,20 @@
             salaryAdvances: 'superpro_salaryAdvances'
         };
 
-        // البيانات الافتراضية
-        let employees = JSON.parse(sessionStorage.getItem(LS_KEYS.employees)) || [];
-        let clients = JSON.parse(sessionStorage.getItem(LS_KEYS.clients)) || [];
-        let attendance = JSON.parse(sessionStorage.getItem(LS_KEYS.attendance)) || [];
-        let contracts = JSON.parse(sessionStorage.getItem(LS_KEYS.contracts)) || [];
-        let services = JSON.parse(sessionStorage.getItem(LS_KEYS.services)) || [];
-        let settings = JSON.parse(sessionStorage.getItem(LS_KEYS.settings)) || {};
-        let tasks = JSON.parse(sessionStorage.getItem(LS_KEYS.tasks)) || [];
-        let events = JSON.parse(sessionStorage.getItem(LS_KEYS.events)) || [];
-        let dailyWork = JSON.parse(sessionStorage.getItem(LS_KEYS.dailyWork)) || [];
-        let dailyIncome = JSON.parse(sessionStorage.getItem(LS_KEYS.dailyIncome)) || [];
-        let dailyExpenses = JSON.parse(sessionStorage.getItem(LS_KEYS.dailyExpenses)) || [];
-        let financialTransactions = JSON.parse(sessionStorage.getItem(LS_KEYS.financialTransactions)) || [];
-        let salaryAdvances = JSON.parse(sessionStorage.getItem(LS_KEYS.salaryAdvances)) || [];
+        // البيانات الافتراضية - سيتم تحميلها من السحابة
+        let employees = [];
+        let clients = [];
+        let attendance = [];
+        let contracts = [];
+        let services = [];
+        let settings = {};
+        let tasks = [];
+        let events = [];
+        let dailyWork = [];
+        let dailyIncome = [];
+        let dailyExpenses = [];
+        let financialTransactions = [];
+        let salaryAdvances = [];
 
         // حفظ البيانات
         function saveData() {
@@ -6502,62 +6702,98 @@
             });
         }
 
-        // تهيئة البيانات الافتراضية
+        // تهيئة البيانات الافتراضية - تم تعطيلها
         function initializeDefaultData() {
-            if (employees.length === 0) {
-                employees = [
-                    {
-                        name: "أحمد محمد",
-                        nationality: "مصري",
-                        job: "مدير",
-                        salary: 3000,
-                        status: "نشط",
-                        phone: "0551234567",
-                        hireDate: "2024-01-01",
-                        residencyExpiry: "2024-12-31",
-                        joinDate: "2024-01-01",
-                        idNumber: "123456789"
-                    },
-                    {
-                        name: "محمد علي",
-                        nationality: "سوداني",
-                        job: "سائق",
-                        salary: 1500,
-                        status: "نشط",
-                        phone: "0557654321",
-                        hireDate: "2024-02-01",
-                        residencyExpiry: "2024-11-30",
-                        joinDate: "2024-02-01",
-                        idNumber: "987654321"
-                    }
-                ];
-                saveData();
-                showToast('تم إضافة بيانات افتراضية للموظفين', 'info');
-            }
+            console.log('🚫 تم تعطيل البيانات الافتراضية - سيتم تحميل البيانات من السحابة');
             
-            if (clients.length === 0) {
-                clients = [
-                    {
-                        name: "شركة التقنية المتطورة",
-                        phone: "0551112222",
-                        email: "info@tech.com",
-                        service: "تنظيف",
-                        area: "الدوحة",
-                        joinDate: "2024-01-01",
-                        lastWorkDate: "2024-01-15"
-                    },
-                    {
-                        name: "مطعم الذواقة",
-                        phone: "0553334444",
-                        email: "contact@restaurant.com",
-                        service: "تنظيف",
-                        area: "الريان",
-                        joinDate: "2024-02-01",
-                        lastWorkDate: "2024-02-10"
+            // تحميل البيانات من السحابة فوراً وبشكل قسري
+            fetch('https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/data.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('📥 تم استلام البيانات من السحابة:', data);
+                
+                if (data && data.employees) {
+                    // تحديث المتغيرات العامة فوراً
+                    window.employees = data.employees || [];
+                    window.clients = data.clients || [];
+                    window.contracts = data.contracts || [];
+                    
+                    // تحديث المتغيرات المحلية
+                    employees = window.employees;
+                    clients = window.clients;
+                    contracts = window.contracts;
+                    
+                    // حفظ في sessionStorage
+                    sessionStorage.setItem('superpro_employees', JSON.stringify(window.employees));
+                    sessionStorage.setItem('superpro_clients', JSON.stringify(window.clients));
+                    sessionStorage.setItem('superpro_contracts', JSON.stringify(window.contracts));
+                    
+                    console.log(`📊 تم تحميل ${window.employees.length} موظف و ${window.clients.length} عميل`);
+                    
+                    // تحديث الواجهة فوراً ومتكرر
+                    function updateUI() {
+                        console.log('🔄 تحديث الواجهة...');
+                        if (typeof loadEmployees === 'function') {
+                            loadEmployees();
+                        }
+                        if (typeof loadClients === 'function') {
+                            loadClients();
+                        }
+                        if (typeof loadDashboard === 'function') {
+                            loadDashboard();
+                        }
                     }
-                ];
-                saveData();
-            }
+                    
+                    // تحديث فوري
+                    updateUI();
+                    
+                    // تحديث بعد ثانية
+                    setTimeout(updateUI, 1000);
+                    
+                    // تحديث بعد ثانيتين
+                    setTimeout(updateUI, 2000);
+                    
+                    // إظهار رسالة نجاح
+                    setTimeout(() => {
+                        const toast = document.createElement('div');
+                        toast.style.cssText = `
+                            position: fixed;
+                            top: 20px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: linear-gradient(135deg, #27ae60, #2ecc71);
+                            color: white;
+                            padding: 15px 25px;
+                            border-radius: 12px;
+                            z-index: 9999;
+                            font-weight: 600;
+                            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.3);
+                        `;
+                        toast.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+                                <div>
+                                    <div>✅ تم تحميل البيانات بنجاح</div>
+                                    <div style="font-size: 12px; opacity: 0.9;">${window.employees.length} موظف • ${window.clients.length} عميل</div>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(toast);
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(toast)) {
+                                document.body.removeChild(toast);
+                            }
+                        }, 5000);
+                    }, 500);
+                    
+                } else {
+                    console.log('📭 لا توجد بيانات في السحابة');
+                }
+            })
+            .catch(error => {
+                console.error('❌ خطأ في تحميل البيانات:', error);
+            });
         }
 
         // ===== النسخ الاحتياطي التلقائي =====
