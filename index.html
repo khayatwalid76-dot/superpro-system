@@ -6702,11 +6702,50 @@
             });
         }
 
-        // تهيئة البيانات الافتراضية - تم تعطيلها
+        // تهيئة البيانات الافتراضية
         function initializeDefaultData() {
-            console.log('🚫 تم تعطيل البيانات الافتراضية - سيتم تحميل البيانات من السحابة');
+            console.log('🚀 تهيئة البيانات الافتراضية...');
             
-            // تحميل البيانات من السحابة فوراً وبشكل قسري
+            // تهيئة المستخدمين الافتراضيين
+            if (!localStorage.getItem('users') || JSON.parse(localStorage.getItem('users')).length === 0) {
+                const defaultUsers = [
+                    {
+                        id: 1,
+                        email: 'admin',
+                        password: 'admin123',
+                        name: 'مدير النظام',
+                        role: 'admin',
+                        status: 'active',
+                        avatar: 'https://picsum.photos/seed/admin/100/100',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        email: 'manager',
+                        password: 'manager123',
+                        name: 'مدير',
+                        role: 'manager',
+                        status: 'active',
+                        avatar: 'https://picsum.photos/seed/manager/100/100',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 3,
+                        email: 'employee',
+                        password: 'employee123',
+                        name: 'موظف',
+                        role: 'employee',
+                        status: 'active',
+                        avatar: 'https://picsum.photos/seed/employee/100/100',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('users', JSON.stringify(defaultUsers));
+                console.log('✅ تم إضافة المستخدمين الافتراضيين');
+            }
+            
+            // تحميل البيانات من السحابة
             fetch('https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/data.json')
             .then(response => response.json())
             .then(data => {
