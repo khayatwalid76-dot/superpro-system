@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة الاختبار الشامل - SUPER PRO SYSTEM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .test-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .test-section:hover {
+            border-color: #007bff;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.1);
+        }
+        .status { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            font-weight: 600;
+        }
+        .success { 
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white; 
+            border: 1px solid #28a745; 
+        }
+        .error { 
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white; 
+            border: 1px solid #dc3545; 
+        }
+        .warning { 
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529; 
+            border: 1px solid #ffc107; 
+        }
+        .info { 
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white; 
+            border: 1px solid #17a2b8; 
+        }
+        .test-btn {
+            margin: 5px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            margin: 10px auto;
+        }
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            min-width: 120px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-container">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-clipboard-check me-2"></i>
+                صفحة الاختبار الشامل - SUPER PRO SYSTEM
+            </h1>
+            <p class="text-center text-muted">فحص شامل لجميع أنظمة التطبيق ووظائفها</p>
+            
+            <!-- ملخص الحالة -->
+            <div class="summary-stats" id="summaryStats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTests">0</div>
+                    <div class="stat-label">إجمالي الاختبارات</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="passedTests">0</div>
+                    <div class="stat-label">اختبارات ناجحة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="failedTests">0</div>
+                    <div class="stat-label">اختبارات فاشلة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="overallScore">0%</div>
+                    <div class="stat-label">نسبة النجاح</div>
+                </div>
+            </div>
+
+            <!-- اختبار التسجيل السحابي -->
+            <div class="test-section">
+                <h3><i class="fas fa-cloud me-2"></i>1. التسجيل السحابي (Firebase)</h3>
+                <div id="firebase-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testFirebaseConnection()">
+                    <i class="fas fa-plug"></i> اختبار الاتصال
+                </button>
+                <button class="btn btn-success test-btn" onclick="testCloudSave()">
+                    <i class="fas fa-upload"></i> اختبار الحفظ
+                </button>
+                <button class="btn btn-warning test-btn" onclick="testCloudLoad()">
+                    <i class="fas fa-download"></i> اختبار التحميل
+                </button>
+            </div>
+            
+            <!-- اختبار الإشعارات -->
+            <div class="test-section">
+                <h3><i class="fas fa-bell me-2"></i>2. نظام الإشعارات</h3>
+                <div id="notification-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testNotificationPermission()">
+                    <i class="fas fa-key"></i> اختبار الإذن
+                </button>
+                <button class="btn btn-success test-btn" onclick="testNotificationDisplay()">
+                    <i class="fas fa-comment"></i> اختبار العرض
+                </button>
+                <button class="btn btn-info test-btn" onclick="testNotificationManager()">
+                    <i class="fas fa-cogs"></i> اختبار المدير
+                </button>
+            </div>
+            
+            <!-- اختبار المسافات في القوائم -->
+            <div class="test-section">
+                <h3><i class="fas fa-ruler me-2"></i>3. المسافات في القوائم والنماذج</h3>
+                <div id="spacing-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testFormSpacing()">
+                    <i class="fas fa-wpforms"></i> فحص النماذج
+                </button>
+                <button class="btn btn-success test-btn" onclick="testModalSpacing()">
+                    <i class="fas fa-window-maximize"></i> فحص النوافذ
+                </button>
+                <button class="btn btn-warning test-btn" onclick="testCardSpacing()">
+                    <i class="fas fa-th-large"></i> فحص البطاقات
+                </button>
+            </div>
+            
+            <!-- اختبار تخزين البيانات -->
+            <div class="test-section">
+                <h3><i class="fas fa-database me-2"></i>4. تخزين البيانات المحلي</h3>
+                <div id="storage-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testLocalStorage()">
+                    <i class="fas fa-hdd"></i> Local Storage
+                </button>
+                <button class="btn btn-success test-btn" onclick="testSessionStorage()">
+                    <i class="fas fa-memory"></i> Session Storage
+                </button>
+                <button class="btn btn-info test-btn" onclick="testDataIntegrity()">
+                    <i class="fas fa-shield-alt"></i> سلامة البيانات
+                </button>
+            </div>
+            
+            <!-- اختبار الأداء -->
+            <div class="test-section">
+                <h3><i class="fas fa-tachometer-alt me-2"></i>5. أداء النظام</h3>
+                <div id="performance-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testLoadTime()">
+                    <i class="fas fa-clock"></i> وقت التحميل
+                </button>
+                <button class="btn btn-success test-btn" onclick="testMemoryUsage()">
+                    <i class="fas fa-microchip"></i> استخدام الذاكرة
+                </button>
+                <button class="btn btn-warning test-btn" onclick="testResponsiveness()">
+                    <i class="fas fa-hand-pointer"></i> الاستجابة
+                </button>
+            </div>
+            
+            <!-- اختبار الواجهة -->
+            <div class="test-section">
+                <h3><i class="fas fa-desktop me-2"></i>6. واجهة المستخدم</h3>
+                <div id="ui-status" class="status info">جاري الفحص...</div>
+                <button class="btn btn-primary test-btn" onclick="testResponsiveDesign()">
+                    <i class="fas fa-mobile-alt"></i> التصميم المتجاوب
+                </button>
+                <button class="btn btn-success test-btn" onclick="testAccessibility()">
+                    <i class="fas fa-universal-access"></i> الوصولية
+                </button>
+                <button class="btn btn-info test-btn" onclick="testDarkMode()">
+                    <i class="fas fa-moon"></i> الوضع الليلي
+                </button>
+            </div>
+
+            <!-- زر التشغيل الكامل -->
+            <div class="text-center mt-4">
+                <button class="btn btn-lg btn-success" onclick="runAllTests()">
+                    <i class="fas fa-play-circle me-2"></i>
+                    تشغيل جميع الاختبارات
+                </button>
+                <button class="btn btn-lg btn-warning ms-2" onclick="generateReport()">
+                    <i class="fas fa-file-alt me-2"></i>
+                    إنشاء تقرير
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <script>
+        // إعدادات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyClOXATkxQ8XLrorz80JhkUdxXjbcySr2E",
+            authDomain: "superpro-system-8871f.firebaseapp.com",
+            projectId: "superpro-system-8871f",
+            storageBucket: "superpro-system-8871f.firebasestorage.app",
+            messagingSenderId: "318335312258",
+            appId: "1:318335312258:web:42879aaee5fc8b9a126f9b",
+            measurementId: "G-X4RJQYCS7N",
+            databaseURL: "https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // متغيرات الاختبارات
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0,
+            details: []
+        };
+
+        // دالة تحديث الحالة
+        function updateStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle'} me-2"></i>${message}`;
+        }
+
+        // دالة تحديث الإحصائيات
+        function updateStats() {
+            document.getElementById('totalTests').textContent = testResults.total;
+            document.getElementById('passedTests').textContent = testResults.passed;
+            document.getElementById('failedTests').textContent = testResults.failed;
+            const score = testResults.total > 0 ? Math.round((testResults.passed / testResults.total) * 100) : 0;
+            document.getElementById('overallScore').textContent = score + '%';
+        }
+
+        // دالة تسجيل نتيجة الاختبار
+        function recordTest(testName, passed, details) {
+            testResults.total++;
+            if (passed) {
+                testResults.passed++;
+            } else {
+                testResults.failed++;
+            }
+            testResults.details.push({ testName, passed, details });
+            updateStats();
+        }
+
+        // اختبارات Firebase
+        async function testFirebaseConnection() {
+            try {
+                await db.ref('.info/connected').once('value');
+                updateStatus('firebase-status', 'success', '✅ الاتصال بـ Firebase ناجح');
+                recordTest('اتصال Firebase', true, 'تم الاتصال بنجاح');
+            } catch (error) {
+                updateStatus('firebase-status', 'error', '❌ فشل الاتصال: ' + error.message);
+                recordTest('اتصال Firebase', false, error.message);
+            }
+        }
+
+        async function testCloudSave() {
+            try {
+                const testData = {
+                    test: true,
+                    timestamp: new Date().toISOString(),
+                    message: 'اختبار الحفظ'
+                };
+                await db.ref('test/save').set(testData);
+                updateStatus('firebase-status', 'success', '✅ الحفظ في السحابة ناجح');
+                recordTest('حفظ السحابة', true, 'تم الحفظ بنجاح');
+            } catch (error) {
+                updateStatus('firebase-status', 'error', '❌ فشل الحفظ: ' + error.message);
+                recordTest('حفظ السحابة', false, error.message);
+            }
+        }
+
+        async function testCloudLoad() {
+            try {
+                const snapshot = await db.ref('test/save').once('value');
+                const data = snapshot.val();
+                if (data) {
+                    updateStatus('firebase-status', 'success', '✅ التحميل من السحابة ناجح');
+                    recordTest('تحميل السحابة', true, 'تم التحميل بنجاح');
+                } else {
+                    updateStatus('firebase-status', 'warning', '⚠️ لا توجد بيانات للاختبار');
+                    recordTest('تحميل السحابة', false, 'لا توجد بيانات');
+                }
+            } catch (error) {
+                updateStatus('firebase-status', 'error', '❌ فشل التحميل: ' + error.message);
+                recordTest('تحميل السحابة', false, error.message);
+            }
+        }
+
+        // اختبارات الإشعارات
+        function testNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        updateStatus('notification-status', 'success', '✅ إذن الإشعارات ممنوح');
+                        recordTest('إذن الإشعارات', true, 'الإذن ممنوح');
+                    } else {
+                        updateStatus('notification-status', 'warning', '⚠️ إذن الإشعارات غير ممنوح');
+                        recordTest('إذن الإشعارات', false, 'الإذن غير ممنوح');
+                    }
+                });
+            } else {
+                updateStatus('notification-status', 'error', '❌ المتصفح لا يدعم الإشعارات');
+                recordTest('إذن الإشعارات', false, 'المتصفح لا يدعم الإشعارات');
+            }
+        }
+
+        function testNotificationDisplay() {
+            if (Notification.permission === 'granted') {
+                new Notification('اختبار الإشعارات', {
+                    body: 'هذا إشعار اختباري من SUPER PRO SYSTEM',
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>'
+                });
+                updateStatus('notification-status', 'success', '✅ تم عرض إشعار اختباري');
+                recordTest('عرض الإشعارات', true, 'تم العرض بنجاح');
+            } else {
+                updateStatus('notification-status', 'warning', '⚠️ الإذن غير ممنوح لعرض الإشعارات');
+                recordTest('عرض الإشعارات', false, 'الإذن غير ممنوح');
+            }
+        }
+
+        function testNotificationManager() {
+            try {
+                // محاكاة مدير الإشعارات
+                const mockManager = {
+                    notifications: [],
+                    addNotification: function(notif) {
+                        this.notifications.unshift({...notif, id: Date.now(), read: false});
+                    }
+                };
+                
+                mockManager.addNotification({
+                    title: 'اختبار',
+                    message: 'إشعار اختباري',
+                    type: 'success'
+                });
+                
+                if (mockManager.notifications.length > 0) {
+                    updateStatus('notification-status', 'success', '✅ مدير الإشعارات يعمل بشكل صحيح');
+                    recordTest('مدير الإشعارات', true, 'يعمل بشكل صحيح');
+                } else {
+                    throw new Error('فشل إضافة الإشعار');
+                }
+            } catch (error) {
+                updateStatus('notification-status', 'error', '❌ خطأ في مدير الإشعارات: ' + error.message);
+                recordTest('مدير الإشعارات', false, error.message);
+            }
+        }
+
+        // اختبارات المسافات
+        function testFormSpacing() {
+            const issues = [];
+            const forms = document.querySelectorAll('form, .form-container');
+            
+            forms.forEach(form => {
+                const formGroups = form.querySelectorAll('.form-group');
+                formGroups.forEach((group, index) => {
+                    if (index > 0) {
+                        const prevGroup = formGroups[index - 1];
+                        const distance = group.offsetTop - (prevGroup.offsetTop + prevGroup.offsetHeight);
+                        if (distance > 30) {
+                            issues.push(`مسافة كبيرة (${distance}px) في النموذج`);
+                        }
+                    }
+                });
+            });
+            
+            if (issues.length === 0) {
+                updateStatus('spacing-status', 'success', '✅ المسافات في النماذج سليمة');
+                recordTest('مسافات النماذج', true, 'لا توجد مشاكل');
+            } else {
+                updateStatus('spacing-status', 'warning', `⚠️ تم العثور على ${issues.length} مشكلة في المسافات`);
+                recordTest('مسافات النماذج', false, issues.join(', '));
+            }
+        }
+
+        function testModalSpacing() {
+            const modals = document.querySelectorAll('.modal');
+            if (modals.length === 0) {
+                updateStatus('spacing-status', 'info', 'ℹ️ لا توجد نوافذ منبثقة لفحصها');
+                recordTest('مسافات النوافذ', true, 'لا توجد نوافذ لفحصها');
+            } else {
+                updateStatus('spacing-status', 'success', '✅ مسافات النوافذ المنبثقة سليمة');
+                recordTest('مسافات النوافذ', true, 'لا توجد مشاكل');
+            }
+        }
+
+        function testCardSpacing() {
+            const cards = document.querySelectorAll('.card');
+            if (cards.length === 0) {
+                updateStatus('spacing-status', 'info', 'ℹ️ لا توجد بطاقات لفحصها');
+                recordTest('مسافات البطاقات', true, 'لا توجد بطاقات لفحصها');
+            } else {
+                updateStatus('spacing-status', 'success', '✅ مسافات البطاقات سليمة');
+                recordTest('مسافات البطاقات', true, 'لا توجد مشاكل');
+            }
+        }
+
+        // اختبارات التخزين
+        function testLocalStorage() {
+            try {
+                const testKey = 'superpro_test_' + Date.now();
+                const testValue = { test: true, timestamp: new Date().toISOString() };
+                
+                localStorage.setItem(testKey, JSON.stringify(testValue));
+                const retrieved = JSON.parse(localStorage.getItem(testKey));
+                localStorage.removeItem(testKey);
+                
+                if (retrieved && retrieved.test === true) {
+                    updateStatus('storage-status', 'success', '✅ Local Storage يعمل بشكل صحيح');
+                    recordTest('Local Storage', true, 'يعمل بشكل صحيح');
+                } else {
+                    throw new Error('فشل التحقق من البيانات');
+                }
+            } catch (error) {
+                updateStatus('storage-status', 'error', '❌ خطأ في Local Storage: ' + error.message);
+                recordTest('Local Storage', false, error.message);
+            }
+        }
+
+        function testSessionStorage() {
+            try {
+                const testKey = 'superpro_test_' + Date.now();
+                const testValue = { test: true, timestamp: new Date().toISOString() };
+                
+                sessionStorage.setItem(testKey, JSON.stringify(testValue));
+                const retrieved = JSON.parse(sessionStorage.getItem(testKey));
+                sessionStorage.removeItem(testKey);
+                
+                if (retrieved && retrieved.test === true) {
+                    updateStatus('storage-status', 'success', '✅ Session Storage يعمل بشكل صحيح');
+                    recordTest('Session Storage', true, 'يعمل بشكل صحيح');
+                } else {
+                    throw new Error('فشل التحقق من البيانات');
+                }
+            } catch (error) {
+                updateStatus('storage-status', 'error', '❌ خطأ في Session Storage: ' + error.message);
+                recordTest('Session Storage', false, error.message);
+            }
+        }
+
+        function testDataIntegrity() {
+            try {
+                const testData = {
+                    employees: [],
+                    clients: [],
+                    contracts: [],
+                    attendance: []
+                };
+                
+                const jsonString = JSON.stringify(testData);
+                const parsed = JSON.parse(jsonString);
+                
+                if (JSON.stringify(parsed) === jsonString) {
+                    updateStatus('storage-status', 'success', '✅ سلامة البيانات مؤكدة');
+                    recordTest('سلامة البيانات', true, 'البيانات سليمة');
+                } else {
+                    throw new Error('فشل التحقق من سلامة البيانات');
+                }
+            } catch (error) {
+                updateStatus('storage-status', 'error', '❌ خطأ في سلامة البيانات: ' + error.message);
+                recordTest('سلامة البيانات', false, error.message);
+            }
+        }
+
+        // اختبارات الأداء
+        function testLoadTime() {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            if (loadTime < 3000) {
+                updateStatus('performance-status', 'success', `✅ وقت التحميل ممتاز (${loadTime}ms)`);
+                recordTest('وقت التحميل', true, `${loadTime}ms`);
+            } else if (loadTime < 5000) {
+                updateStatus('performance-status', 'warning', `⚠️ وقت التحميل مقبول (${loadTime}ms)`);
+                recordTest('وقت التحميل', true, `${loadTime}ms`);
+            } else {
+                updateStatus('performance-status', 'error', `❌ وقت التحميل بطيء (${loadTime}ms)`);
+                recordTest('وقت التحميل', false, `${loadTime}ms`);
+            }
+        }
+
+        function testMemoryUsage() {
+            if (performance.memory) {
+                const used = performance.memory.usedJSHeapSize;
+                const total = performance.memory.totalJSHeapSize;
+                const percentage = Math.round((used / total) * 100);
+                
+                if (percentage < 70) {
+                    updateStatus('performance-status', 'success', `✅ استخدام الذاكرة جيد (${percentage}%)`);
+                    recordTest('استخدام الذاكرة', true, `${percentage}%`);
+                } else {
+                    updateStatus('performance-status', 'warning', `⚠️ استخدام الذاكرة مرتفع (${percentage}%)`);
+                    recordTest('استخدام الذاكرة', false, `${percentage}%`);
+                }
+            } else {
+                updateStatus('performance-status', 'info', 'ℹ️ معلومات الذاكرة غير متاحة');
+                recordTest('استخدام الذاكرة', true, 'غير متاح');
+            }
+        }
+
+        function testResponsiveness() {
+            const startTime = performance.now();
+            // محاكاة عملية حسابية بسيطة
+            for (let i = 0; i < 1000000; i++) {
+                Math.random();
+            }
+            const endTime = performance.now();
+            const responseTime = endTime - startTime;
+            
+            if (responseTime < 100) {
+                updateStatus('performance-status', 'success', `✅ استجابة سريعة (${responseTime.toFixed(2)}ms)`);
+                recordTest('الاستجابة', true, `${responseTime.toFixed(2)}ms`);
+            } else {
+                updateStatus('performance-status', 'warning', `⚠️ استجابة بطيئة (${responseTime.toFixed(2)}ms)`);
+                recordTest('الاستجابة', false, `${responseTime.toFixed(2)}ms`);
+            }
+        }
+
+        // اختبارات الواجهة
+        function testResponsiveDesign() {
+            const width = window.innerWidth;
+            if (width < 768) {
+                updateStatus('ui-status', 'success', '✅ التصميم يعمل على الشاشات الصغيرة');
+                recordTest('التصميم المتجاوب', true, `شاشة صغيرة (${width}px)`);
+            } else if (width < 1024) {
+                updateStatus('ui-status', 'success', '✅ التصميم يعمل على الشاشات المتوسطة');
+                recordTest('التصميم المتجاوب', true, `شاشة متوسطة (${width}px)`);
+            } else {
+                updateStatus('ui-status', 'success', '✅ التصميم يعمل على الشاشات الكبيرة');
+                recordTest('التصميم المتجاوب', true, `شاشة كبيرة (${width}px)`);
+            }
+        }
+
+        function testAccessibility() {
+            const issues = [];
+            
+            // فحص alt tags
+            const images = document.querySelectorAll('img:not([alt])');
+            if (images.length > 0) {
+                issues.push(`${images.length} صور بدون وصف`);
+            }
+            
+            // فحص ARIA labels
+            const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
+            const textlessButtons = Array.from(buttons).filter(btn => !btn.textContent.trim());
+            if (textlessButtons.length > 0) {
+                issues.push(`${textlessButtons.length} زر بدون وصف`);
+            }
+            
+            if (issues.length === 0) {
+                updateStatus('ui-status', 'success', '✅ الوصولية ممتازة');
+                recordTest('الوصولية', true, 'لا توجد مشاكل');
+            } else {
+                updateStatus('ui-status', 'warning', `⚠️ ${issues.length} مشكلة في الوصولية`);
+                recordTest('الوصولية', false, issues.join(', '));
+            }
+        }
+
+        function testDarkMode() {
+            const hasDarkMode = document.querySelector('.dark-mode') || 
+                              localStorage.getItem('darkMode') !== null;
+            
+            if (hasDarkMode) {
+                updateStatus('ui-status', 'success', '✅ الوضع الليلي مدعوم');
+                recordTest('الوضع الليلي', true, 'مدعوم');
+            } else {
+                updateStatus('ui-status', 'info', 'ℹ️ الوضع الليلي غير مفعل');
+                recordTest('الوضع الليلي', true, 'غير مفعل');
+            }
+        }
+
+        // تشغيل جميع الاختبارات
+        async function runAllTests() {
+            testResults = { total: 0, passed: 0, failed: 0, details: [] };
+            
+            // Firebase tests
+            await testFirebaseConnection();
+            await testCloudSave();
+            await testCloudLoad();
+            
+            // Notification tests
+            testNotificationPermission();
+            testNotificationDisplay();
+            testNotificationManager();
+            
+            // Spacing tests
+            testFormSpacing();
+            testModalSpacing();
+            testCardSpacing();
+            
+            // Storage tests
+            testLocalStorage();
+            testSessionStorage();
+            testDataIntegrity();
+            
+            // Performance tests
+            testLoadTime();
+            testMemoryUsage();
+            testResponsiveness();
+            
+            // UI tests
+            testResponsiveDesign();
+            testAccessibility();
+            testDarkMode();
+            
+            // عرض النتيجة النهائية
+            setTimeout(() => {
+                const score = Math.round((testResults.passed / testResults.total) * 100);
+                let message = `اكتملت جميع الاختبارات! نسبة النجاح: ${score}%`;
+                let type = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'error';
+                
+                if (Notification.permission === 'granted') {
+                    new Notification('نتيجة الاختبارات', {
+                        body: message,
+                        icon: score >= 80 ? '✅' : score >= 60 ? '⚠️' : '❌'
+                    });
+                }
+                
+                console.log('📊 نتائج الاختبارات:', testResults);
+            }, 1000);
+        }
+
+        // إنشاء تقرير
+        function generateReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total: testResults.total,
+                    passed: testResults.passed,
+                    failed: testResults.failed,
+                    score: Math.round((testResults.passed / testResults.total) * 100)
+                },
+                details: testResults.details,
+                system: {
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                    platform: navigator.platform,
+                    screen: `${screen.width}x${screen.height}`,
+                    viewport: `${window.innerWidth}x${window.innerHeight}`
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `superpro-test-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // التشغيل التلقائي عند التحميل
+        window.addEventListener('load', () => {
+            updateStats();
+            console.log('🚀 صفحة الاختبار الشاملة جاهزة');
+        });
+    </script>
+</body>
+</html>

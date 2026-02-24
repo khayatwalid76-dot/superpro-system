@@ -216,92 +216,8 @@
             margin-bottom: 20px;
         }
 
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 2000;
-        }
-
-        .module-container {
-            animation: fadeIn 0.5s;
-        }
-
-        .employee-card {
-            transition: all 0.3s ease;
-            border-left: 4px solid #3498db;
-        }
-
-        .employee-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .employee-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3498db, #2c3e50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .quick-action-btn {
-            padding: 6px 10px;
-            border: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-        }
-
-        .quick-action-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .residency-warning {
-            animation: pulse 2s infinite;
-        }
-
-        .employee-info-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .employee-info-item i {
-            width: 20px;
-            margin-left: 8px;
-            color: #6c757d;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
+        /* إصلاح المسافات فوق الحقول في القوائم */
+        .form-container .form-group {
             justify-content: center;
         }
         
@@ -842,7 +758,32 @@
         console.log('تم تهيئة Firebase بنجاح');
     </script>
     
-    <!-- ملف JavaScript الموحد -->
+    <!-- ملفات JavaScript المحسنة -->
+    <!-- الإعدادات الآمنة -->
+    <script src="config.js"></script>
+    
+    <!-- الملف الأساسي للنظام -->
+    <script src="core.js"></script>
+    
+    <!-- نظام إدارة الأخطاء -->
+    <script src="error-handler.js"></script>
+    
+    <!-- نظام التحقق من صحة البيانات -->
+    <script src="validation.js"></script>
+    
+    <!-- الواجهة المتجاوبة -->
+    <script src="responsive-ui.js"></script>
+    
+    <!-- النسخ الاحتياطي المحسن -->
+    <script src="backup-system-enhanced.js"></script>
+    
+    <!-- الاختبارات الآلية -->
+    <script src="tests.js"></script>
+    
+    <!-- تحسينات SEO و PWA -->
+    <script src="seo-pwa-enhanced.js"></script>
+    
+    <!-- الملفات الأصلية (للتوافق) -->
     <script src="app.js"></script>
     
     <!-- تحسينات الأداء -->
@@ -864,6 +805,11 @@
     <script src="audit-logs.js"></script>
     
     <!-- نظام الإشعارات المتقدم -->
+    <script src="notification-system.js"></script>
+    
+    <!-- تحسينات النظام المحسنة -->
+    <script src="enhancements.js"></script>
+    
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -993,21 +939,6 @@
     </script>
 </head>
 <body>
-    <div class="app-container">
-        <nav class="navbar navbar-expand-lg fixed-top">
-            <div class="container-fluid">
-                <button type="button" class="btn btn-light mobile-menu-btn me-2" id="sidebarToggle">
-                    <div class="d-flex align-items-center">
-                    <!-- ===== الإشعارات الذكية ===== -->
-                    <div class="notification-bell" id="notificationBell" role="button" aria-label="الإشعارات" aria-expanded="false">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationBadge">0</span>
-                        <span class="sr-only">لديك إشعارات جديدة</span>
-                    </div>
-                    
-                    <!-- ===== أزرار الوصولية ===== -->
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="accessibilityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-universal-access"></i>
                             <span class="sr-only">خيارات الوصولية</span>
                         </button>
