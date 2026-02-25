@@ -6670,21 +6670,227 @@
                     }
                 ];
                 
-                localStorage.setItem('users', JSON.stringify(defaultUsers));
-                console.log('✅ تم إضافة المستخدمين الافتراضيين');
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        fillEmployeeSelect(selectId);
+                    }
+                });
             }
-            
-            // تحميل البيانات من السحابة
-            fetch('https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/data.json')
-            .then(response => response.json())
-            .then(data => {
-                console.log('📥 تم استلام البيانات من السحابة:', data);
+
+            // ملء جميع قوائم العملاء
+            function fillClientSelects() {
+                const selects = ['contractClient', 'dailyWorkClient'];
+                
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (select) {
+                        fillClientSelect(selectId);
+                    }
+                });
+            }
+
+            // تهيئة البيانات الافتراضية
+            function initializeDefaultData() {
+                console.log('🚀 تهيئة البيانات الافتراضية...');
+                
+                // تهيئة المستخدمين الافتراضيين
+                if (!localStorage.getItem('users') || JSON.parse(localStorage.getItem('users')).length === 0) {
+                    const defaultUsers = [
+                        {
+                            id: 1,
+                            email: 'khayatwalid9@gmail.com',
+                            password: 'Ksi@33774995',
+                            name: 'خالد الخطيب',
+                            role: 'admin',
+                            status: 'active',
+                            avatar: 'https://picsum.photos/seed/khayatwalid/100/100',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 2,
+                            email: 'admin',
+                            password: 'admin123',
+                            name: 'مدير النظام',
+                            role: 'admin',
+                            status: 'active',
+                            avatar: 'https://picsum.photos/seed/admin/100/100',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 3,
+                            email: 'manager',
+                            password: 'manager123',
+                            name: 'مدير',
+                            role: 'manager',
+                            status: 'active',
+                            avatar: 'https://picsum.photos/seed/manager/100/100',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 3,
+                            email: 'employee',
+                            password: 'employee123',
+                            name: 'موظف',
+                            role: 'employee',
+                            status: 'active',
+                            avatar: 'https://picsum.photos/seed/employee/100/100',
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    
+                    localStorage.setItem('users', JSON.stringify(defaultUsers));
+                    console.log('✅ تم إضافة المستخدمين الافتراضيين');
+                }
+                
+                // تحميل البيانات من السحابة
+                fetch('https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/data.json')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('📥 تم استلام البيانات من السحابة:', data);
+                    if (data && Object.keys(data).length > 0) {
+                        applyData(data);
+                        return;
+                    }
+                    throw new Error('No data in cloud');
+                })
+                .catch(error => {
+                    console.log('⚠️ فشل تحميل البيانات من السحابة:', error);
+                    
+                    // تحميل البيانات الأصلية من الملف المحلي
+                    console.log('📁 تحميل البيانات الأصلية من الملف المحلي...');
+                    fetch('user-data-full.json')
+                        .then(response => response.json())
+                        .then(fullData => {
+                            console.log('✅ تم تحميل البيانات الأصلية:', fullData);
+                            
+                            const userData = {
+                                employees: fullData.الموظفون.map((emp, index) => ({
+                                    id: index + 1,
+                                    name: emp.name,
+                                    position: emp.job === "اداري" ? "مدير" : emp.job === "supervisor" ? "مشرف" : emp.job === "driver" ? "سائق" : "منظفة",
+                                    phone: emp.phone,
+                                    email: emp.name.toLowerCase().replace(/\s+/g, '') + '@gmail.com',
+                                    salary: parseInt(emp.salary),
+                                    hireDate: emp.hireDate || "2026-01-11",
+                                    joinDate: emp.joinDate,
+                                    status: emp.status,
+                                    job: emp.job,
+                                    nationality: emp.nationality,
+                                    idNumber: emp.idNumber,
+                                    residencyExpiry: emp.residencyExpiry
+                                })),
+                                clients: fullData.العملاء.map((client, index) => ({
+                                    id: index + 1,
+                                    name: client.name,
+                                    phone: client.phone,
+                                    email: client.email,
+                                    address: client.address || client.area || "الدوحة",
+                                    service: client.service,
+                                    joinDate: client.joinDate,
+                                    status: "active",
+                                    type: "شركة"
+                                })),
+                                contracts: fullData.العقود.map((contract, index) => ({
+                                    id: index + 1,
+                                    clientId: index + 1,
+                                    clientName: contract.client,
+                                    title: `عقد ${contract.contractType}`,
+                                    type: contract.contractType,
+                                    value: parseInt(contract.amount),
+                                    startDate: contract.startDate,
+                                    endDate: contract.endDate,
+                                    status: contract.paymentStatus === "مدفوع" ? "مدفوع" : "غير مدفوع",
+                                    services: ["تنظيف"],
+                                    frequency: null,
+                                    nextVisit: null,
+                                    team: contract.worker || contract.employee,
+                                    progress: 100,
+                                    paymentStatus: contract.paymentStatus,
+                                    paidAmount: parseInt(contract.paidAmount || 0),
+                                    paymentDate: contract.paymentDate
+                                })),
+                                services: [
+                                    {id: 1, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 100, duration: "5", createdAt: "2026-01-12"},
+                                    {id: 2, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 120, duration: "6", createdAt: "2026-01-14"},
+                                    {id: 3, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 20, duration: "1", createdAt: "2026-01-14"},
+                                    {id: 4, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 200, duration: "10", createdAt: "2026-01-14"},
+                                    {id: 5, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 150, duration: "5", createdAt: "2026-01-14"},
+                                    {id: 6, name: "تنظيف منزل مع مواد تنظيف", type: "تنظيف", price: 150, duration: "5", createdAt: "2026-01-14"}
+                                ],
+                                dailyWork: fullData.العمل_اليومي.map((work, index) => ({
+                                    id: work.id || index + 1,
+                                    date: work.date,
+                                    clientId: index + 1,
+                                    clientName: work.client,
+                                    serviceId: 1,
+                                    serviceName: "تنظيف منزل بدون مواد تنظيف",
+                                    team: work.workers ? work.workers.join(", ") : work.worker,
+                                    employees: work.workers || [work.worker],
+                                    status: "completed",
+                                    startTime: "08:00",
+                                    endTime: "13:00",
+                                    location: work.area,
+                                    notes: work.notes,
+                                    progress: 100,
+                                    totalHours: work.totalHours || 5,
+                                    driver: work.driver,
+                                    amount: work.amount,
+                                    paymentStatus: work.paymentStatus,
+                                    paymentMethod: work.paymentMethod
+                                })),
+                                dailyIncome: fullData.المدخولات.map((income, index) => ({
+                                    id: income.id || index + 1,
+                                    date: income.date,
+                                    clientId: index + 1,
+                                    clientName: income.source,
+                                    contractId: null,
+                                    amount: income.amount,
+                                    type: income.type,
+                                    paymentMethod: income.paymentMethod,
+                                    status: income.status,
+                                    invoiceNumber: "INC-2026-" + String(index + 1).padStart(3, '0'),
+                                    notes: income.description
+                                })),
+                                dailyExpenses: fullData.المصروفات.map((expense, index) => ({
+                                    id: expense.id || index + 1,
+                                    date: expense.date,
+                                    category: expense.type,
+                                    description: expense.description,
+                                    amount: expense.amount,
+                                    supplier: expense.employee,
+                                    paymentMethod: expense.paymentMethod,
+                                    status: "paid",
+                                    receiptNumber: "EXP-2026-" + String(index + 1).padStart(3, '0')
+                                })),
+                                attendance: fullData.الحضور.map((att, index) => ({
+                                    id: index + 1,
+                                    employeeId: index + 1,
+                                    employeeName: att.employee,
+                                    date: att.date,
+                                    checkIn: "10:20",
+                                    checkOut: "",
+                                    status: att.status,
+                                    hours: att.hours,
+                                    autoGenerated: att.autoGenerated,
+                                    timestamp: att.timestamp
+                                }))
+                            };
+                            
+                            console.log(`✅ تم تحويل البيانات: ${userData.employees.length} موظف و ${userData.clients.length} عميل و ${userData.contracts.length} عقد`);
+                            applyData(userData);
+                            showNotification(`✅ تم تحميل بياناتك الأصلية بنجاح! ${userData.employees.length} موظف و ${userData.clients.length} عميل و ${userData.contracts.length} عقد`, 'success');
+                        })
+                        .catch(error => {
+                            console.error('❌ خطأ في تحميل البيانات الأصلية:', error);
+                            showNotification('❌ خطأ في تحميل البيانات الأصلية', 'error');
+                        });
+                });
                 
                 if (data && data.employees) {
                     // تحديث المتغيرات العامة فوراً
                     window.employees = data.employees || [];
                     window.clients = data.clients || [];
-                    window.contracts = data.contracts || [];
                     
                     // تحديث المتغيرات المحلية
                     employees = window.employees;
