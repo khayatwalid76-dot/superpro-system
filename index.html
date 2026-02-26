@@ -6889,6 +6889,234 @@
             }
         }
 
+        // دالة تطبيق البيانات على النظام
+        function applyData(data) {
+            console.log('🔄 تطبيق البيانات على النظام:', data);
+            
+            // تحديث المتغيرات العامة
+            window.employees = data.employees || [];
+            window.clients = data.clients || [];
+            window.contracts = data.contracts || [];
+            window.services = data.services || [];
+            window.dailyWork = data.dailyWork || [];
+            window.dailyIncome = data.dailyIncome || [];
+            window.dailyExpenses = data.dailyExpenses || [];
+            window.attendance = data.attendance || [];
+            window.tasks = data.tasks || [];
+            window.events = data.events || [];
+            
+            // تحديث المتغيرات المحلية
+            employees = window.employees;
+            clients = window.clients;
+            contracts = window.contracts;
+            services = window.services;
+            dailyWork = window.dailyWork;
+            dailyIncome = window.dailyIncome;
+            dailyExpenses = window.dailyExpenses;
+            attendance = window.attendance;
+            tasks = window.tasks;
+            events = window.events;
+            
+            // حفظ في sessionStorage
+            sessionStorage.setItem('superpro_data', JSON.stringify(data));
+            sessionStorage.setItem('superpro_employees', JSON.stringify(window.employees));
+            sessionStorage.setItem('superpro_clients', JSON.stringify(window.clients));
+            sessionStorage.setItem('superpro_contracts', JSON.stringify(window.contracts));
+            
+            console.log(`📊 تم تحميل ${window.employees.length} موظف و ${window.clients.length} عميل و ${window.contracts.length} عقد`);
+            
+            // تحديث الواجهة فوراً
+            updateAllUI();
+        }
+        
+        // دالة تحديث جميع الواجهات
+        function updateAllUI() {
+            console.log('🔄 تحديث جميع الواجهات...');
+            
+            // تحديث الجداول والقوائم
+            if (typeof loadEmployees === 'function') loadEmployees();
+            if (typeof loadClients === 'function') loadClients();
+            if (typeof loadContracts === 'function') loadContracts();
+            if (typeof loadServices === 'function') loadServices();
+            if (typeof loadDashboard === 'function') loadDashboard();
+            if (typeof loadDailyWork === 'function') loadDailyWork();
+            if (typeof loadDailyIncome === 'function') loadDailyIncome();
+            if (typeof loadDailyExpenses === 'function') loadDailyExpenses();
+            if (typeof loadAttendance === 'function') loadAttendance();
+            
+            // تحديث الإحصائيات
+            updateStatistics();
+        }
+        
+        // دالة تحديث الإحصائيات
+        function updateStatistics() {
+            try {
+                // تحديث إحصائيات لوحة التحكم
+                const statsElements = {
+                    'employeesCount': window.employees.length,
+                    'clientsCount': window.clients.length,
+                    'contractsCount': window.contracts.length,
+                    'servicesCount': window.services.length
+                };
+                
+                Object.entries(statsElements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = value;
+                });
+                
+                console.log('✅ تم تحديث الإحصائيات');
+            } catch (error) {
+                console.error('❌ خطأ في تحديث الإحصائيات:', error);
+            }
+        }
+        
+        // دالة الإشعارات البديلة
+        function showNotification(message, type = 'info') {
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+            
+            // استخدام showToast إذا كانت متوفرة
+            if (typeof showToast === 'function') {
+                showToast(message, type);
+            } else {
+                // إنشاء إشعار بسيط
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                    color: white;
+                    border-radius: 8px;
+                    z-index: 9999;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 3000);
+            }
+        }
+
+        // دالة تطبيق البيانات على النظام
+        function applyData(data) {
+            console.log('🔄 تطبيق البيانات على النظام:', data);
+            
+            // تحديث المتغيرات العامة
+            window.employees = data.employees || [];
+            window.clients = data.clients || [];
+            window.contracts = data.contracts || [];
+            window.services = data.services || [];
+            window.dailyWork = data.dailyWork || [];
+            window.dailyIncome = data.dailyIncome || [];
+            window.dailyExpenses = data.dailyExpenses || [];
+            window.attendance = data.attendance || [];
+            window.tasks = data.tasks || [];
+            window.events = data.events || [];
+            
+            // تحديث المتغيرات المحلية
+            employees = window.employees;
+            clients = window.clients;
+            contracts = window.contracts;
+            services = window.services;
+            dailyWork = window.dailyWork;
+            dailyIncome = window.dailyIncome;
+            dailyExpenses = window.dailyExpenses;
+            attendance = window.attendance;
+            tasks = window.tasks;
+            events = window.events;
+            
+            // حفظ في sessionStorage
+            sessionStorage.setItem('superpro_data', JSON.stringify(data));
+            sessionStorage.setItem('superpro_employees', JSON.stringify(window.employees));
+            sessionStorage.setItem('superpro_clients', JSON.stringify(window.clients));
+            sessionStorage.setItem('superpro_contracts', JSON.stringify(window.contracts));
+            
+            console.log(`📊 تم تحميل ${window.employees.length} موظف و ${window.clients.length} عميل و ${window.contracts.length} عقد`);
+            
+            // تحديث الواجهة فوراً
+            updateAllUI();
+        }
+        
+        // دالة تحديث جميع الواجهات
+        function updateAllUI() {
+            console.log('🔄 تحديث جميع الواجهات...');
+            
+            // تحديث الجداول والقوائم
+            if (typeof loadEmployees === 'function') loadEmployees();
+            if (typeof loadClients === 'function') loadClients();
+            if (typeof loadContracts === 'function') loadContracts();
+            if (typeof loadServices === 'function') loadServices();
+            if (typeof loadDashboard === 'function') loadDashboard();
+            if (typeof loadDailyWork === 'function') loadDailyWork();
+            if (typeof loadDailyIncome === 'function') loadDailyIncome();
+            if (typeof loadDailyExpenses === 'function') loadDailyExpenses();
+            if (typeof loadAttendance === 'function') loadAttendance();
+            
+            // تحديث الإحصائيات
+            updateStatistics();
+        }
+        
+        // دالة تحديث الإحصائيات
+        function updateStatistics() {
+            try {
+                // تحديث إحصائيات لوحة التحكم
+                const statsElements = {
+                    'employeesCount': window.employees.length,
+                    'clientsCount': window.clients.length,
+                    'contractsCount': window.contracts.length,
+                    'servicesCount': window.services.length
+                };
+                
+                Object.entries(statsElements).forEach(([id, value]) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = value;
+                });
+                
+                console.log('✅ تم تحديث الإحصائيات');
+            } catch (error) {
+                console.error('❌ خطأ في تحديث الإحصائيات:', error);
+            }
+        }
+        
+        // دالة الإشعارات البديلة
+        function showNotification(message, type = 'info') {
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
+            
+            // استخدام showToast إذا كانت متوفرة
+            if (typeof showToast === 'function') {
+                showToast(message, type);
+            } else {
+                // إنشاء إشعار بسيط
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                    color: white;
+                    border-radius: 8px;
+                    z-index: 9999;
+                    font-weight: 600;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 3000);
+            }
+        }
+
         // ===== النسخ الاحتياطي التلقائي =====
         function setupAutoBackup() {
             setInterval(() => {
