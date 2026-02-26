@@ -969,30 +969,91 @@
 </head>
 
 <body>
-    <i class="fas fa-universal-access"></i>
-    <span class="sr-only">خيارات الوصولية</span>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accessibilityDropdown">
-        <li><button class="dropdown-item" onclick="toggleHighContrast()" type="button">
-                <i class="fas fa-adjust me-2"></i>تباين عالي
-            </button></li>
-        <li><button class="dropdown-item" onclick="toggleLargeText()" type="button">
-                <i class="fas fa-text-height me-2"></i>نص كبير
-            </button></li>
-        <li><button class="dropdown-item" onclick="toggleDarkMode()" type="button">
-                <i class="fas fa-moon me-2"></i>الوضع الليلي
-            </button></li>
-    </ul>
-    </div>
 
-    <button class="btn btn-outline-light btn-sm me-2" id="darkModeToggle" aria-label="تبديل الوضع الليلي">
-        <i class="fas fa-moon"></i>
-        <span class="sr-only">تبديل الوضع الليلي</span>
-    </button>
-    <span id="current-date" class="text-white" aria-live="polite"></span>
-    </div>
-    </div>
+    <!-- ===== شريط التنقل الرئيسي ===== -->
+    <nav class="navbar navbar-dark fixed-top" id="mainNavbar" role="navigation" aria-label="القائمة الرئيسية">
+        <div class="container-fluid">
+            <!-- زر فتح القائمة الجانبية -->
+            <button class="btn btn-outline-light btn-sm me-2" id="sidebarToggle" aria-label="فتح القائمة الجانبية"
+                aria-expanded="false" aria-controls="sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- شعار النظام -->
+            <a class="navbar-brand d-flex align-items-center" href="#" aria-label="الصفحة الرئيسية">
+                <i class="fas fa-star me-2"></i>
+                <span class="brand-text">SUPER PRO</span>
+            </a>
+
+            <!-- مجموعة الأدوات -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <!-- البحث العالمي -->
+                <div class="position-relative" id="searchContainer">
+                    <input type="text" class="form-control form-control-sm" id="globalSearchInput"
+                        placeholder="بحث سريع..." aria-label="بحث عالمي" autocomplete="off">
+                    <div id="globalSearchResults"
+                        class="search-results-dropdown position-absolute bg-white border rounded shadow-sm"
+                        style="z-index:9999;min-width:300px;top:100%;right:0;display:none;"></div>
+                </div>
+
+                <!-- جرس الإشعارات -->
+                <button class="btn btn-outline-light btn-sm position-relative" id="notificationBell"
+                    aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge position-absolute top-0 start-0 badge rounded-pill bg-danger"
+                        id="notificationBadge" style="display:none;font-size:0.6rem;">0</span>
+                </button>
+
+                <!-- خيارات الوصولية -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        id="accessibilityDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                        aria-label="خيارات الوصولية">
+                        <i class="fas fa-universal-access"></i>
+                        <span class="sr-only">خيارات الوصولية</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accessibilityDropdown">
+                        <li><button class="dropdown-item" onclick="toggleHighContrast()" type="button">
+                                <i class="fas fa-adjust me-2"></i>تباين عالي
+                            </button></li>
+                        <li><button class="dropdown-item" onclick="toggleLargeText()" type="button">
+                                <i class="fas fa-text-height me-2"></i>نص كبير
+                            </button></li>
+                        <li><button class="dropdown-item" onclick="toggleDarkMode()" type="button">
+                                <i class="fas fa-moon me-2"></i>الوضع الليلي
+                            </button></li>
+                    </ul>
+                </div>
+
+                <!-- تبديل الوضع الليلي -->
+                <button class="btn btn-outline-light btn-sm" id="darkModeToggle" aria-label="تبديل الوضع الليلي">
+                    <i class="fas fa-moon"></i>
+                    <span class="sr-only">تبديل الوضع الليلي</span>
+                </button>
+
+                <!-- التاريخ الحالي -->
+                <span id="current-date" class="text-white small d-none d-md-inline" aria-live="polite"></span>
+            </div>
+        </div>
     </nav>
+
+    <!-- لوحة الإشعارات -->
+    <div id="notificationPanel" class="position-fixed bg-white border rounded shadow" role="dialog"
+        aria-label="لوحة الإشعارات"
+        style="top:70px;left:20px;z-index:9998;width:350px;max-height:500px;overflow-y:auto;display:none;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h6 class="mb-0"><i class="fas fa-bell me-2"></i>الإشعارات</h6>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="markAllReadBtn">تحديد الكل كمقروء</button>
+                <button class="btn btn-sm btn-outline-danger" id="closeNotificationPanel" aria-label="إغلاق">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="notificationList" class="p-2">
+            <div class="p-3 text-center text-muted">لا توجد إشعارات</div>
+        </div>
+    </div>
 
     <div class="sidebar" id="sidebar">
         <ul class="nav flex-column">
@@ -7037,10 +7098,14 @@
 
             initializeSystem();
 
-            document.getElementById('sidebarToggle').addEventListener('click', function () {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('show');
-            });
+            const sidebarToggleBtn = document.getElementById('sidebarToggle');
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', function () {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) sidebar.classList.toggle('show');
+                    this.setAttribute('aria-expanded', sidebar && sidebar.classList.contains('show'));
+                });
+            }
 
             document.getElementById('refreshDashboard').addEventListener('click', function () {
                 loadDashboard();
