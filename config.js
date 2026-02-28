@@ -1,17 +1,9 @@
 // config.js - ملف الإعدادات الآمن
 // ================================================
 
-// إعدادات Firebase - سيتم جلبها من متغيرات البيئة في الإنتاج
-const firebaseConfig = {
-    apiKey: getEnvVar('FIREBASE_API_KEY') || 'AIzaSyClOXATkxQ8XLrorz80JhkUdxXjbcySr2E',
-    authDomain: getEnvVar('FIREBASE_AUTH_DOMAIN') || 'superpro-system-8871f.firebaseapp.com',
-    projectId: getEnvVar('FIREBASE_PROJECT_ID') || 'superpro-system-8871f',
-    storageBucket: getEnvVar('FIREBASE_STORAGE_BUCKET') || 'superpro-system-8871f.firebasestorage.app',
-    messagingSenderId: getEnvVar('FIREBASE_MESSAGING_SENDER_ID') || '318335312258',
-    appId: getEnvVar('FIREBASE_APP_ID') || '1:318335312258:web:42879aaee5fc8b9a126f9b',
-    measurementId: getEnvVar('FIREBASE_MEASUREMENT_ID') || 'G-X4RJQYCS7N',
-    databaseURL: getEnvVar('FIREBASE_DATABASE_URL') || 'https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/'
-};
+
+// Use the globally defined firebaseConfig from index.html
+const globalFirebaseConfig = window.firebaseConfig || {};
 
 // إعدادات التطبيق
 const appConfig = {
@@ -57,7 +49,7 @@ function getEnvironment() {
 // التحقق من الإعدادات
 function validateConfig() {
     const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
-    const missing = required.filter(key => !firebaseConfig[key]);
+    const missing = required.filter(key => !globalFirebaseConfig[key]);
     
     if (missing.length > 0) {
         console.warn('⚠️ إعدادات Firebase ناقصة:', missing);
@@ -69,7 +61,8 @@ function validateConfig() {
 
 // تصدير الإعدادات
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { firebaseConfig, appConfig, validateConfig };
+    module.exports = { firebaseConfig: globalFirebaseConfig, appConfig, validateConfig };
 } else {
-    window.SuperProConfig = { firebaseConfig, appConfig, validateConfig };
+    window.SuperProConfig = { firebaseConfig: globalFirebaseConfig, appConfig, validateConfig };
 }
+

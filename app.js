@@ -459,7 +459,14 @@ try {
 
 window.addEventListener('DOMContentLoaded', function() {
     // تحميل البيانات المحلية
-    loadData();
+    try {
+        loadData();
+        console.log('Local data loaded successfully.');
+    } catch (error) {
+        console.error('Error loading local data:', error);
+        // Optionally, clear sessionStorage if data is corrupt
+        // sessionStorage.clear();
+    }
     
     // تحميل إعدادات الوصولية
     loadAccessibilitySettings();

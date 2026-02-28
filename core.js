@@ -64,17 +64,17 @@ async function initializeSystem() {
 
 // تهيئة Firebase
 async function initializeFirebase() {
-    if (typeof firebase !== 'undefined' && firebaseConfig) {
-        try {
-            firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
-            systemState.firebaseDB = database;
-            return true;
-        } catch (error) {
-            errorHandler.log(error, 'تهيئة Firebase', 'warning');
-            return false;
-        }
-    }
+    // if (typeof firebase !== 'undefined' && firebaseConfig) {
+    //     try {
+    //         firebase.initializeApp(firebaseConfig);
+    //         const database = firebase.database();
+    //         systemState.firebaseDB = database;
+    //         return true;
+    //     } catch (error) {
+    //         errorHandler.log(error, 'تهيئة Firebase', 'warning');
+    //         return false;
+    //     }
+    // }
     return false;
 }
 
