@@ -782,9 +782,8 @@
             databaseURL: "https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
 
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        console.log('تم تهيئة Firebase بنجاح');
+        // تهيئة Firebase تتم في app.js
+        console.log('Firebase config loaded.');
     </script>
 
     <!-- ملفات JavaScript المحسنة -->
@@ -1161,6 +1160,11 @@
     </div>
 
     <div class="main-content">
+        <!-- شريط التشخيص لمشاكل الجافاسكريبت -->
+        <div id="js-status-bar"
+            style="background:#e74c3c;color:white;padding:10px;text-align:center;font-weight:bold;z-index:10000;position:relative;">
+            ⏳ إذا استمر ظهور هذا الشريط، فهذا يعني أن الجافاسكريبت معطل وهناك خطأ يمنع النظام من العمل.
+        </div>
         <!-- DASHBOARD -->
         <div id="dashboard" class="module-container">
             <div class="d-flex justify-content-between align-items-center mb-4">

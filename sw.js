@@ -1,7 +1,7 @@
 // SUPER_PRO SYSTEM Service Worker
 // Version 2.0.0
 
-const CACHE_NAME = 'superpro-v2.0.0';
+const CACHE_NAME = 'superpro-v2.1.0';
 const urlsToCache = [
     '/',
     '/index.html',

@@ -449,8 +449,13 @@ let autoSync;
 let notificationManager;
 let globalSearch;
 
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
+// تهيئة Firebase (مع حماية من التهيئة المزدوجة)
+try {
+    firebase.initializeApp(firebaseConfig);
+} catch(e) {
+    // Firebase مهيّأ مسبقاً - نستخدم التطبيق الموجود
+    console.log('Firebase already initialized, using existing app.');
+}
 
 window.addEventListener('DOMContentLoaded', function() {
     // تحميل البيانات المحلية
