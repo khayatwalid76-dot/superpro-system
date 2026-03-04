@@ -782,61 +782,19 @@
             databaseURL: "https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
 
-        // تهيئة Firebase تتم في app.js
-        console.log('Firebase config loaded.');
+        // تهيئة Firebase والتخزين السحابي
+        let firebaseDb = null;
+        const FB_PATH = 'superpro_data';
+        try {
+            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+                firebase.initializeApp(firebaseConfig);
+                firebaseDb = firebase.database();
+                console.log('Firebase initialized.');
+            }
+        } catch (e) {
+            console.warn('Firebase init skipped:', e.message);
+        }
     </script>
-
-    <!-- ملفات JavaScript المحسنة -->
-    <!-- الإعدادات الآمنة -->
-    <script src="config.js"></script>
-
-    <!-- الملف الأساسي للنظام -->
-    <script src="core.js"></script>
-
-    <!-- نظام إدارة الأخطاء -->
-    <script src="error-handler.js"></script>
-
-    <!-- نظام التحقق من صحة البيانات -->
-    <script src="validation.js"></script>
-
-    <!-- الواجهة المتجاوبة -->
-    <script src="responsive-ui.js"></script>
-
-    <!-- النسخ الاحتياطي المحسن -->
-    <script src="backup-system-enhanced.js"></script>
-
-    <!-- الاختبارات الآلية -->
-    <script src="tests.js"></script>
-
-    <!-- تحسينات SEO و PWA -->
-    <script src="seo-pwa-enhanced.js"></script>
-
-    <!-- الملفات الأصلية (للتوافق) -->
-    <script src="app.js"></script>
-
-    <!-- تحسينات الأداء -->
-    <script src="performance.js"></script>
-
-    <!-- نظام التدويل الدولي -->
-    <script src="i18n.js"></script>
-
-    <!-- النسخ الاحتياطي المتقدم -->
-    <script src="backup-system.js"></script>
-
-    <!-- نظام المصادقة والأدوار - معطل -->
-    <!-- <script src="auth-system.js"></script> -->
-
-    <!-- نظام التقارير المتقدم -->
-    <script src="advanced-reports.js"></script>
-
-    <!-- نظام سجلات التدقيق -->
-    <script src="audit-logs.js"></script>
-
-    <!-- نظام الإشعارات المتقدم -->
-    <script src="notification-system.js"></script>
-
-    <!-- تحسينات النظام المحسنة -->
-    <script src="enhancements.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {
@@ -2451,6 +2409,11 @@
                                 <i class="fas fa-upload me-2"></i>استيراد البيانات
                             </button>
                         </div>
+                        <div class="col-12">
+                            <button class="btn btn-outline-warning w-100" id="restoreOriginalDataBtn">
+                                <i class="fas fa-undo me-2"></i>استرجاع البيانات الأصلية من الملف
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3157,8 +3120,13 @@
         let financialTransactions = [];
         let salaryAdvances = [];
 
-        // حفظ البيانات
+        // حفظ البيانات (محلي + سحابي)
         function saveData() {
+            const data = {
+                employees, clients, attendance, contracts, services, settings,
+                tasks, events, dailyWork, dailyIncome, dailyExpenses,
+                financialTransactions, salaryAdvances
+            };
             sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
             sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(clients));
             sessionStorage.setItem(LS_KEYS.attendance, JSON.stringify(attendance));
@@ -3173,12 +3141,14 @@
             sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
             sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
 
-            // تحديث لوحة التحكم بعد حفظ البيانات
-            if (document.getElementById('dashboard').style.display !== 'none') {
-                loadDashboard();
+            // التخزين السحابي
+            if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
+                firebaseDb.ref(FB_PATH).set(data).catch(() => {});
             }
 
-            // تحديث جميع الإحصائيات
+            if (document.getElementById('dashboard') && document.getElementById('dashboard').style.display !== 'none') {
+                loadDashboard();
+            }
             updateAllStats();
         }
 
@@ -4679,7 +4649,7 @@
             document.getElementById('dailyWorkDate').value = today;
             document.getElementById('dailyWorkDateFilter').value = today;
 
-            fillClientSelect();
+            fillClientSelects();
             fillMultiSelectWorkers();
             fillDriversSelect();
 
@@ -4734,14 +4704,14 @@
                     };
                     clients.push(newClient);
                     saveData();
-                    fillClientSelect();
+                    fillClientSelects();
                     showToast('تم إضافة العميل الجديد تلقائياً إلى قائمة العملاء');
                 } else {
                     existingClient.phone = clientNumber || existingClient.phone;
                     existingClient.area = area || existingClient.area;
                     existingClient.lastWorkDate = date;
                     saveData();
-                    fillClientSelect();
+                    fillClientSelects();
                 }
 
                 const dailyWorkData = {
@@ -4790,7 +4760,7 @@
                 document.getElementById('dailyWorkShift').value = 'صباحية';
                 fillMultiSelectWorkers();
                 fillDriversSelect();
-                fillClientSelect();
+                fillClientSelects();
 
                 updateDailyWorkStats();
                 filterDailyWorkByDate();
@@ -4851,17 +4821,6 @@
         }
 
         // ===== وظائف مساعدة =====
-        function fillClientSelect() {
-            const select = document.getElementById('dailyWorkClient');
-            select.innerHTML = '<option value="">اختر العميل</option>';
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.name;
-                option.textContent = `${client.name} - ${client.phone || ''} - ${client.area || ''}`;
-                select.appendChild(option);
-            });
-        }
-
         function fillMultiSelectWorkers() {
             const container = document.getElementById('workersMultiSelect');
             if (!container) return;
@@ -5041,7 +5000,7 @@
                 document.getElementById('toggleClientInput').title = 'تبديل إلى الاختيار من القائمة';
             }
 
-            fillClientSelect();
+            fillClientSelects();
 
             document.querySelector('#dailyWorkModal .modal-title').textContent = 'تعديل العمل اليومي';
             const saveBtn = document.getElementById('saveDailyWorkBtn');
@@ -6670,13 +6629,41 @@
             });
         }
 
-        // تهيئة البيانات الافتراضية
+        // تهيئة البيانات: السحابة أولاً، ثم المحلي، ثم الملف الأصلي
         function initializeDefaultData() {
-            console.log('🚀 تهيئة البيانات الافتراضية...');
+            console.log('🚀 تهيئة البيانات...');
 
-            // تحميل البيانات الأصلية من الملف المحلي
-            console.log('📁 تحميل البيانات الأصلية من الملف المحلي...');
-            fetch('user-data-full.json')
+            const tryFirebase = () => new Promise((resolve) => {
+                if (typeof firebaseDb === 'undefined' || !firebaseDb || !firebaseDb.ref) return resolve(null);
+                firebaseDb.ref(FB_PATH).once('value', (snap) => {
+                    const d = snap.val();
+                    if (d && (d.employees?.length || d.clients?.length)) {
+                        console.log('☁️ تحميل من السحابة');
+                        applyData(d);
+                        showNotification('تم تحميل البيانات من السحابة', 'success');
+                        resolve(true);
+                    } else resolve(null);
+                }).catch(() => resolve(null));
+            });
+
+            const trySessionStorage = () => {
+                const saved = sessionStorage.getItem('superpro_data');
+                if (saved) {
+                    try {
+                        const d = JSON.parse(saved);
+                        if (d && (d.employees?.length || d.clients?.length)) {
+                            console.log('💾 تحميل من التخزين المحلي');
+                            applyData(d);
+                            showNotification('تم تحميل البيانات المحفوظة', 'success');
+                            return true;
+                        }
+                    } catch (e) {}
+                }
+                return false;
+            };
+
+            const loadFromFile = () => {
+                fetch('user-data-full.json')
                 .then(response => response.json())
                 .then(fullData => {
                     console.log('✅ تم تحميل البيانات الأصلية:', fullData);
@@ -6703,6 +6690,7 @@
                             phone: client.phone,
                             email: client.email,
                             address: client.address || client.area || "الدوحة",
+                            area: client.area || client.address || "الدوحة",
                             service: client.service,
                             joinDate: client.joinDate,
                             status: "active",
@@ -6710,11 +6698,15 @@
                         })),
                         contracts: fullData.العقود.map((contract, index) => ({
                             id: index + 1,
+                            number: contract.number || `عقد-${index + 1}`,
                             clientId: index + 1,
+                            client: contract.client,
                             clientName: contract.client,
+                            employee: contract.worker || contract.employee,
                             title: `عقد ${contract.contractType}`,
                             type: contract.contractType,
-                            value: parseInt(contract.amount),
+                            amount: parseInt(contract.amount) || 0,
+                            value: parseInt(contract.amount) || 0,
                             startDate: contract.startDate,
                             endDate: contract.endDate,
                             status: contract.paymentStatus === "مدفوع" ? "مدفوع" : "غير مدفوع",
@@ -6794,13 +6786,78 @@
                         }))
                     };
 
-                    console.log(`✅ تم تحويل البيانات: ${userData.employees.length} موظف و ${userData.clients.length} عميل و ${userData.contracts.length} عقد`);
+                    console.log(`✅ تم تحويل البيانات الأصلية: ${userData.employees.length} موظف و ${userData.clients.length} عميل و ${userData.contracts.length} عقد`);
                     applyData(userData);
-                    showNotification(`✅ تم تحميل بياناتك الأصلية بنجاح! ${userData.employees.length} موظف و ${userData.clients.length} عميل و ${userData.contracts.length} عقد`, 'success');
+                    saveData();
+                    showNotification(`تم تحميل البيانات الأصلية بنجاح`, 'success');
                 })
                 .catch(error => {
-                    console.error('❌ خطأ في تحميل البيانات الأصلية:', error);
+                    console.error('❌ خطأ في تحميل البيانات:', error);
                     showNotification('❌ خطأ في تحميل البيانات الأصلية', 'error');
+                });
+            };
+
+            tryFirebase().then((fromCloud) => {
+                if (fromCloud) return;
+                if (trySessionStorage()) return;
+                loadFromFile();
+            });
+        }
+
+        function restoreOriginalDataFromFile() {
+            fetch('user-data-full.json')
+                .then(response => response.json())
+                .then(fullData => {
+                    const userData = {
+                        employees: (fullData.الموظفون || []).map((emp, index) => ({
+                            id: index + 1, name: emp.name, position: emp.job === "اداري" ? "مدير" : emp.job === "supervisor" ? "مشرف" : emp.job === "driver" ? "سائق" : "منظفة",
+                            phone: emp.phone, email: (emp.name || '').toLowerCase().replace(/\s+/g, '') + '@gmail.com', salary: parseInt(emp.salary) || 0,
+                            hireDate: emp.hireDate || "2026-01-11", joinDate: emp.joinDate, status: emp.status, job: emp.job, nationality: emp.nationality, idNumber: emp.idNumber, residencyExpiry: emp.residencyExpiry
+                        })),
+                        clients: (fullData.العملاء || []).map((client, index) => ({
+                            id: index + 1, name: client.name, phone: client.phone, email: client.email,
+                            address: client.address || client.area || "الدوحة", area: client.area || client.address || "الدوحة",
+                            service: client.service, joinDate: client.joinDate, status: "active", type: "شركة"
+                        })),
+                        contracts: (fullData.العقود || []).map((contract, index) => ({
+                            id: index + 1, number: contract.number || `عقد-${index + 1}`, clientId: index + 1, client: contract.client, clientName: contract.client, employee: contract.worker || contract.employee,
+                            title: `عقد ${contract.contractType}`, type: contract.contractType, amount: parseInt(contract.amount) || 0, value: parseInt(contract.amount) || 0,
+                            startDate: contract.startDate, endDate: contract.endDate, status: contract.paymentStatus === "مدفوع" ? "مدفوع" : "غير مدفوع",
+                            services: ["تنظيف"], frequency: null, nextVisit: null, team: contract.worker || contract.employee, progress: 100,
+                            paymentStatus: contract.paymentStatus, paidAmount: parseInt(contract.paidAmount || 0), paymentDate: contract.paymentDate
+                        })),
+                        services: [
+                            { id: 1, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 100, duration: "5", createdAt: "2026-01-12" },
+                            { id: 2, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 120, duration: "6", createdAt: "2026-01-14" },
+                            { id: 3, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 20, duration: "1", createdAt: "2026-01-14" },
+                            { id: 4, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 200, duration: "10", createdAt: "2026-01-14" },
+                            { id: 5, name: "تنظيف منزل بدون مواد تنظيف", type: "تنظيف", price: 150, duration: "5", createdAt: "2026-01-14" },
+                            { id: 6, name: "تنظيف منزل مع مواد تنظيف", type: "تنظيف", price: 150, duration: "5", createdAt: "2026-01-14" }
+                        ],
+                        dailyWork: (fullData.العمل_اليومي || []).map((work, index) => ({
+                            id: work.id || index + 1, date: work.date, clientId: index + 1, clientName: work.client, serviceId: 1, serviceName: "تنظيف منزل بدون مواد تنظيف",
+                            team: work.workers ? work.workers.join(", ") : work.worker, employees: work.workers || [work.worker], status: "completed", startTime: "08:00", endTime: "13:00",
+                            location: work.area, notes: work.notes, progress: 100, totalHours: work.totalHours || 5, driver: work.driver, amount: work.amount, paymentStatus: work.paymentStatus, paymentMethod: work.paymentMethod
+                        })),
+                        dailyIncome: (fullData.المدخولات || []).map((income, index) => ({
+                            id: income.id || index + 1, date: income.date, clientId: index + 1, clientName: income.source, contractId: null, amount: income.amount,
+                            type: income.type, paymentMethod: income.paymentMethod, status: income.status, invoiceNumber: "INC-2026-" + String(index + 1).padStart(3, '0'), notes: income.description
+                        })),
+                        dailyExpenses: (fullData.المصروفات || []).map((expense, index) => ({
+                            id: expense.id || index + 1, date: expense.date, category: expense.type, description: expense.description, amount: expense.amount,
+                            supplier: expense.employee, paymentMethod: expense.paymentMethod, status: "paid", receiptNumber: "EXP-2026-" + String(index + 1).padStart(3, '0')
+                        })),
+                        attendance: (fullData.الحضور || []).map((att, index) => ({
+                            id: index + 1, employeeId: index + 1, employeeName: att.employee, date: att.date, checkIn: "10:20", checkOut: "", status: att.status, hours: att.hours, autoGenerated: att.autoGenerated, timestamp: att.timestamp
+                        }))
+                    };
+                    applyData(userData);
+                    saveData();
+                    showToast('تم استرجاع البيانات الأصلية بنجاح', 'success');
+                })
+                .catch(err => {
+                    console.error('خطأ استرجاع البيانات:', err);
+                    showToast('فشل استرجاع البيانات الأصلية', 'error');
                 });
         }
 
@@ -6832,15 +6889,25 @@
             tasks = window.tasks;
             events = window.events;
 
-            // حفظ في sessionStorage
+            const d = data;
+            sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(d.employees || []));
+            sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(d.clients || []));
+            sessionStorage.setItem(LS_KEYS.attendance, JSON.stringify(d.attendance || []));
+            sessionStorage.setItem(LS_KEYS.contracts, JSON.stringify(d.contracts || []));
+            sessionStorage.setItem(LS_KEYS.services, JSON.stringify(d.services || []));
+            sessionStorage.setItem(LS_KEYS.settings, JSON.stringify(d.settings || {}));
+            sessionStorage.setItem(LS_KEYS.tasks, JSON.stringify(d.tasks || []));
+            sessionStorage.setItem(LS_KEYS.events, JSON.stringify(d.events || []));
+            sessionStorage.setItem(LS_KEYS.dailyWork, JSON.stringify(d.dailyWork || []));
+            sessionStorage.setItem(LS_KEYS.dailyIncome, JSON.stringify(d.dailyIncome || []));
+            sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(d.dailyExpenses || []));
+            sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(d.financialTransactions || []));
+            sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(d.salaryAdvances || []));
             sessionStorage.setItem('superpro_data', JSON.stringify(data));
-            sessionStorage.setItem('superpro_employees', JSON.stringify(window.employees));
-            sessionStorage.setItem('superpro_clients', JSON.stringify(window.clients));
-            sessionStorage.setItem('superpro_contracts', JSON.stringify(window.contracts));
 
             console.log(`📊 تم تحميل ${window.employees.length} موظف و ${window.clients.length} عميل و ${window.contracts.length} عقد`);
-
-            // تحديث الواجهة فوراً
+            fillEmployeeSelects();
+            fillClientSelects();
             updateAllUI();
         }
 
@@ -6951,52 +7018,98 @@
         }
 
         // ===== تهيئة النظام عند تحميل الصفحة =====
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("DOM content loaded");
-            updateCurrentDate();
-            console.log("updateCurrentDate finished");
-            initDarkMode();
-            console.log("initDarkMode finished");
-            setupNavigation();
-            console.log("setupNavigation finished");
-            initCharts();
-            console.log("initCharts finished");
-            setupAutoBackup();
-            console.log("setupAutoBackup finished");
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                console.log("DOM content loaded");
+                
+                updateCurrentDate();
+                console.log("updateCurrentDate finished");
+                
+                initDarkMode();
+                console.log("initDarkMode finished");
+                
+                setupNavigation();
+                console.log("setupNavigation finished");
+                
+                initCharts();
+                console.log("initCharts finished");
+                
+                setupAutoBackup();
+                console.log("setupAutoBackup finished");
 
-            setInterval(updateCurrentDate, 60000);
+                setInterval(updateCurrentDate, 60000);
 
-            initializeSystem();
-            console.log("initializeSystem finished");
+                initializeSystem();
+                console.log("initializeSystem finished");
 
-            const sidebarToggleBtn = document.getElementById('sidebarToggle');
-            if (sidebarToggleBtn) {
-                sidebarToggleBtn.addEventListener('click', function () {
-                    const sidebar = document.getElementById('sidebar');
-                    if (sidebar) sidebar.classList.toggle('show');
-                    this.setAttribute('aria-expanded', sidebar && sidebar.classList.contains('show'));
-                });
-            }
+                // إعداد أزرار القائمة الجانبية
+                const sidebarToggleBtn = document.getElementById('sidebarToggle');
+                if (sidebarToggleBtn) {
+                    sidebarToggleBtn.addEventListener('click', function () {
+                        const sidebar = document.getElementById('sidebar');
+                        if (sidebar) sidebar.classList.toggle('show');
+                        this.setAttribute('aria-expanded', sidebar && sidebar.classList.contains('show'));
+                    });
+                }
 
-            document.getElementById('refreshDashboard').addEventListener('click', function () {
-                loadDashboard();
-                showToast('تم تحديث لوحة التحكم');
-            });
+                // إعداد أزرار التحكم
+                const refreshDashboardBtn = document.getElementById('refreshDashboard');
+                if (refreshDashboardBtn) {
+                    refreshDashboardBtn.addEventListener('click', function () {
+                        loadDashboard();
+                        showToast('تم تحديث لوحة التحكم');
+                    });
+                }
 
-            document.getElementById('filterDailyWorkBtn').addEventListener('click', filterDailyWorkByDate);
-            document.getElementById('filterDailyIncomeBtn').addEventListener('click', filterDailyIncomeByDate);
-            document.getElementById('filterDailyExpensesBtn').addEventListener('click', filterDailyExpensesByDate);
+                const filterDailyWorkBtn = document.getElementById('filterDailyWorkBtn');
+                if (filterDailyWorkBtn) {
+                    filterDailyWorkBtn.addEventListener('click', filterDailyWorkByDate);
+                }
 
-            document.getElementById('exportEmployees').addEventListener('click', exportEmployeesData);
-            document.getElementById('exportAllDataBtn').addEventListener('click', exportAllData);
+                const filterDailyIncomeBtn = document.getElementById('filterDailyIncomeBtn');
+                if (filterDailyIncomeBtn) {
+                    filterDailyIncomeBtn.addEventListener('click', filterDailyIncomeByDate);
+                }
 
-            initializeDefaultData();
-            console.log("initializeDefaultData finished");
+                const filterDailyExpensesBtn = document.getElementById('filterDailyExpensesBtn');
+                if (filterDailyExpensesBtn) {
+                    filterDailyExpensesBtn.addEventListener('click', filterDailyExpensesByDate);
+                }
 
-            console.log("Hiding js-status-bar");
-            const statusBar = document.getElementById('js-status-bar');
-            if (statusBar) {
-                statusBar.style.display = 'none';
+                const exportEmployeesBtn = document.getElementById('exportEmployees');
+                if (exportEmployeesBtn) {
+                    exportEmployeesBtn.addEventListener('click', exportEmployeesData);
+                }
+
+                const exportAllDataBtn = document.getElementById('exportAllDataBtn');
+                if (exportAllDataBtn) {
+                    exportAllDataBtn.addEventListener('click', exportAllData);
+                }
+
+                const restoreOriginalDataBtn = document.getElementById('restoreOriginalDataBtn');
+                if (restoreOriginalDataBtn) {
+                    restoreOriginalDataBtn.addEventListener('click', function () {
+                        if (!confirm('هل تريد استرجاع البيانات الأصلية من user-data-full.json؟ سيتم استبدال جميع البيانات الحالية.')) return;
+                        restoreOriginalDataFromFile();
+                    });
+                }
+
+                // تحميل البيانات الافتراضية
+                console.log("Starting initializeDefaultData...");
+                await initializeDefaultData();
+                console.log("initializeDefaultData finished");
+
+                // إخفاء شريط الحالة
+                console.log("Hiding js-status-bar");
+                const statusBar = document.getElementById('js-status-bar');
+                if (statusBar) {
+                    statusBar.style.display = 'none';
+                }
+                
+                console.log("System initialization complete!");
+            } catch (error) {
+                console.error("❌ خطأ في تهيئة النظام:", error);
+                showNotification('❌ خطأ في تحميل النظام: ' + error.message, 'error');
             }
         });
     </script>
