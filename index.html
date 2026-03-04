@@ -92,6 +92,34 @@
             --warning: #ffc107;
         }
 
+        body.dark-mode {
+            background: #121212;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .app-container {
+            background: #181818;
+            box-shadow: 0 0 20px rgba(0, 0, 0, .8);
+        }
+
+        body.dark-mode .card {
+            background-color: #1f1f1f;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .navbar,
+        body.dark-mode .sidebar {
+            background: linear-gradient(90deg, #000000, #222222);
+        }
+
+        body.high-contrast {
+            filter: contrast(120%);
+        }
+
+        body.large-text {
+            font-size: 1.05rem;
+        }
+
         body {
             font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
             background: linear-gradient(rgba(255, 255, 255, .95), rgba(255, 255, 255, .95)),
@@ -1089,6 +1117,22 @@
                         <h2 id="statBalance">0 ر.ق</h2>
                         <p>الرصيد الصافي</p>
                         <small class="text-muted" id="balanceTrend">→ مستقر</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center">
+                        <i class="fas fa-coins" style="font-size:28px;color:#27ae60"></i>
+                        <h2 id="todayNetProfit">0 ر.ق</h2>
+                        <p>صافي ربح اليوم</p>
+                        <small class="text-muted" id="todaySummaryLabel">يشمل العقود + العمل اليومي</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mt-3 mt-md-0">
+                    <div class="card stat-card p-3 text-center">
+                        <i class="fas fa-calendar-alt" style="font-size:28px;color:#e67e22"></i>
+                        <h2 id="monthNetProfit">0 ر.ق</h2>
+                        <p>صافي ربح هذا الشهر</p>
+                        <small class="text-muted" id="monthSummaryLabel">من أول الشهر حتى اليوم</small>
                     </div>
                 </div>
             </div>
@@ -3180,22 +3224,45 @@
             document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', options);
         }
 
-        // الوضع الليلي
+        // الوضع الليلي + سهولة الوصول
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+            sessionStorage.setItem('darkMode', isDark);
+        }
+
         function initDarkMode() {
             const toggle = document.getElementById('darkModeToggle');
             const isDarkMode = sessionStorage.getItem('darkMode') === 'true';
 
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                toggle.innerHTML = '<i class="fas fa-sun"></i>';
-            }
+            applyDarkMode(isDarkMode);
 
-            toggle.addEventListener('click', function () {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                sessionStorage.setItem('darkMode', isDark);
-                toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            });
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    const isDark = !document.body.classList.contains('dark-mode');
+                    applyDarkMode(isDark);
+                });
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = !document.body.classList.contains('dark-mode');
+            applyDarkMode(isDark);
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+
+        function toggleLargeText() {
+            document.body.classList.toggle('large-text');
         }
 
         // ===== إصلاح مخططات لوحة التحكم =====
@@ -3359,6 +3426,66 @@
             const netBalance = (totalContracts + totalDailyWork + totalIncome) - (totalSalaries + totalExpenses);
 
             document.getElementById('statBalance').textContent = netBalance.toLocaleString() + ' ر.ق';
+
+            // صافي ربح اليوم (عقود + عمل يومي + مدخولات اليوم - مصروفات اليوم)
+            const today = new Date().toISOString().split('T')[0];
+
+            const todayContractsIncome = contracts
+                .filter(c => c.paymentStatus === 'مدفوع' && c.paymentDate === today)
+                .reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+
+            const todayDailyWorkIncome = dailyWork
+                .filter(w => w.date === today)
+                .reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
+
+            const todayOtherIncome = dailyIncome
+                .filter(i => i.date === today)
+                .reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+            const todayExpensesTotal = dailyExpenses
+                .filter(e => e.date === today)
+                .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+            const todayNet = (todayContractsIncome + todayDailyWorkIncome + todayOtherIncome) - todayExpensesTotal;
+
+            const todayNetEl = document.getElementById('todayNetProfit');
+            if (todayNetEl) {
+                todayNetEl.textContent = todayNet.toLocaleString() + ' ر.ق';
+            }
+
+            // صافي ربح الشهر الحالي
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+            const inCurrentMonth = (dateStr) => {
+                if (!dateStr) return false;
+                const d = new Date(dateStr);
+                return d >= monthStart && d < nextMonth;
+            };
+
+            const monthContractsIncome = contracts
+                .filter(c => c.paymentStatus === 'مدفوع' && inCurrentMonth(c.paymentDate))
+                .reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+
+            const monthDailyWorkIncome = dailyWork
+                .filter(w => inCurrentMonth(w.date))
+                .reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
+
+            const monthOtherIncome = dailyIncome
+                .filter(i => inCurrentMonth(i.date))
+                .reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+            const monthExpensesTotal = dailyExpenses
+                .filter(e => inCurrentMonth(e.date))
+                .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+            const monthNet = (monthContractsIncome + monthDailyWorkIncome + monthOtherIncome) - monthExpensesTotal;
+
+            const monthNetEl = document.getElementById('monthNetProfit');
+            if (monthNetEl) {
+                monthNetEl.textContent = monthNet.toLocaleString() + ' ر.ق';
+            }
 
             // حساب الموظفين الجدد (في آخر 30 يوم)
             const thirtyDaysAgo = new Date();
