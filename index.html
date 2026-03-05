@@ -74,6 +74,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous">
+    
+    <!-- Professional Dashboard Styling -->
+    <link rel="stylesheet" href="professional-dashboard.css">
 
     <!-- Google Fonts (Optimized) -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" as="style"
@@ -1106,6 +1109,36 @@
                     <i class="fas fa-moon"></i>
                     <span class="sr-only">تبديل الوضع الليلي</span>
                 </button>
+
+                <!-- اختيار اللغة -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+                        id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                        aria-label="اختيار اللغة">
+                        <i class="fas fa-globe me-1"></i>
+                        <span class="language-label d-none d-md-inline">عربي</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                        <li>
+                            <a class="dropdown-item active language-option" href="#" data-lang="ar">
+                                <i class="fas fa-check me-2"></i>
+                                <span>🇸🇦 العربية</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item language-option" href="#" data-lang="en">
+                                <i class="fas fa-check me-2" style="visibility:hidden;"></i>
+                                <span>🇺🇸 English</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item language-option" href="#" data-lang="fr">
+                                <i class="fas fa-check me-2" style="visibility:hidden;"></i>
+                                <span>🇫🇷 Français</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- التاريخ الحالي -->
                 <span id="current-date" class="text-white small d-none d-md-inline" aria-live="polite"></span>
@@ -3905,6 +3938,64 @@
     <script src="cleaning-ui-handlers.js"></script>
     <script src="advanced-features.js"></script>
     <script src="advanced-handlers.js"></script>
+    <script src="language-system.js"></script>
+    <script src="advanced-dashboard.js"></script>
+
+    <!-- Language Selection Handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // معالجة اختيار اللغة
+            const languageOptions = document.querySelectorAll('.language-option');
+            
+            languageOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const lang = this.getAttribute('data-lang');
+                    
+                    if (languageManager) {
+                        languageManager.changeLanguage(lang);
+                        
+                        // تحديث الـ UI
+                        languageOptions.forEach(opt => {
+                            const checkIcon = opt.querySelector('.fas.fa-check');
+                            checkIcon.style.visibility = 'hidden';
+                        });
+                        
+                        const activeCheckIcon = this.querySelector('.fas.fa-check');
+                        if (activeCheckIcon) {
+                            activeCheckIcon.style.visibility = 'visible';
+                        }
+                        
+                        // تحديث تسمية الزر
+                        const languageLabel = document.querySelector('.language-label');
+                        const labels = {
+                            ar: 'عربي',
+                            en: 'English',
+                            fr: 'Français'
+                        };
+                        if (languageLabel) {
+                            languageLabel.textContent = labels[lang] || 'عربي';
+                        }
+                        
+                        // إعادة تحميل الصفحة أو تحديث البيانات
+                        if (advancedDashboard) {
+                            advancedDashboard.refreshCharts();
+                        }
+                    }
+                });
+            });
+            
+            // ضبط اللغة الأولية
+            const currentLang = localStorage.getItem('superpro_language') || 'ar';
+            const activeOption = document.querySelector(`[data-lang="${currentLang}"]`);
+            if (activeOption) {
+                const checkIcon = activeOption.querySelector('.fas.fa-check');
+                if (checkIcon) {
+                    checkIcon.style.visibility = 'visible';
+                }
+            }
+        });
+    </script>
     <script>
         // نظام التخزين
         const LS_KEYS = {
