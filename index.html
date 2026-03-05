@@ -92,6 +92,34 @@
             --warning: #ffc107;
         }
 
+        body.dark-mode {
+            background: #121212;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .app-container {
+            background: #181818;
+            box-shadow: 0 0 20px rgba(0, 0, 0, .8);
+        }
+
+        body.dark-mode .card {
+            background-color: #1f1f1f;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .navbar,
+        body.dark-mode .sidebar {
+            background: linear-gradient(90deg, #000000, #222222);
+        }
+
+        body.high-contrast {
+            filter: contrast(120%);
+        }
+
+        body.large-text {
+            font-size: 1.05rem;
+        }
+
         body {
             font-family: 'Tajawal', 'Segoe UI', Tahoma, Arial, sans-serif;
             background: linear-gradient(rgba(255, 255, 255, .95), rgba(255, 255, 255, .95)),
@@ -763,6 +791,173 @@
             --danger: #ff6666;
             --warning: #ffcc66;
         }
+
+        /* ===== أنماط الأقسام الجديدة dla التنظيفات ===== */
+
+        /* بطاقات الفرق */
+        .team-card {
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .team-members-badge {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #3498db;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+
+        /* بطاقات المواقع */
+        .location-card {
+            border-right: 4px solid #2ecc71;
+        }
+
+        .location-info {
+            padding: 10px;
+            background: #f0fdf4;
+            border-radius: 6px;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        /* بطاقات التقييمات */
+        .rating-badge {
+            display: inline-block;
+            background: #ffeaa7;
+            color: #d35400;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .rating-positive {
+            color: #27ae60;
+        }
+
+        .rating-negative {
+            color: #e74c3c;
+        }
+
+        .rating-neutral {
+            color: #f39c12;
+        }
+
+        /* بطاقات حاويات */
+        .package-card {
+            border-top: 3px solid #9b59b6;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.15);
+        }
+
+        .package-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .package-discount {
+            background: #e74c3c;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        /* جداول محسنة */
+        .table-enhancement tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table-enhancement tbody tr:hover {
+            background: #f5f7fa;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* شارات الحالة */
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* أيقونات معسنة */
+        .icon-large {
+            font-size: 32px;
+            color: #3498db;
+        }
+
+        .icon-team {
+            color: #e74c3c;
+        }
+
+        .icon-location {
+            color: #2ecc71;
+        }
+
+        .icon-rating {
+            color: #f39c12;
+        }
+
+        .icon-package {
+            color: #9b59b6;
+        }
+
+        /* neon glow effect لون */
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+
+        /* شريط التقدم */
+        .performance-bar {
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .performance-bar.good {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+        }
+
+        .performance-bar.average {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+        }
+
+        .performance-bar.poor {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
     </style>
 
     <!-- Firebase SDK -->
@@ -1000,6 +1195,33 @@
                     <span class="me-2">الخدمات</span>
                 </a>
             </li>
+
+            <div class="section-title px-3">إدارة التنظيفات</div>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="teams">
+                    <i class="fas fa-people-carry"></i>
+                    <span class="me-2">إدارة الفرق</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="locations">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span class="me-2">المواقع والعملاء</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="ratings">
+                    <i class="fas fa-star"></i>
+                    <span class="me-2">التقييمات والآراء</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="packages">
+                    <i class="fas fa-cube"></i>
+                    <span class="me-2">الحزم والباقات</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="#" data-module="finance">
                     <i class="fas fa-money-bill-wave"></i>
@@ -1089,6 +1311,22 @@
                         <h2 id="statBalance">0 ر.ق</h2>
                         <p>الرصيد الصافي</p>
                         <small class="text-muted" id="balanceTrend">→ مستقر</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center">
+                        <i class="fas fa-coins" style="font-size:28px;color:#27ae60"></i>
+                        <h2 id="todayNetProfit">0 ر.ق</h2>
+                        <p>صافي ربح اليوم</p>
+                        <small class="text-muted" id="todaySummaryLabel">يشمل العقود + العمل اليومي</small>
+                    </div>
+                </div>
+                <div class="col-md-3 mt-3 mt-md-0">
+                    <div class="card stat-card p-3 text-center">
+                        <i class="fas fa-calendar-alt" style="font-size:28px;color:#e67e22"></i>
+                        <h2 id="monthNetProfit">0 ر.ق</h2>
+                        <p>صافي ربح هذا الشهر</p>
+                        <small class="text-muted" id="monthSummaryLabel">من أول الشهر حتى اليوم</small>
                     </div>
                 </div>
             </div>
@@ -2349,6 +2587,356 @@
             </div>
         </div>
 
+        <!-- TEAMS MANAGEMENT -->
+        <div id="teams" class="module-container" style="display:none">
+            <h2 class="section-title">إدارة الفرق</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-primary text-white">
+                        <i class="fas fa-people-carry" style="font-size:28px;"></i>
+                        <h2 id="totalTeamsCount">0</h2>
+                        <p>إجمالي الفرق</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-success text-white">
+                        <i class="fas fa-check-circle" style="font-size:28px;"></i>
+                        <h2 id="activeTeamsCount">0</h2>
+                        <p>فرق نشطة</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-info text-white">
+                        <i class="fas fa-users" style="font-size:28px;"></i>
+                        <h2 id="totalTeamMembersCount">0</h2>
+                        <p>إجمالي الأعضاء</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-warning text-white">
+                        <i class="fas fa-briefcase" style="font-size:28px;"></i>
+                        <h2 id="todayAssignmentsCount">0</h2>
+                        <p>تعيينات اليوم</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="search-box position-relative">
+                                <input class="form-control" id="team-search" placeholder="ابحث عن فريق...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#teamModal">
+                                <i class="fas fa-plus me-2"></i>إنشاء فريق جديد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">قائمة الفرق</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="teams-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>اسم الفريق</th>
+                                    <th>قائد الفريق</th>
+                                    <th>عدد الأعضاء</th>
+                                    <th>المتخصصية</th>
+                                    <th>الحالة</th>
+                                    <th>الأداء</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teams-table-body">
+                                <tr><td colspan="8" class="text-center text-muted py-3">لا توجد فرق مسجلة</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOCATIONS -->
+        <div id="locations" class="module-container" style="display:none">
+            <h2 class="section-title">المواقع والعملاء</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-primary text-white">
+                        <i class="fas fa-map-marker-alt" style="font-size:28px;"></i>
+                        <h2 id="totalLocationsCount">0</h2>
+                        <p>إجمالي المواقع</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-success text-white">
+                        <i class="fas fa-check-circle" style="font-size:28px;"></i>
+                        <h2 id="activeLocationsCount">0</h2>
+                        <p>مواقع نشطة</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-info text-white">
+                        <i class="fas fa-calendar-check" style="font-size:28px;"></i>
+                        <h2 id="scheduledJobsCount">0</h2>
+                        <p>مهام مجدولة</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-warning text-white">
+                        <i class="fas fa-star" style="font-size:28px;"></i>
+                        <h2 id="avgLocationRating">0</h2>
+                        <p>متوسط التقييم</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="search-box position-relative">
+                                <input class="form-control" id="location-search" placeholder="ابحث عن موقع...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#locationModal">
+                                <i class="fas fa-plus me-2"></i>إضافة موقع جديد
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">قائمة المواقع</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="locations-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المنطقة</th>
+                                    <th>اسم العميل</th>
+                                    <th>الهاتف</th>
+                                    <th>النوع</th>
+                                    <th>التقييم</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locations-table-body">
+                                <tr><td colspan="8" class="text-center text-muted py-3">لا توجد مواقع مسجلة</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RATINGS AND FEEDBACK -->
+        <div id="ratings" class="module-container" style="display:none">
+            <h2 class="section-title">التقييمات والآراء</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-primary text-white">
+                        <i class="fas fa-star" style="font-size:28px;"></i>
+                        <h2 id="avgRatingScore">0</h2>
+                        <p>متوسط التقييم العام</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-success text-white">
+                        <i class="fas fa-comments" style="font-size:28px;"></i>
+                        <h2 id="totalRatingsCount">0</h2>
+                        <p>إجمالي التقييمات</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-warning text-white">
+                        <i class="fas fa-exclamation-circle" style="font-size:28px;"></i>
+                        <h2 id="negativeRatingsCount">0</h2>
+                        <p>تقييمات سلبية</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-info text-white">
+                        <i class="fas fa-tasks" style="font-size:28px;"></i>
+                        <h2 id="unresolvedIssuesCount">0</h2>
+                        <p>مشاكل معلقة</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">توزيع التقييمات</div>
+                        <div class="card-body">
+                            <div id="ratingDistribution" class="row g-3">
+                                <div class="col-auto">⭐⭐⭐⭐⭐ <span id="rating5Count">0</span></div>
+                                <div class="col-auto">⭐⭐⭐⭐ <span id="rating4Count">0</span></div>
+                                <div class="col-auto">⭐⭐⭐ <span id="rating3Count">0</span></div>
+                                <div class="col-auto">⭐⭐ <span id="rating2Count">0</span></div>
+                                <div class="col-auto">⭐ <span id="rating1Count">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="search-box position-relative">
+                                <input class="form-control" id="ratings-search" placeholder="ابحث في التقييمات...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ratingModal">
+                                <i class="fas fa-plus me-2"></i>إضافة تقييم
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">قائمة التقييمات والآراء</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="ratings-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>العميل</th>
+                                    <th>الخدمة</th>
+                                    <th>التقييم</th>
+                                    <th>التاريخ</th>
+                                    <th>الملاحظات</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ratings-table-body">
+                                <tr><td colspan="8" class="text-center text-muted py-3">لا توجد تقييمات</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE PACKAGES -->
+        <div id="packages" class="module-container" style="display:none">
+            <h2 class="section-title">الحزم والباقات</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-primary text-white">
+                        <i class="fas fa-cube" style="font-size:28px;"></i>
+                        <h2 id="totalPackagesCount">0</h2>
+                        <p>إجمالي الحزم</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-success text-white">
+                        <i class="fas fa-check-circle" style="font-size:28px;"></i>
+                        <h2 id="activePackagesCount">0</h2>
+                        <p>حزم نشطة</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-info text-white">
+                        <i class="fas fa-list" style="font-size:28px;"></i>
+                        <h2 id="totalServicesCount">0</h2>
+                        <p>إجمالي الخدمات</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-warning text-white">
+                        <i class="fas fa-money-bill-wave" style="font-size:28px;"></i>
+                        <h2 id="totalPackagesRevenue">0 ر.ق</h2>
+                        <p>إجمالي الإيرادات</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <ul class="nav nav-pills" id="packageTabs">
+                                <li class="nav-item">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#packagesTab">الحزم</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#servicesTab">الخدمات</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#packageModal">
+                                <i class="fas fa-plus"></i> حزمة جديدة
+                            </button>
+                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#serviceModal">
+                                <i class="fas fa-plus"></i> خدمة جديدة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content">
+                <!-- Packages Tab -->
+                <div class="tab-pane fade show active" id="packagesTab">
+                    <div class="row g-3" id="packages-grid">
+                        <div class="col-12"><p class="text-center text-muted">لا توجد حزم مسجلة</p></div>
+                    </div>
+                </div>
+
+                <!-- Services Tab -->
+                <div class="tab-pane fade" id="servicesTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="services-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>اسم الخدمة</th>
+                                            <th>الفئة</th>
+                                            <th>السعر الأساسي</th>
+                                            <th>الوصف</th>
+                                            <th>الحالة</th>
+                                            <th>إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="services-table-body">
+                                        <tr><td colspan="7" class="text-center text-muted py-3">لا توجد خدمات مسجلة</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- SETTINGS -->
         <div id="settings" class="module-container" style="display:none">
             <h2 class="section-title">الإعدادات</h2>
@@ -3069,6 +3657,232 @@
         </div>
     </div>
 
+    <!-- Team Modal -->
+    <div class="modal fade" id="teamModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إنشاء فريق جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="teamForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم الفريق</label>
+                            <input type="text" class="form-control" id="teamName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">قائد الفريق</label>
+                            <select class="form-select" id="teamLeader" required>
+                                <option value="">اختر قائد الفريق</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">التخصص</label>
+                            <input type="text" class="form-control" id="teamSpecialty" placeholder="مثال: تنظيف منازل">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">عدد الأعضاء</label>
+                            <input type="number" class="form-control" id="teamMembersCount" min="1">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">أعضاء الفريق</label>
+                            <select class="form-select" id="teamMembers" multiple size="4">
+                                <option value="">اختر أعضاء الفريق</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveTeamBtn">إنشاء الفريق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="modal fade" id="locationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة موقع جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="locationForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم العميل</label>
+                            <input type="text" class="form-control" id="locationClientName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المنطقة/الحي</label>
+                            <input type="text" class="form-control" id="locationArea" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">رقم الهاتف</label>
+                            <input type="tel" class="form-control" id="locationPhone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">نوع الموقع</label>
+                            <select class="form-select" id="locationType" required>
+                                <option value="">اختر النوع</option>
+                                <option value="منزل">منزل</option>
+                                <option value="مكتب">مكتب</option>
+                                <option value="فندق">فندق</option>
+                                <option value="مستشفى">مستشفى</option>
+                                <option value="مصنع">مصنع</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">العنوان</label>
+                            <textarea class="form-control" id="locationAddress" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveLocationBtn">إضافة الموقع</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div class="modal fade" id="ratingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة تقييم جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ratingForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم العميل</label>
+                            <select class="form-select" id="ratingClientName" required>
+                                <option value="">اختر العميل</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الخدمة</label>
+                            <input type="text" class="form-control" id="ratingService" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">التقييم (1-5 نجوم)</label>
+                            <div class="rating-input">
+                                <textarea class="form-control"  rows="1" id="ratingScore" placeholder="مثال: 5" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الملاحظات</label>
+                            <textarea class="form-control" id="ratingComment" rows="3" placeholder="اكتب تقييمك هنا..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveRatingBtn">حفظ التقييم</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Package Modal -->
+    <div class="modal fade" id="packageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة حزمة جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="packageForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم الحزمة</label>
+                            <input type="text" class="form-control" id="packageName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">النوع</label>
+                            <select class="form-select" id="packageType" required>
+                                <option value="">اختر النوع</option>
+                                <option value="أسبوعية">أسبوعية</option>
+                                <option value="شهرية">شهرية</option>
+                                <option value="يومية">يومية</option>
+                                <option value="سنوية">سنوية</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">السعر الأساسي (ر.ق)</label>
+                            <input type="number" class="form-control" id="packagePrice" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الخصم (%)</label>
+                            <input type="number" class="form-control" id="packageDiscount" min="0" max="100">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الخدمات المتضمنة</label>
+                            <select class="form-select" id="packageServices" multiple size="4">
+                                <option value="">اختر الخدمات</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الوصف</label>
+                            <textarea class="form-control" id="packageDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="savePackageBtn">حفظ الحزمة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div class="modal fade" id="serviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">إضافة خدمة جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="serviceForm" class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">اسم الخدمة</label>
+                            <input type="text" class="form-control" id="serviceName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الفئة</label>
+                            <select class="form-select" id="serviceCategory" required>
+                                <option value="">اختر الفئة</option>
+                                <option value="منازل">منازل</option>
+                                <option value="مكاتب">مكاتب</option>
+                                <option value="خدمات إضافية">خدمات إضافية</option>
+                                <option value="خارجي">خارجي</option>
+                                <option value="خاص">خاص</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">السعر الأساسي (ر.ق)</label>
+                            <input type="number" class="form-control" id="serviceBasePrice" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الوصف</label>
+                            <textarea class="form-control" id="serviceDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveServiceBtn">حفظ الخدمة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast-container">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -3087,6 +3901,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="cleaning-system-enhancements.js"></script>
+    <script src="cleaning-ui-handlers.js"></script>
     <script>
         // نظام التخزين
         const LS_KEYS = {
@@ -3180,22 +3996,45 @@
             document.getElementById('current-date').textContent = now.toLocaleDateString('ar-SA', options);
         }
 
-        // الوضع الليلي
+        // الوضع الليلي + سهولة الوصول
+        function applyDarkMode(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) {
+                toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            }
+            sessionStorage.setItem('darkMode', isDark);
+        }
+
         function initDarkMode() {
             const toggle = document.getElementById('darkModeToggle');
             const isDarkMode = sessionStorage.getItem('darkMode') === 'true';
 
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                toggle.innerHTML = '<i class="fas fa-sun"></i>';
-            }
+            applyDarkMode(isDarkMode);
 
-            toggle.addEventListener('click', function () {
-                document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                sessionStorage.setItem('darkMode', isDark);
-                toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            });
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    const isDark = !document.body.classList.contains('dark-mode');
+                    applyDarkMode(isDark);
+                });
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = !document.body.classList.contains('dark-mode');
+            applyDarkMode(isDark);
+        }
+
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+
+        function toggleLargeText() {
+            document.body.classList.toggle('large-text');
         }
 
         // ===== إصلاح مخططات لوحة التحكم =====
@@ -3359,6 +4198,66 @@
             const netBalance = (totalContracts + totalDailyWork + totalIncome) - (totalSalaries + totalExpenses);
 
             document.getElementById('statBalance').textContent = netBalance.toLocaleString() + ' ر.ق';
+
+            // صافي ربح اليوم (عقود + عمل يومي + مدخولات اليوم - مصروفات اليوم)
+            const today = new Date().toISOString().split('T')[0];
+
+            const todayContractsIncome = contracts
+                .filter(c => c.paymentStatus === 'مدفوع' && c.paymentDate === today)
+                .reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+
+            const todayDailyWorkIncome = dailyWork
+                .filter(w => w.date === today)
+                .reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
+
+            const todayOtherIncome = dailyIncome
+                .filter(i => i.date === today)
+                .reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+            const todayExpensesTotal = dailyExpenses
+                .filter(e => e.date === today)
+                .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+            const todayNet = (todayContractsIncome + todayDailyWorkIncome + todayOtherIncome) - todayExpensesTotal;
+
+            const todayNetEl = document.getElementById('todayNetProfit');
+            if (todayNetEl) {
+                todayNetEl.textContent = todayNet.toLocaleString() + ' ر.ق';
+            }
+
+            // صافي ربح الشهر الحالي
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+            const inCurrentMonth = (dateStr) => {
+                if (!dateStr) return false;
+                const d = new Date(dateStr);
+                return d >= monthStart && d < nextMonth;
+            };
+
+            const monthContractsIncome = contracts
+                .filter(c => c.paymentStatus === 'مدفوع' && inCurrentMonth(c.paymentDate))
+                .reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+
+            const monthDailyWorkIncome = dailyWork
+                .filter(w => inCurrentMonth(w.date))
+                .reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
+
+            const monthOtherIncome = dailyIncome
+                .filter(i => inCurrentMonth(i.date))
+                .reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+
+            const monthExpensesTotal = dailyExpenses
+                .filter(e => inCurrentMonth(e.date))
+                .reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+            const monthNet = (monthContractsIncome + monthDailyWorkIncome + monthOtherIncome) - monthExpensesTotal;
+
+            const monthNetEl = document.getElementById('monthNetProfit');
+            if (monthNetEl) {
+                monthNetEl.textContent = monthNet.toLocaleString() + ' ر.ق';
+            }
 
             // حساب الموظفين الجدد (في آخر 30 يوم)
             const thirtyDaysAgo = new Date();
