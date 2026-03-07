@@ -4810,44 +4810,92 @@
                     e.preventDefault();
                     const lang = this.getAttribute('data-lang');
                     
-                    if (languageManager) {
-                        languageManager.changeLanguage(lang);
-                        
-                        // تحديث الـ UI
-                        languageOptions.forEach(opt => {
-                            const checkIcon = opt.querySelector('.fas.fa-check');
-                            checkIcon.style.visibility = 'hidden';
-                        });
-                        
-                        const activeCheckIcon = this.querySelector('.fas.fa-check');
-                        if (activeCheckIcon) {
-                            activeCheckIcon.style.visibility = 'visible';
-                        }
-                        
-                        // تحديث تسمية الزر
-                        const languageLabel = document.querySelector('.language-label');
-                        const labels = {
-                            ar: 'عربي',
-                            en: 'English',
-                            fr: 'Français'
-                        };
-                        if (languageLabel) {
-                            languageLabel.textContent = labels[lang] || 'عربي';
-                        }
-                        
-                        // إعادة تحميل الصفحة أو تحديث البيانات
-                        if (advancedDashboard) {
-                            advancedDashboard.refreshCharts();
-                        }
+                    // تحديث اللغة في localStorage
+                    localStorage.setItem('superpro_language', lang);
+                    
+                    // تحديث الـ UI - إخفاء أيقونات الاختيار ثم إظهار الخاصة باللغة المختارة
+                    languageOptions.forEach(opt => {
+                        const checkIcon = opt.querySelector('.fas.fa-check');
+                        if (checkIcon) checkIcon.style.visibility = 'hidden';
+                    });
+                    
+                    const activeCheckIcon = this.querySelector('.fas.fa-check');
+                    if (activeCheckIcon) {
+                        activeCheckIcon.style.visibility = 'visible';
                     }
+                    
+                    // تحديث تسمية الزر
+                    const languageLabel = document.querySelector('.language-label');
+                    const labels = {
+                        ar: 'عربي',
+                        en: 'English',
+                        fr: 'Français'
+                    };
+                    if (languageLabel) {
+                        languageLabel.textContent = labels[lang] || 'عربي';
+                    }
+                    
+                    // تحديث اتجاه الصفحة
+                    const htmlElement = document.documentElement;
+                    if (lang === 'ar' || lang === 'ur') {
+                        htmlElement.dir = 'rtl';
+                        htmlElement.lang = lang;
+                    } else {
+                        htmlElement.dir = 'ltr';
+                        htmlElement.lang = lang;
+                    }
+                    
+                    // إعادة تحميل الصفحة أو تحديث البيانات إذا كان هناك دالة متاحة
+                    if (typeof languageManager !== 'undefined' && languageManager.changeLanguage) {
+                        languageManager.changeLanguage(lang);
+                    }
+                    if (typeof advancedDashboard !== 'undefined' && advancedDashboard.refreshCharts) {
+                        advancedDashboard.refreshCharts();
+                    }
+                    
+                    // إظهار رسالة التأكيد
+                    showToast(`تم تغيير اللغة إلى ${labels[lang]}`);
                 });
             });
             
             // ضبط اللغة الأولية
             const currentLang = localStorage.getItem('superpro_language') || 'ar';
             const activeOption = document.querySelector(`[data-lang="${currentLang}"]`);
+            
+            // إخفاء جميع أيقونات الاختيار أولاً
+            languageOptions.forEach(opt => {
+                const checkIcon = opt.querySelector('.fas.fa-check');
+                if (checkIcon) checkIcon.style.visibility = 'hidden';
+            });
+            
             if (activeOption) {
                 const checkIcon = activeOption.querySelector('.fas.fa-check');
+                if (checkIcon) {
+                    checkIcon.style.visibility = 'visible';
+                }
+                
+                const languageLabel = document.querySelector('.language-label');
+                const labels = {
+                    ar: 'عربي',
+                    en: 'English',
+                    fr: 'Français'
+                };
+                if (languageLabel) {
+                    languageLabel.textContent = labels[currentLang] || 'عربي';
+                }
+                
+                // تحديث اتجاه الصفحة
+                const htmlElement = document.documentElement;
+                if (currentLang === 'ar' || currentLang === 'ur') {
+                    htmlElement.dir = 'rtl';
+                    htmlElement.lang = currentLang;
+                } else {
+                    htmlElement.dir = 'ltr';
+                    htmlElement.lang = currentLang;
+                }
+            }
+        });
+    </script>
                 if (checkIcon) {
                     checkIcon.style.visibility = 'visible';
                 }
@@ -5125,6 +5173,7 @@
 
         // ===== لوحة التحكم المحسنة =====
         function loadDashboard() {
+            console.log('📊 تحميل لوحة التحكم...');
             updateDashboardStats();
             renderSeparatedAlerts();
             loadRecentTransactions();
@@ -5133,6 +5182,7 @@
             updateDailyIncomeStats();
             updateDailyExpensesStats();
             initCharts();
+            console.log('✅ تم تحميل لوحة التحكم بنجاح');
         }
 
         function updateDashboardStats() {
@@ -7127,7 +7177,11 @@
 
         // ===== نظام التنقل بين الأقسام =====
         function setupNavigation() {
-            document.querySelectorAll('.nav-link[data-module]').forEach(link => {
+            console.log('🔗 إعداد نظام التنقل...');
+            const navLinks = document.querySelectorAll('.nav-link[data-module]');
+            console.log(`📌 عدد روابط القائمة: ${navLinks.length}`);
+            
+            navLinks.forEach(link => {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
 
@@ -7181,6 +7235,7 @@
                     }
                 });
             });
+            console.log('✅ تم إعداد نظام التنقل بنجاح');
         }
 
         // ===== وظائف الموظفين =====
@@ -8444,10 +8499,24 @@
             fillEmployeeSelects();
             fillClientSelects();
 
-            // تحميل لوحة التحكم الافتراضية
-            if (document.getElementById('dashboard').style.display !== 'none') {
+            // إظهار لوحة التحكم الافتراضية
+            const dashboardModule = document.getElementById('dashboard');
+            console.log('🎯 البحث عن dashboard module:', dashboardModule ? '✅ موجود' : '❌ غير موجود');
+            
+            if (dashboardModule) {
+                dashboardModule.style.display = 'block';
+                console.log('📌 جاري تحميل Dashboard...');
                 loadDashboard();
+            } else {
+                console.error('❌ لم يتم العثور على Dashboard module');
             }
+            
+            // إخفاء جميع الأقسام الأخرى
+            document.querySelectorAll('.module-container').forEach(module => {
+                if (module.id !== 'dashboard') {
+                    module.style.display = 'none';
+                }
+            });
 
             showToast('تم تحميل النظام بنجاح', 'success');
         }
@@ -8881,6 +8950,9 @@
                 setupNavigation();
                 console.log("setupNavigation finished");
                 
+                setupGlobalSearch();
+                console.log("setupGlobalSearch finished");
+                
                 initCharts();
                 console.log("initCharts finished");
                 
@@ -9164,29 +9236,65 @@
         // Search and Filter System
         function setupGlobalSearch() {
             const searchInput = document.getElementById('globalSearchInput');
-            if (!searchInput) return;
+            const resultsContainer = document.getElementById('globalSearchResults');
+            
+            if (!searchInput) {
+                console.warn('⚠️ Global search input not found');
+                return;
+            }
 
             searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                if (query.length < 2) return;
+                const query = e.target.value.trim().toLowerCase();
+                
+                if (query.length < 2) {
+                    if (resultsContainer) resultsContainer.style.display = 'none';
+                    return;
+                }
                 
                 const results = searchInData(query);
                 displaySearchResults(results);
+            });
+            
+            // إغلاق نتائج البحث عند النقر خارجهم
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#globalSearchInput') && !e.target.closest('#globalSearchResults')) {
+                    if (resultsContainer) resultsContainer.style.display = 'none';
+                }
             });
         }
 
         function searchInData(query) {
             const results = [];
-            if (EMPLOYEES) {
-                results.push(...EMPLOYEES.filter(e => 
-                    e.name.toLowerCase().includes(query)
-                ).map(e => ({type: 'موظف', text: e.name})));
+            
+            // البحث في الموظفين
+            if (employees && employees.length > 0) {
+                results.push(...employees.filter(e => 
+                    e.name && e.name.toLowerCase().includes(query)
+                ).map(e => ({type: 'موظف', text: e.name, id: e.id})));
             }
-            if (CLIENTS) {
-                results.push(...CLIENTS.filter(c => 
-                    c.name.toLowerCase().includes(query)
-                ).map(c => ({type: 'عميل', text: c.name})));
+            
+            // البحث في العملاء
+            if (clients && clients.length > 0) {
+                results.push(...clients.filter(c => 
+                    c.name && c.name.toLowerCase().includes(query)
+                ).map(c => ({type: 'عميل', text: c.name, id: c.id})));
             }
+            
+            // البحث في العقود
+            if (contracts && contracts.length > 0) {
+                results.push(...contracts.filter(con => 
+                    con.code && con.code.toLowerCase().includes(query)
+                ).map(con => ({type: 'عقد', text: con.code, id: con.id})));
+            }
+            
+            // البحث في الخدمات
+            if (services && services.length > 0) {
+                results.push(...services.filter(s => 
+                    s.name && s.name.toLowerCase().includes(query)
+                ).map(s => ({type: 'خدمة', text: s.name, id: s.id})));
+            }
+            
+            console.log(`📍 نتائج البحث عن "${query}":`, results.length);
             return results.slice(0, 10);
         }
 
@@ -9195,17 +9303,27 @@
             if (!container) return;
 
             if (results.length === 0) {
-                container.innerHTML = '<p style="padding:10px;color:var(--text3)">لا توجد نتائج</p>';
+                container.innerHTML = '<div style="padding:12px;color:var(--text3);text-align:center">لا توجد نتائج بحث</div>';
+                container.style.display = 'block';
                 return;
             }
 
             container.innerHTML = results.map(r => 
-                `<div style="padding:8px 12px;border-bottom:1px solid var(--border2);cursor:pointer;font-size:13px">
-                    <small style="color:var(--text3)">${r.type}</small><br>
-                    ${r.text}
+                `<div onclick="searchResultClick(${r.id}, '${r.type}')" style="padding:10px 12px;border-bottom:1px solid var(--border2);cursor:pointer;font-size:13px;transition:background 0.2s" onmouseover="this.style.background='rgba(0,212,170,0.08)'" onmouseout="this.style.background='transparent'">
+                    <small style="color:var(--accent);font-weight:600">${r.type}</small><br>
+                    <span style="color:var(--text)">${r.text}</span>
                 </div>`
             ).join('');
             container.style.display = 'block';
+        }
+
+        function searchResultClick(id, type) {
+            console.log('Search result clicked:', type, id);
+            // يمكن إضافة منطق للتنقل إلى السجل المختار
+            const searchInput = document.getElementById('globalSearchInput');
+            if (searchInput) searchInput.value = '';
+            const resultsContainer = document.getElementById('globalSearchResults');
+            if (resultsContainer) resultsContainer.style.display = 'none';
         }
 
         // Initialize all enhancements
