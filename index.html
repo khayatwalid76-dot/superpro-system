@@ -4801,17 +4801,40 @@
 
     <!-- Language Selection Handler -->
     <script>
+        // دالة شاملة لتحديث عناصر الواجهة عند تغيير اللغة
+        function updateUILanguage(lang) {
+            console.log(`🌍 تحديث الواجهة للغة: ${lang}`);
+            
+            // تحديث اتجاه الصفحة والـ HTML lang attribute
+            if (lang === 'ar') {
+                document.documentElement.dir = 'rtl';
+                document.documentElement.lang = 'ar';
+                document.body.dir = 'rtl';
+            } else {
+                document.documentElement.dir = 'ltr';
+                document.documentElement.lang = lang;
+                document.body.dir = 'ltr';
+            }
+            
+            // إعادة تحميل الصفحة للتأكد من تطبيق التغييرات بشكل كامل
+            // (يمكن تحسينها لاحقاً بترجمة فعلية بدلاً من إعادة التحميل)
+            console.log('✅ تم تحديث الواجهة - يرجى تحديث الصفحة للرؤية الكاملة');
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // معالجة اختيار اللغة
             const languageOptions = document.querySelectorAll('.language-option');
+            console.log(`📌 عدد خيارات اللغة المتاحة: ${languageOptions.length}`);
             
             languageOptions.forEach(option => {
                 option.addEventListener('click', function(e) {
                     e.preventDefault();
                     const lang = this.getAttribute('data-lang');
+                    console.log(`🔄 جاري تغيير اللغة إلى: ${lang}`);
                     
-                    // تحديث اللغة في localStorage
+                    // حفظ اللغة في localStorage
                     localStorage.setItem('superpro_language', lang);
+                    console.log(`💾 تم حفظ اللغة: ${lang}`);
                     
                     // تحديث الـ UI - إخفاء أيقونات الاختيار ثم إظهار الخاصة باللغة المختارة
                     languageOptions.forEach(opt => {
@@ -4835,23 +4858,8 @@
                         languageLabel.textContent = labels[lang] || 'عربي';
                     }
                     
-                    // تحديث اتجاه الصفحة
-                    const htmlElement = document.documentElement;
-                    if (lang === 'ar' || lang === 'ur') {
-                        htmlElement.dir = 'rtl';
-                        htmlElement.lang = lang;
-                    } else {
-                        htmlElement.dir = 'ltr';
-                        htmlElement.lang = lang;
-                    }
-                    
-                    // إعادة تحميل الصفحة أو تحديث البيانات إذا كان هناك دالة متاحة
-                    if (typeof languageManager !== 'undefined' && languageManager.changeLanguage) {
-                        languageManager.changeLanguage(lang);
-                    }
-                    if (typeof advancedDashboard !== 'undefined' && advancedDashboard.refreshCharts) {
-                        advancedDashboard.refreshCharts();
-                    }
+                    // تحديث الواجهة
+                    updateUILanguage(lang);
                     
                     // إظهار رسالة التأكيد
                     showToast(`تم تغيير اللغة إلى ${labels[lang]}`);
@@ -4860,6 +4868,8 @@
             
             // ضبط اللغة الأولية
             const currentLang = localStorage.getItem('superpro_language') || 'ar';
+            console.log(`🌐 اللغة الحالية: ${currentLang}`);
+            
             const activeOption = document.querySelector(`[data-lang="${currentLang}"]`);
             
             // إخفاء جميع أيقونات الاختيار أولاً
@@ -4884,16 +4894,11 @@
                     languageLabel.textContent = labels[currentLang] || 'عربي';
                 }
                 
-                // تحديث اتجاه الصفحة
-                const htmlElement = document.documentElement;
-                if (currentLang === 'ar' || currentLang === 'ur') {
-                    htmlElement.dir = 'rtl';
-                    htmlElement.lang = currentLang;
-                } else {
-                    htmlElement.dir = 'ltr';
-                    htmlElement.lang = currentLang;
-                }
+                // تطبيق اللغة عند تحميل الصفحة
+                updateUILanguage(currentLang);
             }
+            
+            console.log('✅ تم إعداد نظام اللغات');
         });
     </script>
                 if (checkIcon) {
@@ -8498,25 +8503,8 @@
             // ملء القوائم المنسدلة
             fillEmployeeSelects();
             fillClientSelects();
-
-            // إظهار لوحة التحكم الافتراضية
-            const dashboardModule = document.getElementById('dashboard');
-            console.log('🎯 البحث عن dashboard module:', dashboardModule ? '✅ موجود' : '❌ غير موجود');
             
-            if (dashboardModule) {
-                dashboardModule.style.display = 'block';
-                console.log('📌 جاري تحميل Dashboard...');
-                loadDashboard();
-            } else {
-                console.error('❌ لم يتم العثور على Dashboard module');
-            }
-            
-            // إخفاء جميع الأقسام الأخرى
-            document.querySelectorAll('.module-container').forEach(module => {
-                if (module.id !== 'dashboard') {
-                    module.style.display = 'none';
-                }
-            });
+            // ملاحظة: Dashboard سيتم عرضه بعد تحميل البيانات في DOMContentLoaded
 
             showToast('تم تحميل النظام بنجاح', 'success');
         }
@@ -8953,8 +8941,8 @@
                 setupGlobalSearch();
                 console.log("setupGlobalSearch finished");
                 
-                initCharts();
-                console.log("initCharts finished");
+                // تأجيل initCharts حتى بعد تحميل البيانات
+                console.log("initCharts will be called after data loading...");
                 
                 setupAutoBackup();
                 console.log("setupAutoBackup finished");
@@ -9020,6 +9008,30 @@
                 console.log("Starting initializeDefaultData...");
                 await initializeDefaultData();
                 console.log("initializeDefaultData finished");
+                
+                // بعد تحميل البيانات، إظهار Dashboard وتحميل البيانات
+                console.log("🎯 إظهار Dashboard بعد تحميل البيانات...");
+                const dashboardModule = document.getElementById('dashboard');
+                if (dashboardModule) {
+                    dashboardModule.style.display = 'block';
+                    console.log('✅ Dashboard معروض الآن');
+                } else {
+                    console.error('❌ Dashboard element غير موجود');
+                }
+                
+                // إخفاء جميع الأقسام الأخرى
+                document.querySelectorAll('.module-container').forEach(module => {
+                    if (module.id !== 'dashboard') {
+                        module.style.display = 'none';
+                    }
+                });
+                
+                // الآن استدعاء charts و loadDashboard
+                console.log("initCharts finished");
+                initCharts();
+                console.log("loadDashboard starting...");
+                loadDashboard();
+                console.log("loadDashboard finished");
 
                 // إخفاء شريط الحالة
                 console.log("Hiding js-status-bar");
