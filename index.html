@@ -609,20 +609,62 @@
 
         @media (max-width: 768px) {
             .sidebar {
-                width: 0;
+                width: 250px;  /* عرض القائمة على الشاشات الصغيرة - مرئية دائماً */
                 padding-top: 56px;
+                position: fixed;
+                top: 0;
+                right: 0;  /* محاذاة لليمين للعربية */
+                bottom: 0;
+                z-index: 999;
+            }
+
+            .main-content {
+                margin-right: 0;  /* بدون هامش على الشاشات الصغيرة */
+                padding: 20px;    /* تقليل الحشو */
+                padding-top: 90px;
+            }
+
+            .navbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1001;  /* أعلى من القائمة */
+                width: 100%;
+            }
+
+            .nav-link span {
+                display: inline;  /* إظهار النصوص دائماً */
+            }
+        }
+
+        /* شاشات صغيرة جداً */
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;  /* ملء الشاشة */
             }
 
             .main-content {
                 margin-right: 0;
+                padding: 15px;
+                padding-top: 80px;
             }
 
-            .sidebar.show {
-                width: 250px;
+            .navbar {
+                padding: 0.5rem 0;  /* تقليل الحشو */
             }
 
-            .sidebar.show .nav-link span {
-                display: inline;
+            .navbar button,
+            .navbar .dropdown-toggle {
+                padding: 0.3rem 0.5rem;  /* أزرار أصغر */
+            }
+
+            .card {
+                margin-bottom: 15px;  /* تقليل المسافات */
+            }
+
+            .stat-card:hover {
+                transform: none;  /* تعطيل الحركة على الهواتف */
             }
         }
 
@@ -5010,13 +5052,14 @@
             const toggle = document.getElementById('darkModeToggle');
             if (toggle) {
                 toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                toggle.title = isDark ? 'الوضع النهاري' : 'الوضع الليلي';
             }
-            sessionStorage.setItem('darkMode', isDark);
+            localStorage.setItem('superpro_darkMode', isDark);  // حفظ دائم
         }
 
         function initDarkMode() {
             const toggle = document.getElementById('darkModeToggle');
-            const isDarkMode = sessionStorage.getItem('darkMode') === 'true';
+            const isDarkMode = localStorage.getItem('superpro_darkMode') === 'true';  // استخدام localStorage بدلاً من sessionStorage
 
             applyDarkMode(isDarkMode);
 
@@ -5024,6 +5067,7 @@
                 toggle.addEventListener('click', function () {
                     const isDark = !document.body.classList.contains('dark-mode');
                     applyDarkMode(isDark);
+                    showEnhancedToast(isDark ? '🌙 تم تفعيل الوضع الليلي' : '☀️ تم تفعيل الوضع النهاري', 'success', 2000);
                 });
             }
         }
@@ -5032,6 +5076,102 @@
             const isDark = !document.body.classList.contains('dark-mode');
             applyDarkMode(isDark);
         }
+
+        // نظام Toast محسّن
+        const toastStyles = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            color: #333;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideInUp 0.3s ease-out;
+            max-width: 400px;
+            word-wrap: break-word;
+            font-size: 14px;
+            min-width: 250px;
+        `;
+
+        function showEnhancedToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            
+            // تحديد الألوان والأيقونات بناءً على النوع
+            const typeConfig = {
+                success: { bg: '#28a745', icon: 'fa-check-circle', color: 'white' },
+                error: { bg: '#dc3545', icon: 'fa-exclamation-circle', color: 'white' },
+                warning: { bg: '#ffc107', icon: 'fa-exclamation-triangle', color: 'white' },
+                info: { bg: '#17a2b8', icon: 'fa-info-circle', color: 'white' }
+            };
+
+            const config = typeConfig[type] || typeConfig['info'];
+
+            toast.style.cssText = `${toastStyles.replace('background: white;', `background: ${config.bg};`).replace('color: #333;', `color: ${config.color};`)}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas ${config.icon}" style="font-size: 18px;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutDown 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Lazy Loading للصور
+        function initLazyLoading() {
+            const images = document.querySelectorAll('img[data-src]');
+            
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+
+                images.forEach(img => imageObserver.observe(img));
+            } else {
+                // Fallback للمتصفحات القديمة
+                images.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                });
+            }
+        }
+
+        // نمط CSS للرسوم المتحركة
+        const animations = `
+            @keyframes slideInUp {
+                from { transform: translateY(100px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutDown {
+                from { transform: translateY(0); opacity: 1; }
+                to { transform: translateY(100px); opacity: 0; }
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        
+        // إضافة الرسوم المتحركة إلى الـ head
+        const style = document.createElement('style');
+        style.textContent = animations;
+        document.head.appendChild(style);
 
         function toggleHighContrast() {
             document.body.classList.toggle('high-contrast');
@@ -9032,6 +9172,10 @@
                 console.log("loadDashboard starting...");
                 loadDashboard();
                 console.log("loadDashboard finished");
+                
+                // تفعيل Lazy Loading
+                console.log("⚡ تفعيل Lazy Loading للصور...");
+                initLazyLoading();
 
                 // إخفاء شريط الحالة
                 console.log("Hiding js-status-bar");
