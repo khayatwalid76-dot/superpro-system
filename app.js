@@ -1276,66 +1276,6 @@ function generateReport(type) {
   if(container) container.innerHTML = reportHTML;
 }
 
-// ============= FIREBASE SYNC FUNCTION =============
-async function syncFirebaseToLocal() {
-  try {
-    // Check if Firebase services are available
-    if(typeof employeeService === 'undefined') {
-      console.log('Firebase not initialized yet');
-      return;
-    }
-
-    // Sync employees
-    const employees = await employeeService.getEmployees();
-    if(employees && employees.length > 0) {
-      appData.employees = employees;
-    }
-
-    // Sync clients
-    const clients = await clientService.getClients();
-    if(clients && clients.length > 0) {
-      appData.clients = clients;
-    }
-
-    // Sync contracts
-    const contracts = await contractService.getContracts();
-    if(contracts && contracts.length > 0) {
-      appData.contracts = contracts;
-    }
-    
-    // Sync attendance
-    const attendance = await attendanceService.getAttendance();
-    if(attendance && attendance.length > 0) {
-      appData.attendance = attendance;
-    }
-    
-    // Sync payroll
-    const payroll = await payrollService.getPayroll();
-    if(payroll && payroll.length > 0) {
-      appData.payroll = payroll;
-    }
-    
-    // Sync financial data
-    const income = await financialService.getIncome();
-    if(income && income.length > 0) {
-      appData.income = income;
-    }
-    
-    const expenses = await financialService.getExpenses();
-    if(expenses && expenses.length > 0) {
-      appData.expenses = expenses;
-    }
-    
-    saveData();
-    console.log('Firebase sync completed successfully');
-    return true;
-  } catch(error) {
-    console.warn('Firebase sync error:', error);
-    showToast('خطأ في مزامنة البيانات من Firebase', 'warning');
-    return false;
-  }
-}
-
 // ============= FIREBASE TEST =============
 async function testFirebaseConnection() {
   try {
