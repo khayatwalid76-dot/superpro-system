@@ -1183,20 +1183,120 @@ function loadRatings() {
   `).join('');
   
   tbody.innerHTML = html || '<tr><td colspan="5">لا توجد تقييمات</td></tr>';
-}\n\n// ============= REPORTS GENERATION =============\nfunction loadReports() {\n  const html = `\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px\">\n      <div class=\"stat-card\" onclick=\"generateReport('employees')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">👥</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير الموظفين</div>\n      </div>\n      <div class=\"stat-card\" onclick=\"generateReport('income')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">💰</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير المدخولات</div>\n      </div>\n      <div class=\"stat-card\" onclick=\"generateReport('expenses')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">💸</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير المصروفات</div>\n      </div>\n      <div class=\"stat-card\" onclick=\"generateReport('attendance')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">✅</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير الحضور</div>\n      </div>\n      <div class=\"stat-card\" onclick=\"generateReport('contracts')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">📋</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير العقود</div>\n      </div>\n      <div class=\"stat-card\" onclick=\"generateReport('performance')\" style=\"cursor:pointer;text-align:center\">\n        <div style=\"font-size:32px;margin:20px 0\">📊</div>\n        <div style=\"font-size:13px;font-weight:600;color:var(--acc)\">تقرير الأداء</div>\n      </div>\n    </div>\n    <div id=\"reportContainer\" style=\"background:var(--card);border:1px solid var(--bdr2);border-radius:12px;padding:20px;margin-top:20px\"></div>\n  `;\n  \n  const container = document.getElementById('reportsContainer');\n  if(container) container.innerHTML = html;\n}\n\nfunction generateReport(type) {\n  let reportHTML = '';\n  const dict = languagesDictionary[currentLanguage] || languagesDictionary['ar'];\n  \n  if(type === 'employees') {\n    reportHTML = `\n      <h3 style=\"margin-bottom:16px;color:var(--acc)\">📊 تقرير الموظفين</h3>\n      <div style=\"display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px\">\n        <div style=\"background:var(--card2);padding:12px;border-radius:8px\">\n          <div style=\"color:var(--txt3);font-size:12px\">إجمالي الموظفين</div>\n          <div style=\"font-size:20px;font-weight:900;color:var(--acc)\">${appData.employees.length}</div>\n        </div>\n        <div style=\"background:var(--card2);padding:12px;border-radius:8px\">\n          <div style=\"color:var(--txt3);font-size:12px\">الموظفون الجدد</div>\n          <div style=\"font-size:20px;font-weight:900;color:#00d4aa\">${Math.floor(appData.employees.length * 0.3)}</div>\n        </div>\n        <div style=\"background:var(--card2);padding:12px;border-radius:8px\">\n          <div style=\"color:var(--txt3);font-size:12px\">معدل الحضور</div>\n          <div style=\"font-size:20px;font-weight:900;color:#27ae60\">95%</div>\n        </div>\n      </div>\n      <table style=\"width:100%;border-collapse:collapse\">\n        <thead style=\"background:rgba(0,212,170,.1)\">\n          <tr><th style=\"padding:8px;border-bottom:1px solid var(--bdr2);text-align:right\">الاسم</th><th style=\"padding:8px;text-align:center\">الوظيفة</th><th style=\"padding:8px;text-align:center\">القسم</th></tr>\n        </thead>\n        <tbody>\n          ${appData.employees.slice(0, 10).map(e => `<tr><td style=\"padding:8px;border-bottom:1px solid var(--bdr2)\">${e.name}</td><td style=\"text-align:center\">${e.job}</td><td style=\"text-align:center\">${e.department}</td></tr>`).join('')}\n        </tbody>\n      </table>\n    `;\n  } else if(type === 'income') {\n    const total = getTotalIncome();\n    reportHTML = `\n      <h3 style=\"margin-bottom:16px;color:var(--acc)\">💰 تقرير المدخولات</h3>\n      <div style=\"background:rgba(0,212,170,.1);padding:16px;border-radius:8px;margin-bottom:16px\">\n        <div style=\"font-size:14px;color:var(--txt2);margin-bottom:8px\">إجمالي المدخولات</div>\n        <div style=\"font-size:28px;font-weight:900;color:#00d4aa\">${total.toLocaleString()} ر.ق</div>\n      </div>\n      <table style=\"width:100%;border-collapse:collapse\">\n        <thead style=\"background:rgba(0,212,170,.1)\">\n          <tr><th style=\"padding:8px;border-bottom:1px solid var(--bdr2);text-align:right\">التاريخ</th><th style=\"padding:8px;text-align:center\">النوع</th><th style=\"padding:8px;text-align:center\">المبلغ</th></tr>\n        </thead>\n        <tbody>\n          ${appData.income.map(i => `<tr><td style=\"padding:8px;border-bottom:1px solid var(--bdr2)\">${i.date}</td><td style=\"text-align:center\">${i.type}</td><td style=\"text-align:center;color:#00d4aa\">${i.amount.toLocaleString()}</td></tr>`).join('')}\n        </tbody>\n      </table>\n    `;\n  } else {\n    reportHTML = `<div style=\"text-align:center;color:var(--txt3)\">جاري إنشاء التقرير...</div>`;\n  }\n  \n  const container = document.getElementById('reportContainer');\n  if(container) container.innerHTML = reportHTML;\n}\n\n// ============= FIREBASE SYNC FUNCTION =============\nasync function syncFirebaseToLocal() {\n  try {\n    // Check if Firebase services are available\n    if(typeof employeeService === 'undefined') {\n      console.log('Firebase not initialized yet');\n      return;\n    }
-    
+}
+
+// ============= REPORTS GENERATION =============
+function loadReports() {
+  const html = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+      <div class="stat-card" onclick="generateReport('employees')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">👥</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير الموظفين</div>
+      </div>
+      <div class="stat-card" onclick="generateReport('income')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">💰</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير المدخولات</div>
+      </div>
+      <div class="stat-card" onclick="generateReport('expenses')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">💸</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير المصروفات</div>
+      </div>
+      <div class="stat-card" onclick="generateReport('attendance')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">✅</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير الحضور</div>
+      </div>
+      <div class="stat-card" onclick="generateReport('contracts')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">📋</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير العقود</div>
+      </div>
+      <div class="stat-card" onclick="generateReport('performance')" style="cursor:pointer;text-align:center">
+        <div style="font-size:32px;margin:20px 0">📊</div>
+        <div style="font-size:13px;font-weight:600;color:var(--acc)">تقرير الأداء</div>
+      </div>
+    </div>
+    <div id="reportContainer" style="background:var(--card);border:1px solid var(--bdr2);border-radius:12px;padding:20px;margin-top:20px"></div>
+  `;
+  
+  const container = document.getElementById('reportsContainer');
+  if(container) container.innerHTML = html;
+}
+
+function generateReport(type) {
+  let reportHTML = '';
+  const dict = languagesDictionary[currentLanguage] || languagesDictionary['ar'];
+  
+  if(type === 'employees') {
+    reportHTML = `
+      <h3 style="margin-bottom:16px;color:var(--acc)">📊 تقرير الموظفين</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">
+        <div style="background:var(--card2);padding:12px;border-radius:8px">
+          <div style="color:var(--txt3);font-size:12px">إجمالي الموظفين</div>
+          <div style="font-size:20px;font-weight:900;color:var(--acc)">${appData.employees.length}</div>
+        </div>
+        <div style="background:var(--card2);padding:12px;border-radius:8px">
+          <div style="color:var(--txt3);font-size:12px">الموظفون الجدد</div>
+          <div style="font-size:20px;font-weight:900;color:#00d4aa">${Math.floor(appData.employees.length * 0.3)}</div>
+        </div>
+        <div style="background:var(--card2);padding:12px;border-radius:8px">
+          <div style="color:var(--txt3);font-size:12px">معدل الحضور</div>
+          <div style="font-size:20px;font-weight:900;color:#27ae60">95%</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead style="background:rgba(0,212,170,.1)">
+          <tr><th style="padding:8px;border-bottom:1px solid var(--bdr2);text-align:right">الاسم</th><th style="padding:8px;text-align:center">الوظيفة</th><th style="padding:8px;text-align:center">القسم</th></tr>
+        </thead>
+        <tbody>
+          ${appData.employees.slice(0, 10).map(e => `<tr><td style="padding:8px;border-bottom:1px solid var(--bdr2)">${e.name}</td><td style="text-align:center">${e.job}</td><td style="text-align:center">${e.department}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  } else if(type === 'income') {
+    const total = getTotalIncome();
+    reportHTML = `
+      <h3 style="margin-bottom:16px;color:var(--acc)">💰 تقرير المدخولات</h3>
+      <div style="background:rgba(0,212,170,.1);padding:16px;border-radius:8px;margin-bottom:16px">
+        <div style="font-size:14px;color:var(--txt2);margin-bottom:8px">إجمالي المدخولات</div>
+        <div style="font-size:28px;font-weight:900;color:#00d4aa">${total.toLocaleString()} ر.ق</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead style="background:rgba(0,212,170,.1)">
+          <tr><th style="padding:8px;border-bottom:1px solid var(--bdr2);text-align:right">التاريخ</th><th style="padding:8px;text-align:center">النوع</th><th style="padding:8px;text-align:center">المبلغ</th></tr>
+        </thead>
+        <tbody>
+          ${appData.income.map(i => `<tr><td style="padding:8px;border-bottom:1px solid var(--bdr2)">${i.date}</td><td style="text-align:center">${i.type}</td><td style="text-align:center;color:#00d4aa">${i.amount.toLocaleString()}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  } else {
+    reportHTML = `<div style="text-align:center;color:var(--txt3)">جاري إنشاء التقرير...</div>`;
+  }
+  
+  const container = document.getElementById('reportContainer');
+  if(container) container.innerHTML = reportHTML;
+}
+
+// ============= FIREBASE SYNC FUNCTION =============
+async function syncFirebaseToLocal() {
+  try {
+    // Check if Firebase services are available
+    if(typeof employeeService === 'undefined') {
+      console.log('Firebase not initialized yet');
+      return;
+    }
+
     // Sync employees
     const employees = await employeeService.getEmployees();
     if(employees && employees.length > 0) {
       appData.employees = employees;
     }
-    
+
     // Sync clients
     const clients = await clientService.getClients();
     if(clients && clients.length > 0) {
       appData.clients = clients;
     }
-    
+
     // Sync contracts
     const contracts = await contractService.getContracts();
     if(contracts && contracts.length > 0) {
