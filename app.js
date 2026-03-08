@@ -877,7 +877,7 @@ function loadData() {
     try {
       appData = JSON.parse(stored);
     } catch(e) {
-      console.log('فشل تحميل البيانات');
+      console.log('فشل تحميل البيانات المحلية');
       initializeDefaultData();
     }
   } else {
@@ -886,6 +886,52 @@ function loadData() {
 }
 
 function initializeDefaultData() {
+  // استخدام البيانات الحقيقية إذا كانت موجودة
+  if(typeof REAL_BUSINESS_DATA !== 'undefined' && REAL_BUSINESS_DATA.employees && REAL_BUSINESS_DATA.employees.length > 0) {
+    appData = {
+      employees: REAL_BUSINESS_DATA.employees,
+      clients: REAL_BUSINESS_DATA.clients || [],
+      contracts: [],
+      attendance: [],
+      payroll: [],
+      dailyWork: [],
+      income: [],
+      expenses: [],
+      tasks: [],
+      notifications: [],
+      teams: [],
+      locations: [],
+      packages: [],
+      ratings: []
+    };
+    console.log('✅ تم تحميل البيانات الحقيقية للنظام');
+  } else {
+    // البيانات الوهمية كـ fallback
+    appData = {
+      employees: [
+        { id: 1, name: 'أحمد محمود', nationality: 'سعودي', job: 'مدير عام', salary: 8000, department: 'الإدارة', joinDate: '2023-01-15', status: 'نشط' },
+        { id: 2, name: 'فاطمة علي', nationality: 'سعودية', job: 'محللة بيانات', salary: 5000, department: 'التكنولوجيا', joinDate: '2023-03-20', status: 'نشط' }
+      ],
+      clients: [],
+      contracts: [],
+      attendance: [],
+      payroll: [],
+      dailyWork: [],
+      income: [],
+      expenses: [],
+      tasks: [],
+      notifications: [],
+      teams: [],
+      locations: [],
+      packages: [],
+      ratings: []
+    };
+    console.log('⚠️ تم استخدام البيانات الوهمية');
+  }
+  
+  saveData();
+  console.log('✅ تم تهيئة البيانات');
+}
   appData = {
     employees: [
       { id: 1, name: 'أحمد محمود', nationality: 'سعودي', job: 'مدير عام', salary: 8000, department: 'الإدارة', joinDate: '2023-01-15', status: 'نشط' },
