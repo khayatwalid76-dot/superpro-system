@@ -68,6 +68,8 @@ function updateLanguageUI() {
 
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ DOMContentLoaded: البدء بتحميل التطبيق...');
+  
   // Set initial language
   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.lang = currentLanguage;
@@ -75,8 +77,14 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
   });
   
+  console.log('✅ اللغة: ' + currentLanguage);
+  
   loadData();
+  console.log('✅ تم تحميل البيانات');
+  
   setupEventListeners();
+  console.log('✅ تم إعداد المستمعين');
+  
   updateCurrentDate();
   setInterval(updateCurrentDate, 60000);
   
@@ -110,9 +118,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ============= LOGIN HANDLER =============
 function handleLogin() {
+  console.log('🔐 محاولة تسجيل دخول...');
+  
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
   const role = document.querySelector('.role-btn.active').dataset.role;
+  
+  console.log('👤 المستخدم:', username, '- الدور:', role);
   
   const validUsers = {
     'admin': '1234',
@@ -121,22 +133,34 @@ function handleLogin() {
   };
   
   if(validUsers[username] === password) {
+    console.log('✅ كلمة المرور صحيحة!');
+    
     currentUser = { username, role };
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appWrapper').style.display = 'flex';
+    
+    console.log('✅ تم إخفاء شاشة الدخول وإظهار التطبيق');
+    
     updateUserInfo();
     
     // Load data from Firebase if available
     if(typeof syncFirebaseToLocal !== 'undefined') {
+      console.log('🔄 جاري تحميل البيانات من Firebase...');
       syncFirebaseToLocal().then(() => {
+        console.log('✅ تم تحميل البيانات من Firebase');
+        loadDashboard();
+      }).catch(err => {
+        console.warn('⚠️ خطأ في تحميل Firebase:', err);
         loadDashboard();
       });
     } else {
+      console.log('📦 تحميل البيانات المحلية');
       loadDashboard();
     }
     
     showToast('تم تسجيل الدخول بنجاح', 'success');
   } else {
+    console.warn('❌ كلمة المرور أو اسم المستخدم غير صحيح');
     document.getElementById('loginError').style.display = 'block';
     setTimeout(() => {
       document.getElementById('loginError').style.display = 'none';
