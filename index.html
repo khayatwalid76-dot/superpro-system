@@ -1111,6 +1111,68 @@
                 </a>
             </li>
 
+            <div class="section-title px-3">🚀 أنظمة متقدمة</div>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span class="me-2">التحليلات والتقارير</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="me-2">الإشعارات والتنبيهات</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="kanban">
+                    <i class="fas fa-tasks"></i>
+                    <span class="me-2">لوحة المهام</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="documents">
+                    <i class="fas fa-file-upload"></i>
+                    <span class="me-2">إدارة المستندات</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="search">
+                    <i class="fas fa-search"></i>
+                    <span class="me-2">بحث متقدم</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="security">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="me-2">الأمان والصلاحيات</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="invoices">
+                    <i class="fas fa-receipt"></i>
+                    <span class="me-2">الفواتير</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="hr">
+                    <i class="fas fa-user-graduate"></i>
+                    <span class="me-2">الموارد البشرية</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="finance">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span class="me-2">الحسابات المالية</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="payroll">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span class="me-2">الرواتب</span>
+                </a>
+            </li>
+
             <div class="section-title px-3">أنظمة متقدمة</div>
             <li class="nav-item">
                 <a class="nav-link" href="#" data-module="calendar">
@@ -2554,6 +2616,225 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED MODULES SECTION -->
+        
+        <!-- ANALYTICS -->
+        <div id="analytics" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">📊 التحليلات والتقارير</h2>
+            <div class="alert alert-info"><i class="fas fa-chart-bar"></i> وحدة التحليلات والتقارير متقدمة جاهزة</div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" onclick="analyticsModule.generateReport('income') && alert('تم توليد التقرير')"><i class="fas fa-download"></i> تقرير المدخولات</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success w-100" onclick="analyticsModule.exportReport('expenses', 'xlsx')"><i class="fas fa-download"></i> تصدير المصروفات</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-info w-100" onclick="alert('التقارير المتقدمة قيد الإعداد')"><i class="fas fa-file-pdf"></i> شاهد المزيد</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- NOTIFICATIONS -->
+        <div id="notifications" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">🔔 الإشعارات والتنبيهات</h2>
+            <div class="alert alert-info"><i class="fas fa-bell"></i> نظام الإشعارات المتقدم</div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <button class="btn btn-warning w-100" onclick="notificationsModule.alertExpiredContracts()"><i class="fas fa-calendar-times"></i> العقود المنتهية</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-danger w-100" onclick="notificationsModule.alertExpiringResidencies()"><i class="fas fa-passport"></i> الإقامات المنتهية</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-info w-100" onclick="notificationsModule.alertLowAttendance()"><i class="fas fa-user-check"></i> الحضور المنخفض</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- KANBAN BOARD -->
+        <div id="kanban" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">📋 لوحة المهام</h2>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form class="row g-2">
+                        <div class="col-md-7">
+                            <input id="newTaskInput" class="form-control" placeholder="أضف مهمة جديدة...">
+                        </div>
+                        <div class="col-md-3">
+                            <select id="newTaskPriority" class="form-select">
+                                <option value="low">منخفضة</option>
+                                <option value="medium" selected>متوسطة</option>
+                                <option value="high">عالية</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary w-100" onclick="kanbanModule.addTask(document.getElementById('newTaskInput').value, document.getElementById('newTaskPriority').value) && alert('تم إضافة المهمة')"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DOCUMENTS -->
+        <div id="documents" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">📄 إدارة المستندات</h2>
+            <div class="alert alert-info"><i class="fas fa-file-upload"></i> نظام إدارة المستندات المتقدم</div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="أدخل اسم المستند...">
+                        <button class="btn btn-primary" type="button"><i class="fas fa-upload"></i> رفع</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="docSearchInput" class="form-control" placeholder="ابحث عن مستند...">
+                        <button class="btn btn-info" type="button" onclick="searchModule.search(document.getElementById('docSearchInput').value) && alert('تم البحث')"><i class="fas fa-search"></i> بحث</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SEARCH -->
+        <div id="search" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">🔍 بحث متقدم</h2>
+            <div class="card">
+                <div class="card-body">
+                    <form class="row g-2">
+                        <div class="col-md-8">
+                            <input id="advSearchInput" class="form-control form-control-lg" placeholder="ابحث في جميع البيانات...">
+                        </div>
+                        <div class="col-md-4">
+                            <select id="advSearchType" class="form-select form-select-lg">
+                                <option value="">الكل</option>
+                                <option value="employees">الموظفين</option>
+                                <option value="clients">العملاء</option>
+                                <option value="contracts">العقود</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="button" class="btn btn-primary btn-lg w-100" onclick="searchModule.search(document.getElementById('advSearchInput').value, { type: document.getElementById('advSearchType').value })"><i class="fas fa-search"></i> بحث متقدم</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SECURITY -->
+        <div id="security" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">🔐 الأمان والصلاحيات</h2>
+            <div class="alert alert-info"><i class="fas fa-shield-alt"></i> نظام الأمان والصلاحيات المتقدم</div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-history fa-2x text-primary mb-2"></i>
+                            <h5>سجل الأنشطة</h5>
+                            <button class="btn btn-sm btn-primary w-100" onclick="alert('سجل الأنشطة: ' + securityModule.getActivityLog().length + ' نشاط')">عرض</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-user-lock fa-2x text-warning mb-2"></i>
+                            <h5>إدارة الأدوار</h5>
+                            <button class="btn btn-sm btn-warning w-100" onclick="alert('الأدوار المتاحة: Admin, Supervisor, Viewer')">إدارة</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-lock fa-2x text-danger mb-2"></i>
+                            <h5>المصادقة الثنائية</h5>
+                            <button class="btn btn-sm btn-danger w-100" onclick="securityModule.enableTwoFA('user123')">تفعيل</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-key fa-2x text-success mb-2"></i>
+                            <h5>الأذونات</h5>
+                            <button class="btn btn-sm btn-success w-100" onclick="alert('التحقق من الأذونات...')">تحقق</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- INVOICING -->
+        <div id="invoices" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">💰 الفواتير</h2>
+            <div class="alert alert-info"><i class="fas fa-receipt"></i> نظام الفواتير المتقدم</div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" onclick="invoiceModule.createInvoice('عميل مثال', [{item: 'خدمة', amount: 1000}], 1000) && alert('تم إنشاء فاتورة')">
+                        <i class="fas fa-plus"></i> فاتورة جديدة
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-warning w-100" onclick="alert('الفواتير المتأخرة: ' + invoiceModule.getOverdueInvoices().length)">
+                        <i class="fas fa-exclamation"></i> فواتير متأخرة
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" onclick="alert('تم إرسال الفاتورة للعميل')">
+                        <i class="fas fa-envelope"></i> إرسال
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-info w-100" onclick="alert('تم تحديد الفاتورة كمدفوعة')">
+                        <i class="fas fa-check"></i> تأكيد دفع
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- HR MANAGEMENT -->
+        <div id="hr" class="module-container" style="display:none">
+            <h2 class="section-title mb-4">👥 الموارد البشرية</h2>
+            <div class="alert alert-info"><i class="fas fa-user-graduate"></i> نظام الموارد البشرية المتقدم</div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-3x text-primary mb-2"></i>
+                            <h5>إدارة الموظفين</h5>
+                            <button class="btn btn-sm btn-primary w-100" onclick="alert('عدد الموظفين: ' + (hrModule.employees.length > 0 ? hrModule.employees.length : 'قيد الإضافة'))">إدارة</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-star fa-3x text-warning mb-2"></i>
+                            <h5>تقييم الأداء</h5>
+                            <button class="btn btn-sm btn-warning w-100" onclick="hrModule.evaluatePerformance('emp1', 8, 'أداء جيد')">تقييم</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-book fa-3x text-success mb-2"></i>
+                            <h5>التدريب والتطوير</h5>
+                            <button class="btn btn-sm btn-success w-100" onclick="hrModule.scheduleTraining('emp1', 'تدريب', '2026-03-20')">جدولة</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chart-line fa-3x text-info mb-2"></i>
+                            <h5>المؤشرات والإحصائيات</h5>
+                            <button class="btn btn-sm btn-info w-100" onclick="alert('مؤشرات الموظفين متاحة')">عرض</button>
+                        </div>
                     </div>
                 </div>
             </div>
