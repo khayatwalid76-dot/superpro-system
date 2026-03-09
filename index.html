@@ -103,6 +103,28 @@
             scroll-behavior: smooth;
         }
 
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: radial-gradient(ellipse at 30% 30%, rgba(52, 152, 219, 0.28) 0%, rgba(0, 0, 0, 0.75) 60%),
+                rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            padding: 22px 22px 18px;
+            border: 1px solid rgba(52, 152, 219, 0.15);
+        }
+
         .app-container {
             min-height: 100vh;
             background: rgba(255, 255, 255, .98);
@@ -851,6 +873,41 @@
 
 <body>
 
+    <!-- ===== تسجيل الدخول المحلي (بداية) ===== -->
+    <div id="authOverlay" class="auth-overlay" style="display:none">
+        <div class="auth-card">
+            <div class="text-center mb-3">
+                <div class="fw-bold" style="font-size:22px">SUPER_PRO SYSTEM</div>
+                <div class="text-muted" style="font-size:13px">تسجيل دخول محلي</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">الصلاحية</label>
+                <select class="form-select" id="authRole">
+                    <option value="admin">مدير</option>
+                    <option value="supervisor">مشرف</option>
+                    <option value="viewer">عرض فقط</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">اسم المستخدم</label>
+                <input class="form-control" id="authUsername" autocomplete="username" value="admin">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control" id="authPassword" autocomplete="current-password" value="1234">
+            </div>
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" id="authLoginBtn">
+                    <i class="fas fa-sign-in-alt me-2"></i>دخول
+                </button>
+                <div class="alert alert-danger py-2 mb-0" id="authError" style="display:none;font-size:13px"></div>
+            </div>
+            <div class="mt-3 text-muted" style="font-size:12px">
+                تجريبي: <span class="fw-bold">admin/1234</span> - <span class="fw-bold">supervisor/1234</span> - <span class="fw-bold">viewer/1234</span>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== شريط التنقل الرئيسي ===== -->
     <nav class="navbar navbar-dark fixed-top" id="mainNavbar" role="navigation" aria-label="القائمة الرئيسية">
         <div class="container-fluid">
@@ -914,6 +971,23 @@
 
                 <!-- التاريخ الحالي -->
                 <span id="current-date" class="text-white small d-none d-md-inline" aria-live="polite"></span>
+
+                <!-- المستخدم / تسجيل الخروج -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" id="authUserBtn" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user me-1"></i>
+                        <span id="authUserLabel">مستخدم</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authUserBtn">
+                        <li><span class="dropdown-item-text" id="authUserMeta" style="font-size:13px"></span></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><button class="dropdown-item text-danger" id="authLogoutBtn" type="button"><i
+                                    class="fas fa-sign-out-alt me-2"></i>تسجيل خروج</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
@@ -3102,7 +3176,9 @@
             dailyIncome: 'superpro_dailyIncome',
             dailyExpenses: 'superpro_dailyExpenses',
             financialTransactions: 'superpro_financialTransactions',
-            salaryAdvances: 'superpro_salaryAdvances'
+            salaryAdvances: 'superpro_salaryAdvances',
+            authUser: 'superpro_auth_user',
+            activityLog: 'superpro_activity_log'
         };
 
         // البيانات الافتراضية - سيتم تحميلها من السحابة
@@ -7229,10 +7305,142 @@
             }, 5000);
         }
 
+        // ===== تسجيل الدخول المحلي + الصلاحيات =====
+        const LOCAL_USERS = [
+            { username: 'admin', password: '1234', role: 'admin', displayName: 'المدير' },
+            { username: 'supervisor', password: '1234', role: 'supervisor', displayName: 'مشرف' },
+            { username: 'viewer', password: '1234', role: 'viewer', displayName: 'عرض فقط' }
+        ];
+
+        function getCurrentUser() {
+            try {
+                const raw = sessionStorage.getItem(LS_KEYS.authUser);
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function setCurrentUser(user) {
+            sessionStorage.setItem(LS_KEYS.authUser, JSON.stringify(user));
+            updateAuthUi();
+            applyRolePermissions();
+        }
+
+        function clearCurrentUser() {
+            sessionStorage.removeItem(LS_KEYS.authUser);
+            updateAuthUi();
+            applyRolePermissions();
+        }
+
+        function updateAuthUi() {
+            const u = getCurrentUser();
+            const label = document.getElementById('authUserLabel');
+            const meta = document.getElementById('authUserMeta');
+            if (label) label.textContent = u?.displayName || u?.username || 'مستخدم';
+            if (meta) meta.textContent = u ? `المستخدم: ${u.username} • الصلاحية: ${u.role}` : 'غير مسجل دخول';
+        }
+
+        function applyRolePermissions() {
+            const u = getCurrentUser();
+            const role = u?.role || 'viewer';
+
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.style.display = u ? 'none' : 'flex';
+
+            const readOnly = role === 'viewer';
+            const canDelete = role === 'admin';
+
+            // viewer: تعطيل أزرار الإضافة/الحفظ/الحذف/التعديل
+            if (readOnly) {
+                document.querySelectorAll('button, a.btn').forEach(el => {
+                    if (el.closest('#authOverlay')) return;
+                    if (el.closest('.sidebar')) return;
+                    if (el.closest('#searchContainer')) return;
+                    const allowIds = new Set([
+                        'darkModeToggle', 'sidebarToggle', 'notificationBell', 'closeNotificationPanel',
+                        'markAllReadBtn', 'authUserBtn', 'authLogoutBtn'
+                    ]);
+                    if (el.id && allowIds.has(el.id)) return;
+                    const txt = (el.textContent || '').trim();
+                    if (/إضافة|حفظ|تحديث|حذف|استيراد|استرجاع|حساب الرواتب|تسجيل حضور|إضافة عقد|إضافة عميل|إضافة مصروف|إضافة مدخول/i.test(txt)) {
+                        el.setAttribute('disabled', 'disabled');
+                        el.classList.add('disabled');
+                        el.style.pointerEvents = 'none';
+                        el.style.opacity = '0.65';
+                    }
+                });
+            }
+
+            // supervisor/viewer: منع الحذف
+            if (!canDelete) {
+                document.querySelectorAll('button[onclick*=\"delete\"], a[onclick*=\"delete\"]').forEach(btn => {
+                    btn.setAttribute('disabled', 'disabled');
+                    btn.classList.add('disabled');
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.6';
+                });
+            }
+
+            // عناصر حساسة لمدير فقط
+            ['importDataBtn', 'restoreOriginalDataBtn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = canDelete ? '' : 'none';
+            });
+        }
+
+        function initAuth() {
+            updateAuthUi();
+            applyRolePermissions();
+
+            const roleSel = document.getElementById('authRole');
+            const userInput = document.getElementById('authUsername');
+            const passInput = document.getElementById('authPassword');
+            const loginBtn = document.getElementById('authLoginBtn');
+            const err = document.getElementById('authError');
+            const logoutBtn = document.getElementById('authLogoutBtn');
+
+            const syncRoleToUser = () => {
+                const role = (roleSel?.value || 'admin').trim();
+                const u = LOCAL_USERS.find(x => x.role === role);
+                if (u && userInput) userInput.value = u.username;
+            };
+            roleSel?.addEventListener('change', syncRoleToUser);
+            syncRoleToUser();
+
+            const doLogin = () => {
+                const username = (userInput?.value || '').trim();
+                const password = (passInput?.value || '').trim();
+                const u = LOCAL_USERS.find(x => x.username === username && x.password === password);
+                if (!u) {
+                    if (err) {
+                        err.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+                        err.style.display = 'block';
+                    }
+                    return;
+                }
+                if (err) err.style.display = 'none';
+                setCurrentUser({ username: u.username, role: u.role, displayName: u.displayName, loggedAt: new Date().toISOString() });
+                showToast(`مرحباً ${u.displayName}`, 'success');
+            };
+
+            loginBtn?.addEventListener('click', doLogin);
+            userInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+            passInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+            logoutBtn?.addEventListener('click', () => {
+                if (!confirm('هل تريد تسجيل الخروج؟')) return;
+                clearCurrentUser();
+                showToast('تم تسجيل الخروج', 'info');
+            });
+        }
+
         // ===== تهيئة النظام عند تحميل الصفحة =====
         document.addEventListener('DOMContentLoaded', async function () {
             try {
                 console.log("DOM content loaded");
+
+                initAuth();
+                console.log("initAuth finished");
                 
                 updateCurrentDate();
                 console.log("updateCurrentDate finished");
