@@ -1112,6 +1112,12 @@
                     <span class="me-2">الإعدادات</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="activityLog">
+                    <i class="fas fa-history"></i>
+                    <span class="me-2">سجل الأنشطة</span>
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -2488,6 +2494,42 @@
                                 <i class="fas fa-undo me-2"></i>استرجاع البيانات الأصلية من الملف
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVITY LOG -->
+        <div id="activityLog" class="module-container" style="display:none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="section-title mb-0">سجل الأنشطة</h2>
+                <button class="btn btn-outline-danger btn-sm" id="clearActivityLogBtn">
+                    <i class="fas fa-trash me-1"></i>مسح السجل
+                </button>
+            </div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>آخر الأنشطة</span>
+                    <span class="badge bg-secondary" id="activityLogCount">0</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>الوقت</th>
+                                    <th>المستخدم</th>
+                                    <th>الصلاحية</th>
+                                    <th>الإجراء</th>
+                                    <th>التفاصيل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLogBody">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">لا توجد أنشطة بعد</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -3919,6 +3961,7 @@
                 updateContractStats();
                 updateContractsTable();
                 showToast('تم إضافة العقد بنجاح');
+                logActivity('إضافة عقد', `#${contractData.number} • ${contractData.client} • ${contractData.employee} • ${contractData.paymentStatus} • قيمة ${contractData.amount}`);
             });
 
             // إضافة معالجات الفلترة
@@ -4067,11 +4110,13 @@
 
         function deleteContract(index) {
             if (confirm('هل أنت متأكد من حذف هذا العقد؟')) {
+                const c = contracts[index];
                 contracts.splice(index, 1);
                 saveData();
                 updateContractStats();
                 updateContractsTable();
                 showToast('تم حذف العقد بنجاح');
+                logActivity('حذف عقد', c ? `#${c.number} • ${c.client}` : '');
             }
         }
 
@@ -4644,6 +4689,7 @@
                 document.getElementById('clientForm').reset();
                 renderClientsTable();
                 showToast('تم إضافة العميل بنجاح');
+                logActivity('إضافة عميل', `${clientData.name} • ${clientData.phone || ''} • ${clientData.area || ''}`);
             });
 
             document.getElementById('client-search').addEventListener('input', function (e) {
@@ -4712,10 +4758,12 @@
 
         function deleteClient(index) {
             if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+                const c = clients[index];
                 clients.splice(index, 1);
                 saveData();
                 renderClientsTable();
                 showToast('تم حذف العميل بنجاح');
+                logActivity('حذف عميل', c?.name || '');
             }
         }
 
@@ -5213,6 +5261,7 @@
                 updateDailyIncomeStats();
                 filterDailyIncomeByDate();
                 showToast('تم إضافة المدخول بنجاح');
+                logActivity('إضافة مدخول', `${incomeData.date} • ${incomeData.type} • ${incomeData.source} • ${incomeData.amount} • ${incomeData.paymentMethod} • ${incomeData.status}`);
             });
 
             document.getElementById('dailyIncome-search').addEventListener('input', function (e) {
@@ -5254,11 +5303,13 @@
 
         function deleteDailyIncome(index) {
             if (confirm('هل أنت متأكد من حذف سجل المدخول هذا؟')) {
+                const inc = dailyIncome[index];
                 dailyIncome.splice(index, 1);
                 saveData();
                 updateDailyIncomeStats();
                 filterDailyIncomeByDate();
                 showToast('تم حذف سجل المدخول بنجاح');
+                logActivity('حذف مدخول', inc ? `${inc.date} • ${inc.type} • ${inc.source} • ${inc.amount}` : '');
             }
         }
 
@@ -5328,6 +5379,7 @@
                 updateDailyExpensesStats();
                 filterDailyExpensesByDate();
                 showToast('تم إضافة المصروف بنجاح');
+                logActivity('إضافة مصروف', `${expenseData.date} • ${expenseData.type} • ${expenseData.employee || ''} • ${expenseData.amount} • ${expenseData.paymentMethod}`);
             });
 
             document.getElementById('dailyExpenses-search').addEventListener('input', function (e) {
@@ -5343,11 +5395,13 @@
 
         function deleteDailyExpense(index) {
             if (confirm('هل أنت متأكد من حذف سجل المصروف هذا؟')) {
+                const exp = dailyExpenses[index];
                 dailyExpenses.splice(index, 1);
                 saveData();
                 updateDailyExpensesStats();
                 filterDailyExpensesByDate();
                 showToast('تم حذف سجل المصروف بنجاح');
+                logActivity('حذف مصروف', exp ? `${exp.date} • ${exp.type} • ${exp.employee || ''} • ${exp.amount}` : '');
             }
         }
 
@@ -5403,6 +5457,8 @@
                             loadReports();
                         } else if (moduleId === 'settings') {
                             loadSettings();
+                        } else if (moduleId === 'activityLog') {
+                            loadActivityLog();
                         }
                     }
                 });
@@ -5554,6 +5610,7 @@
                 updateEmployeeStats();
                 renderEmployeesTable();
                 showToast('تم إضافة الموظف بنجاح');
+                logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
             });
 
             document.getElementById('employee-search').addEventListener('input', function (e) {
@@ -5723,11 +5780,13 @@
 
         function deleteEmployee(index) {
             if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+                const emp = employees[index];
                 employees.splice(index, 1);
                 saveData();
                 updateEmployeeStats();
                 renderEmployeesTable();
                 showToast('تم حذف الموظف بنجاح');
+                logActivity('حذف موظف', emp?.name || '');
             }
         }
 
@@ -6507,6 +6566,7 @@
                 window.__lastPayrollRows = rows;
                 renderPayrollTable(rows);
                 showToast(`تم حساب الرواتب (${rows.length})`, 'success');
+                logActivity('حساب الرواتب', `الشهر ${month}${employeeName ? ` • الموظف ${employeeName}` : ''} • عدد السجلات ${rows.length}`);
             });
 
             // تصدير
@@ -7434,6 +7494,61 @@
             });
         }
 
+        // ===== سجل الأنشطة =====
+        function getActivityLog() {
+            try {
+                const raw = sessionStorage.getItem(LS_KEYS.activityLog);
+                const arr = raw ? JSON.parse(raw) : [];
+                return Array.isArray(arr) ? arr : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function setActivityLog(arr) {
+            sessionStorage.setItem(LS_KEYS.activityLog, JSON.stringify(arr));
+        }
+
+        function logActivity(action, details = '') {
+            const u = getCurrentUser() || { username: 'unknown', role: 'viewer', displayName: 'غير معروف' };
+            const item = {
+                ts: new Date().toISOString(),
+                username: u.username,
+                role: u.role,
+                action: String(action || ''),
+                details: String(details || '')
+            };
+            const log = getActivityLog();
+            log.unshift(item);
+            if (log.length > 500) log.length = 500;
+            setActivityLog(log);
+        }
+
+        function loadActivityLog() {
+            const tbody = document.getElementById('activityLogBody');
+            const count = document.getElementById('activityLogCount');
+            if (!tbody) return;
+            const log = getActivityLog();
+            if (count) count.textContent = String(log.length);
+            if (!log.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">لا توجد أنشطة بعد</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = log.slice(0, 200).map(x => {
+                const d = new Date(x.ts);
+                const when = isNaN(d.getTime()) ? x.ts : d.toLocaleString('ar-SA');
+                return `
+                    <tr>
+                        <td>${when}</td>
+                        <td>${x.username || ''}</td>
+                        <td><span class="badge ${x.role === 'admin' ? 'bg-primary' : x.role === 'supervisor' ? 'bg-info text-dark' : 'bg-secondary'}">${x.role}</span></td>
+                        <td>${x.action || ''}</td>
+                        <td class="text-muted">${x.details || ''}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         // ===== تهيئة النظام عند تحميل الصفحة =====
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -7511,6 +7626,22 @@
                     restoreOriginalDataBtn.addEventListener('click', function () {
                         if (!confirm('هل تريد استرجاع البيانات الأصلية من user-data-full.json؟ سيتم استبدال جميع البيانات الحالية.')) return;
                         restoreOriginalDataFromFile();
+                    });
+                }
+
+                const clearActivityLogBtn = document.getElementById('clearActivityLogBtn');
+                if (clearActivityLogBtn) {
+                    clearActivityLogBtn.addEventListener('click', function () {
+                        const u = getCurrentUser();
+                        if (u?.role !== 'admin') {
+                            showToast('فقط المدير يمكنه مسح سجل الأنشطة', 'warning');
+                            return;
+                        }
+                        if (!confirm('هل تريد مسح سجل الأنشطة؟')) return;
+                        setActivityLog([]);
+                        logActivity('مسح سجل الأنشطة', '');
+                        loadActivityLog();
+                        showToast('تم مسح سجل الأنشطة', 'success');
                     });
                 }
 
