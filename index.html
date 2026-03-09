@@ -125,6 +125,30 @@
             border: 1px solid rgba(52, 152, 219, 0.15);
         }
 
+        @media print {
+            body.printing #printArea {
+                display: block !important;
+            }
+
+            body.printing * {
+                visibility: hidden !important;
+            }
+
+            body.printing #printArea,
+            body.printing #printArea * {
+                visibility: visible !important;
+            }
+
+            body.printing #printArea {
+                position: fixed;
+                inset: 0;
+                padding: 24px;
+                background: #fff !important;
+                color: #000 !important;
+                overflow: auto;
+            }
+        }
+
         .app-container {
             min-height: 100vh;
             background: rgba(255, 255, 255, .98);
@@ -2536,6 +2560,9 @@
         </div>
     </div>
 
+    <!-- PRINT AREA -->
+    <div id="printArea" style="display:none"></div>
+
     <!-- Modals -->
     <!-- Employee Modal -->
     <div class="modal fade" id="employeeModal" tabindex="-1">
@@ -4512,6 +4539,9 @@
                             <button type="button" class="btn btn-outline-success" onclick="markIncomeAsPaid(${dailyIncome.indexOf(income)})">
                                 <i class="fas fa-check"></i>
                             </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="printIncomeReceipt(${income.id})" aria-label="طباعة إيصال">
+                                <i class="fas fa-print"></i>
+                            </button>
                             <button type="button" class="btn btn-outline-danger" onclick="deleteDailyIncome(${dailyIncome.indexOf(income)})">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -4600,6 +4630,9 @@
                     <td>${expense.notes || 'لا يوجد'}</td>
                     <td>
                         <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary" onclick="printExpenseReceipt(${expense.id})" aria-label="طباعة إيصال">
+                                <i class="fas fa-print"></i>
+                            </button>
                             <button type="button" class="btn btn-outline-danger" onclick="deleteDailyExpense(${dailyExpenses.indexOf(expense)})">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -6703,9 +6736,12 @@
                     <td class="fw-bold text-success">${safeNumber(r.net).toLocaleString()}</td>
                     <td><span class="badge ${r.status === 'مكتمل' ? 'bg-success' : 'bg-warning text-dark'}">${r.status}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="alert('الحضور: ${r._meta.presentDays} يوم\\nالغياب: ${r._meta.absentDays} يوم')">
-                            تفاصيل
-                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="alert('الحضور: ${r._meta.presentDays} يوم\\nالغياب: ${r._meta.absentDays} يوم')">تفاصيل</button>
+                            <button class="btn btn-outline-secondary" onclick="printPayslipByEmployee('${String(r.employee).replace(/'/g, \"\\\\'\")}', '${r.month}')">
+                                <i class="fas fa-print"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -6759,6 +6795,123 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showToast('تم تصدير كشف الرواتب (CSV)');
+        }
+
+        // ===== الطباعة (كشف راتب / إيصالات) =====
+        function printHtml(title, innerHtml) {
+            const area = document.getElementById('printArea');
+            if (!area) return;
+            area.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+                    <div>
+                        <div style="font-size:20px;font-weight:800">${title}</div>
+                        <div style="font-size:12px;color:#666;margin-top:2px">${settings?.companyName || 'SUPER_PRO SYSTEM'}</div>
+                    </div>
+                    <div style="font-size:12px;color:#666;text-align:left">
+                        ${new Date().toLocaleString('ar-SA')}
+                    </div>
+                </div>
+                ${innerHtml}
+            `;
+
+            document.body.classList.add('printing');
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    document.body.classList.remove('printing');
+                    area.innerHTML = '';
+                }, 300);
+            }, 60);
+        }
+
+        function printPayslipByEmployee(employeeName, month) {
+            const rows = window.__lastPayrollRows || [];
+            const row = rows.find(r => r.employee === employeeName && r.month === month) || rows.find(r => r.employee === employeeName);
+            if (!row) return showToast('لا يوجد كشف راتب لهذا الموظف', 'warning');
+
+            const html = `
+                <div style="border:1px solid #ddd;border-radius:12px;padding:16px">
+                    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:800;font-size:16px">${row.employee}</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">الشهر: ${row.month}</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">الجنسية: ${row.nationality || '-'}</div>
+                        </div>
+                        <div style="text-align:left">
+                            <div style="font-size:12px;color:#666">الصافي</div>
+                            <div style="font-size:28px;font-weight:900;color:#0a7f4f">${safeNumber(row.net).toLocaleString()} ${settings?.currency || 'ر.ق'}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table style="width:100%;border-collapse:collapse">
+                        <tr><td style="padding:8px 0;color:#444">الراتب الأساسي</td><td style="padding:8px 0;text-align:left;font-weight:700">${safeNumber(row.baseSalary).toLocaleString()}</td></tr>
+                        <tr><td style="padding:8px 0;color:#444">أيام الحضور</td><td style="padding:8px 0;text-align:left;font-weight:700">${row._meta?.presentDays ?? 0}</td></tr>
+                        <tr><td style="padding:8px 0;color:#444">أيام الغياب</td><td style="padding:8px 0;text-align:left;font-weight:700">${row._meta?.absentDays ?? 0}</td></tr>
+                        <tr><td style="padding:8px 0;color:#444">خصم الغياب</td><td style="padding:8px 0;text-align:left;font-weight:700;color:#c0392b">-${safeNumber(row.deductions).toLocaleString()}</td></tr>
+                        <tr><td style="padding:8px 0;color:#444">السلف/التسبقات</td><td style="padding:8px 0;text-align:left;font-weight:700;color:#c0392b">-${safeNumber(row.advances).toLocaleString()}</td></tr>
+                    </table>
+                </div>
+            `;
+            printHtml('كشف راتب', html);
+            logActivity('طباعة كشف راتب', `${row.employee} • ${row.month} • صافي ${row.net}`);
+        }
+
+        function printIncomeReceipt(id) {
+            const inc = (dailyIncome || []).find(x => String(x.id) === String(id));
+            if (!inc) return showToast('لم يتم العثور على المدخول', 'warning');
+            const html = `
+                <div style="border:1px solid #ddd;border-radius:12px;padding:16px">
+                    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:800;font-size:16px">إيصال مدخول</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">التاريخ: ${inc.date}</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">المصدر: ${inc.source}</div>
+                        </div>
+                        <div style="text-align:left">
+                            <div style="font-size:12px;color:#666">المبلغ</div>
+                            <div style="font-size:26px;font-weight:900;color:#0a7f4f">${safeNumber(inc.amount).toLocaleString()} ${settings?.currency || 'ر.ق'}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="font-size:13px;color:#333">
+                        <div><b>النوع:</b> ${inc.type}</div>
+                        <div style="margin-top:6px"><b>طريقة الدفع:</b> ${inc.paymentMethod}</div>
+                        <div style="margin-top:6px"><b>الحالة:</b> ${inc.status}</div>
+                        <div style="margin-top:6px"><b>الوصف:</b> ${inc.description || '-'}</div>
+                    </div>
+                </div>
+            `;
+            printHtml('إيصال مدخول', html);
+            logActivity('طباعة إيصال مدخول', `${inc.date} • ${inc.source} • ${inc.amount}`);
+        }
+
+        function printExpenseReceipt(id) {
+            const exp = (dailyExpenses || []).find(x => String(x.id) === String(id));
+            if (!exp) return showToast('لم يتم العثور على المصروف', 'warning');
+            const html = `
+                <div style="border:1px solid #ddd;border-radius:12px;padding:16px">
+                    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+                        <div>
+                            <div style="font-weight:800;font-size:16px">إيصال مصروف</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">التاريخ: ${exp.date}</div>
+                            <div style="color:#666;font-size:12px;margin-top:2px">النوع: ${exp.type}</div>
+                        </div>
+                        <div style="text-align:left">
+                            <div style="font-size:12px;color:#666">المبلغ</div>
+                            <div style="font-size:26px;font-weight:900;color:#c0392b">${safeNumber(exp.amount).toLocaleString()} ${settings?.currency || 'ر.ق'}</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="font-size:13px;color:#333">
+                        <div><b>الموظف:</b> ${exp.employee || '-'}</div>
+                        <div style="margin-top:6px"><b>طريقة الدفع:</b> ${exp.paymentMethod}</div>
+                        <div style="margin-top:6px"><b>التفاصيل:</b> ${exp.description || '-'}</div>
+                        <div style="margin-top:6px"><b>ملاحظات:</b> ${exp.notes || '-'}</div>
+                    </div>
+                </div>
+            `;
+            printHtml('إيصال مصروف', html);
+            logActivity('طباعة إيصال مصروف', `${exp.date} • ${exp.type} • ${exp.amount}`);
         }
 
         // ===== قسم الإعدادات =====
