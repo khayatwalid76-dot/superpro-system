@@ -6492,7 +6492,10 @@
                 // التسبقات: من مصروفات "تسبقة عن راتب" + من salaryAdvances إن وُجدت
                 const advancesFromExpenses = (dailyExpenses || [])
                     .filter(x => (x?.date || '').toString().startsWith(month))
-                    .filter(x => (x?.type || '') === 'تسبقة عن راتب')
+                    .filter(x => {
+                        const t = (x?.type || '').toString().trim();
+                        return t === 'تسبقة عن راتب' || t === 'سلفة' || t === 'تسبقات رواتب' || t === 'سلف رواتب';
+                    })
                     .filter(x => (x?.employee || '').toString().trim() === emp.name)
                     .reduce((sum, x) => sum + safeNumber(x?.amount), 0);
 
