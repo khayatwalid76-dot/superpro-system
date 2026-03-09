@@ -1,10 +1,10 @@
 // Service Worker - SUPER_PRO SYSTEM
-const CACHE_NAME = 'superpro-v1';
+const CACHE_NAME = 'superpro-v2';
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(['/', '/index.html', '/manifest.json']);
+            return cache.addAll(['/', '/index.html', '/manifest.json', '/user-data-full.json']);
         }).then(() => self.skipWaiting())
     );
 });
