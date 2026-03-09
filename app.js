@@ -36,10 +36,13 @@ function changeLanguage(lang) {
   updateLanguageUI();
   
   // Reload current page
-  const activePage = document.querySelector('.nav-item.active');
-  if(activePage) {
-    const page = activePage.dataset.page;
-    navigate(page);
+  const activeNav = document.querySelector('.nav-item.active');
+  if(activeNav) {
+    const module = activeNav.querySelector('[data-module]');
+    if(module) {
+      const page = module.dataset.module;
+      navigate(page);
+    }
   }
   
   showToast(lang === 'ar' ? 'تم تغيير اللغة للعربية' : lang === 'en' ? 'Language changed to English' : 'Langue changée en Français', 'success');
@@ -104,9 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Sidebar navigation
   document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function() {
-      const page = this.dataset.page;
-      navigate(page);
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const module = this.querySelector('[data-module]');
+      if(module) {
+        const page = module.dataset.module;
+        navigate(page);
+      }
     });
   });
   
@@ -182,24 +189,23 @@ function updateUserInfo() {
 
 // ============= NAVIGATION =============
 function navigate(page) {
-  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  // Hide all module containers
+  document.querySelectorAll('.module-container').forEach(el => el.style.display = 'none');
+  
+  // Remove active from all navigation items
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   
-  const pageEl = document.getElementById('page-' + page);
+  // Show the selected page
+  const pageEl = document.getElementById(page);
   if(pageEl) {
-    pageEl.classList.add('active');
+    pageEl.style.display = 'block';
   }
   
-  // Dashboard always remains visible in sidebar
-  const dashboardBtn = document.querySelector('[data-page="dashboard"]');
-  if(dashboardBtn) {
-    dashboardBtn.classList.add('active');
+  // Mark navigation item as active
+  const navItem = document.querySelector(`[data-module="${page}"]`);
+  if(navItem) {
+    navItem.closest('.nav-item').classList.add('active');
   }
-  
-  // Add active to current page button
-  document.querySelectorAll('[data-page="' + page + '"]').forEach(el => {
-    el.classList.add('active');
-  });
   
   // Load page-specific data
   if(page === 'dashboard') loadDashboard();
@@ -213,6 +219,15 @@ function navigate(page) {
   if(page === 'packages') loadPackages();
   if(page === 'ratings') loadRatings();
   if(page === 'reports') loadReports();
+  if(page === 'dailyWork') loadDailyWork();
+  if(page === 'dailyIncome') loadIncome();
+  if(page === 'dailyExpenses') loadExpenses();
+  if(page === 'tasks') loadTasks();
+  if(page === 'calendar') loadCalendar();
+  if(page === 'settings') loadSettings();
+  if(page === 'activityLog') loadActivityLog();
+  if(page === 'services') loadServices();
+  if(page === 'finance') loadFinance();
 }
 
 // ============= DASHBOARD =============
@@ -1272,6 +1287,67 @@ document.addEventListener('keydown', function(e) {
     });
   }
 });
+
+// ============= MISSING LOAD FUNCTIONS =============
+function loadDailyWork() {
+  // Daily work page loader
+  const container = document.getElementById('dailyWork');
+  if(!container) return;
+}
+
+function loadFinance() {
+  // Finance page loader
+  const container = document.getElementById('finance');
+  if(!container) return;
+}
+
+function loadSettings() {
+  // Settings page loader
+  const container = document.getElementById('settings');
+  if(!container) return;
+}
+
+function loadActivityLog() {
+  // Activity log page loader
+  const container = document.getElementById('activityLog');
+  if(!container) return;
+}
+
+function loadServices() {
+  // Services page loader
+  const container = document.getElementById('services');
+  if(!container) return;
+}
+
+function loadCalendar() {
+  // Calendar page loader
+  const container = document.getElementById('calendar');
+  if(!container) return;
+}
+
+function loadTeams() {
+  // Teams page loader
+  const container = document.getElementById('teams');
+  if(!container) return;
+}
+
+function loadLocations() {
+  // Locations page loader
+  const container = document.getElementById('locations');
+  if(!container) return;
+}
+
+function loadPackages() {
+  // Packages page loader
+  const container = document.getElementById('packages');
+  if(!container) return;
+}
+
+function loadRatings() {
+  // Ratings page loader
+  const container = document.getElementById('ratings');
+  if(!container) return;
+}
 
 console.log('Super PRO System v2 - Initialized');
 console.log('Firebase services ready - Testing connection...');
