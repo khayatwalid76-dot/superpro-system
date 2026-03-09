@@ -6737,8 +6737,8 @@
                     <td><span class="badge ${r.status === 'مكتمل' ? 'bg-success' : 'bg-warning text-dark'}">${r.status}</span></td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="alert('الحضور: ${r._meta.presentDays} يوم\nالغياب: ${r._meta.absentDays} يوم')">تفاصيل</button>
-                            <button class="btn btn-outline-secondary" onclick="printPayslipByEmployee('${String(r.employee).replace(/'/g, \"&apos;\")}', '${r.month}')">
+                            <button class="btn btn-outline-primary" onclick="showPayrollDetails('${r._meta.presentDays}', '${r._meta.absentDays}')">تفاصيل</button>
+                            <button class="btn btn-outline-secondary" onclick="printPayslip(${rows.indexOf(r)})">
                                 <i class="fas fa-print"></i>
                             </button>
                         </div>

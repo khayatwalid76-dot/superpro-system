@@ -26,21 +26,41 @@ document.addEventListener('DOMContentLoaded', function() {
   loadData();
   console.log('✅ تم تحميل البيانات');
   
-  // Setup navigation
-  setupNavigation();
-  console.log('✅ تم إعداد التنقل');
+  // Setup login handlers
+  const authLoginBtn = document.getElementById('authLoginBtn');
+  if(authLoginBtn) {
+    authLoginBtn.addEventListener('click', handleAuthLogin);
+    console.log('✅ تم إعداد زر الدخول');
+  }
   
-  // Setup login
-  document.getElementById('loginBtn').addEventListener('click', handleLogin);
-  document.getElementById('loginPass').addEventListener('keypress', function(e) {
-    if(e.key === 'Enter') handleLogin();
-  });
+  const authPassword = document.getElementById('authPassword');
+  if(authPassword) {
+    authPassword.addEventListener('keypress', function(e) {
+      if(e.key === 'Enter') handleAuthLogin();
+    });
+  }
+  
+  // Show login overlay
+  const authOverlay = document.getElementById('authOverlay');
+  if(authOverlay) {
+    authOverlay.style.display = 'flex';
+    console.log('✅ تم عرض شاشة الدخول');
+  } else {
+    console.warn('⚠️ لم يتم العثور على شاشة الدخول');
+  }
 });
 
 // ============= NAVIGATION SETUP =============
 function setupNavigation() {
+  console.log('🔗 إعداد التنقل...');
+  
   const navLinks = document.querySelectorAll('.nav-link[data-module]');
-  console.log(`🔗 وجدت ${navLinks.length} رابط تنقل`);
+  console.log(`وجدت ${navLinks.length} رابط تنقل`);
+  
+  if(navLinks.length === 0) {
+    console.warn('⚠️ لم يتم العثور على روابط تنقل!');
+    return;
+  }
   
   navLinks.forEach((link, index) => {
     const module = link.dataset.module;
@@ -54,10 +74,10 @@ function setupNavigation() {
     });
   });
   
-  // Auto-navigate to dashboard on first load
+  // Auto-navigate to dashboard
   setTimeout(() => {
     navigate('dashboard');
-  }, 500);
+  }, 200);
 }
 
 // ============= NAVIGATE FUNCTION =============
@@ -194,12 +214,22 @@ function loadExpenses() { console.log('📋 تحميل المصروفات'); }
 function loadTasks() { console.log('📋 تحميل المهام'); }
 function loadReports() { console.log('📋 تحميل التقارير'); }
 
+// ============= PAYROLL HELPERS =============
+function showPayrollDetails(presentDays, absentDays) {
+  alert(`أيام الحضور: ${presentDays}\nأيام الغياب: ${absentDays}`);
+}
+
+function printPayslip(index) {
+  console.log('طباعة كشف الراتب رقم:', index);
+  alert('سيتم تنفيذ طباعة كشف الراتب');
+}
+
 // ============= LOGIN =============
 function handleLogin() {
   console.log('🔐 محاولة تسجيل دخول...');
   
-  const username = document.getElementById('loginUser').value.trim();
-  const password = document.getElementById('loginPass').value.trim();
+  const username = document.getElementById('loginUser') ? document.getElementById('loginUser').value.trim() : '';
+  const password = document.getElementById('loginPass') ? document.getElementById('loginPass').value.trim() : '';
   
   if(username && password) {
     currentUser = { username, role: 'user' };
@@ -208,10 +238,54 @@ function handleLogin() {
     
     console.log('✅ تم تسجيل الدخول:', username);
     
-    // Start navigation setup after login
     setupNavigation();
   } else {
     alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+  }
+}
+
+// ============= AUTH LOGIN (NEW) =============
+function handleAuthLogin() {
+  console.log('🔐 محاولة تسجيل دخول عبر Auth...');
+  
+  const username = document.getElementById('authUsername') ? document.getElementById('authUsername').value.trim() : '';
+  const password = document.getElementById('authPassword') ? document.getElementById('authPassword').value.trim() : '';
+  const role = document.getElementById('authRole') ? document.getElementById('authRole').value : 'viewer';
+  
+  // Simple auth - في الإنتاج استخدم Firebase
+  const validLogins = {
+    'admin': '1234',
+    'supervisor': '1234',
+    'viewer': '1234'
+  };
+  
+  if(validLogins[username] === password) {
+    currentUser = { username, role };
+    
+    // Hide login overlay
+    const authOverlay = document.getElementById('authOverlay');
+    if(authOverlay) {
+      authOverlay.style.display = 'none';
+      console.log('✅ تم إخفاء شاشة الدخول');
+    }
+    
+    console.log('✅ تم تسجيل الدخول:', username, 'الدور:', role);
+    
+    // Setup navigation after successful login
+    setTimeout(() => {
+      setupNavigation();
+    }, 100);
+  } else {
+    const errorDiv = document.getElementById('authError');
+    if(errorDiv) {
+      errorDiv.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+      errorDiv.style.display = 'block';
+      console.warn('❌ بيانات دخول غير صحيحة');
+      
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 3000);
+    }
   }
 }
 
