@@ -7702,6 +7702,108 @@
             }).join('');
         }
 
+        // ===== البحث العالمي السريع =====
+        function navigateToModule(moduleId) {
+            const link = document.querySelector(`.nav-link[data-module="${moduleId}"]`);
+            if (link) link.click();
+        }
+
+        function highlightRowByText(tableBodySelector, text) {
+            if (!text) return;
+            const tbody = document.querySelector(tableBodySelector);
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const target = rows.find(r => (r.textContent || '').includes(text));
+            if (!target) return;
+            target.classList.add('table-warning');
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => target.classList.remove('table-warning'), 1800);
+        }
+
+        function initGlobalSearch() {
+            const input = document.getElementById('globalSearchInput');
+            const box = document.getElementById('globalSearchResults');
+            if (!input || !box) return;
+
+            const hide = () => { box.style.display = 'none'; box.innerHTML = ''; };
+            const show = () => { box.style.display = 'block'; };
+
+            const buildResults = (q) => {
+                const query = (q || '').trim().toLowerCase();
+                if (!query || query.length < 2) return [];
+
+                const res = [];
+                const push = (type, moduleId, label, hint) => {
+                    res.push({ type, moduleId, label, hint });
+                };
+
+                (employees || []).forEach(e => {
+                    const hay = `${e.name || ''} ${e.phone || ''} ${e.nationality || ''} ${e.job || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('موظف', 'employees', e.name || 'موظف', e.job || '');
+                });
+                (clients || []).forEach(c => {
+                    const hay = `${c.name || ''} ${c.phone || ''} ${c.area || ''} ${c.service || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('عميل', 'clients', c.name || 'عميل', c.area || '');
+                });
+                (contracts || []).forEach(ct => {
+                    const hay = `${ct.number || ''} ${ct.client || ''} ${ct.employee || ''} ${ct.paymentStatus || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('عقد', 'contracts', `#${ct.number} - ${ct.client}`, ct.paymentStatus || '');
+                });
+                (dailyIncome || []).forEach(inc => {
+                    const hay = `${inc.date || ''} ${inc.source || ''} ${inc.type || ''} ${inc.amount || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('مدخول', 'dailyIncome', `${inc.source} - ${inc.amount} ر.ق`, inc.date || '');
+                });
+                (dailyExpenses || []).forEach(exp => {
+                    const hay = `${exp.date || ''} ${exp.type || ''} ${exp.employee || ''} ${exp.amount || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('مصروف', 'dailyExpenses', `${exp.type} - ${exp.amount} ر.ق`, exp.date || '');
+                });
+
+                return res.slice(0, 12);
+            };
+
+            let t = null;
+            input.addEventListener('input', () => {
+                clearTimeout(t);
+                t = setTimeout(() => {
+                    const results = buildResults(input.value);
+                    if (!results.length) return hide();
+                    box.innerHTML = results.map((r, i) => `
+                        <div class="p-2 border-bottom search-item" style="cursor:pointer" data-module="${r.moduleId}" data-label="${String(r.label).replace(/\"/g, '&quot;')}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">${r.type}</span>
+                                <small class="text-muted">${r.hint || ''}</small>
+                            </div>
+                            <div class="fw-bold mt-1">${r.label}</div>
+                        </div>
+                    `).join('');
+                    show();
+                }, 120);
+            });
+
+            box.addEventListener('click', (e) => {
+                const item = e.target.closest('.search-item');
+                if (!item) return;
+                const moduleId = item.getAttribute('data-module');
+                const label = item.getAttribute('data-label') || '';
+                hide();
+                input.value = '';
+                navigateToModule(moduleId);
+
+                setTimeout(() => {
+                    if (moduleId === 'employees') highlightRowByText('#employees-table-body', label);
+                    if (moduleId === 'clients') highlightRowByText('#clients-table-body', label);
+                    if (moduleId === 'contracts') highlightRowByText('#contracts-table-body', label);
+                    if (moduleId === 'dailyIncome') highlightRowByText('#dailyIncome-table-body', label.split(' - ')[0]);
+                    if (moduleId === 'dailyExpenses') highlightRowByText('#dailyExpenses-table-body', label.split(' - ')[0]);
+                }, 250);
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target === input || box.contains(e.target)) return;
+                hide();
+            });
+        }
+
         // ===== تهيئة النظام عند تحميل الصفحة =====
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -7718,6 +7820,9 @@
                 
                 setupNavigation();
                 console.log("setupNavigation finished");
+
+                initGlobalSearch();
+                console.log("initGlobalSearch finished");
                 
                 initCharts();
                 console.log("initCharts finished");
