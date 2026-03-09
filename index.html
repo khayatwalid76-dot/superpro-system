@@ -6407,10 +6407,219 @@
 
         // ===== قسم الرواتب =====
         function loadPayroll() {
-            // تنفيذ بسيط لقسم الرواتب
-            document.getElementById('calculatePayroll').addEventListener('click', function () {
-                showToast('سيتم تنفيذ حساب الرواتب في الإصدارات القادمة', 'info');
+            if (window.__payrollInitialized) return;
+            window.__payrollInitialized = true;
+
+            // تهيئة الشهر الافتراضي
+            const payrollMonthInput = document.getElementById('payrollMonth');
+            if (payrollMonthInput && !payrollMonthInput.value) {
+                payrollMonthInput.value = new Date().toISOString().slice(0, 7);
+            }
+
+            // تهيئة قائمة الموظفين
+            fillEmployeeSelect('payrollEmployee');
+
+            // تشغيل الحساب
+            document.getElementById('calculatePayroll')?.addEventListener('click', function () {
+                const month = (document.getElementById('payrollMonth')?.value || '').trim();
+                if (!month) {
+                    showToast('يرجى اختيار الشهر', 'warning');
+                    return;
+                }
+                const employeeName = (document.getElementById('payrollEmployee')?.value || '').trim();
+                const rows = calculatePayrollRows({ month, employeeName });
+                window.__lastPayrollRows = rows;
+                renderPayrollTable(rows);
+                showToast(`تم حساب الرواتب (${rows.length})`, 'success');
             });
+
+            // تصدير
+            document.getElementById('exportPayrollXLSX')?.addEventListener('click', function () {
+                const rows = window.__lastPayrollRows || [];
+                if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                exportPayrollRowsXLSX(rows);
+            });
+            document.getElementById('exportPayrollCSV')?.addEventListener('click', function () {
+                const rows = window.__lastPayrollRows || [];
+                if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                exportPayrollRowsCSV(rows);
+            });
+        }
+
+        function getMonthMeta(monthStr) {
+            const m = /^(\d{4})-(\d{2})$/.exec(monthStr);
+            if (!m) return null;
+            const year = Number(m[1]);
+            const monthIndex = Number(m[2]) - 1; // 0-11
+            const start = new Date(year, monthIndex, 1);
+            const end = new Date(year, monthIndex + 1, 0);
+            const daysInMonth = end.getDate();
+            return { year, monthIndex, start, end, daysInMonth };
+        }
+
+        function getAttendanceEmployeeName(rec) {
+            return (rec?.employeeName || rec?.employee || rec?.name || '').toString().trim();
+        }
+
+        function safeNumber(v) {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function calculatePayrollRows({ month, employeeName }) {
+            const meta = getMonthMeta(month);
+            if (!meta) return [];
+
+            const list = employees
+                .filter(e => (e?.status || '') !== 'غير نشط')
+                .filter(e => !employeeName || e.name === employeeName);
+
+            return list.map((emp, idx) => {
+                const baseSalary = safeNumber(emp.salary);
+
+                const monthAttendance = (attendance || [])
+                    .filter(r => (r?.date || '').toString().startsWith(month))
+                    .filter(r => getAttendanceEmployeeName(r) === emp.name);
+
+                const absentDays = monthAttendance.filter(r => (r?.status || '') === 'غائب').length;
+                const presentDays = monthAttendance.filter(r => (r?.status || '') === 'حاضر').length;
+                const totalHours = monthAttendance.reduce((sum, r) => sum + safeNumber(r?.hours), 0);
+
+                // خصم الغياب: الراتب الشهري / أيام الشهر * عدد أيام الغياب المسجلة
+                const dailyRate = meta.daysInMonth ? (baseSalary / meta.daysInMonth) : 0;
+                const absenceDeduction = Math.round(dailyRate * absentDays);
+
+                // التسبقات: من مصروفات "تسبقة عن راتب" + من salaryAdvances إن وُجدت
+                const advancesFromExpenses = (dailyExpenses || [])
+                    .filter(x => (x?.date || '').toString().startsWith(month))
+                    .filter(x => (x?.type || '') === 'تسبقة عن راتب')
+                    .filter(x => (x?.employee || '').toString().trim() === emp.name)
+                    .reduce((sum, x) => sum + safeNumber(x?.amount), 0);
+
+                const advancesFromArray = (salaryAdvances || [])
+                    .filter(x => (x?.date || '').toString().startsWith(month))
+                    .filter(x => (x?.employee || x?.employeeName || '').toString().trim() === emp.name)
+                    .reduce((sum, x) => sum + safeNumber(x?.amount), 0);
+
+                const advances = advancesFromExpenses + advancesFromArray;
+
+                // إضافي/بدلات (حالياً 0، جاهزة للتوسع)
+                const overtimeHours = 0;
+                const overtimeAllowance = 0;
+                const allowances = 0;
+                const deductions = absenceDeduction;
+
+                const net = Math.max(0, Math.round(baseSalary + overtimeAllowance + allowances - deductions - advances));
+
+                const status = absentDays > 0 ? 'خصم غياب' : 'مكتمل';
+
+                return {
+                    index: idx + 1,
+                    employee: emp.name,
+                    nationality: emp.nationality || '',
+                    month,
+                    baseSalary,
+                    totalHours,
+                    overtimeHours,
+                    overtimeAllowance,
+                    allowances,
+                    deductions,
+                    advances,
+                    net,
+                    status,
+                    _meta: { presentDays, absentDays }
+                };
+            });
+        }
+
+        function renderPayrollTable(rows) {
+            const tbody = document.getElementById('payroll-table-body');
+            if (!tbody) return;
+
+            if (!rows || !rows.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="14" class="text-center text-muted py-3">
+                            <i class="fas fa-money-check-alt fa-2x mb-2"></i>
+                            <p>لا توجد كشوف رواتب</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = rows.map(r => `
+                <tr>
+                    <td>${r.index}</td>
+                    <td>${r.employee}</td>
+                    <td>${r.nationality}</td>
+                    <td>${r.month}</td>
+                    <td>${safeNumber(r.baseSalary).toLocaleString()}</td>
+                    <td>${safeNumber(r.totalHours).toLocaleString()}</td>
+                    <td>${safeNumber(r.overtimeHours).toLocaleString()}</td>
+                    <td>${safeNumber(r.overtimeAllowance).toLocaleString()}</td>
+                    <td>${safeNumber(r.allowances).toLocaleString()}</td>
+                    <td>${safeNumber(r.deductions).toLocaleString()}</td>
+                    <td>${safeNumber(r.advances).toLocaleString()}</td>
+                    <td class="fw-bold text-success">${safeNumber(r.net).toLocaleString()}</td>
+                    <td><span class="badge ${r.status === 'مكتمل' ? 'bg-success' : 'bg-warning text-dark'}">${r.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="alert('الحضور: ${r._meta.presentDays} يوم\\nالغياب: ${r._meta.absentDays} يوم')">
+                            تفاصيل
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function exportPayrollRowsXLSX(rows) {
+            const data = rows.map(r => ({
+                'الموظف': r.employee,
+                'الجنسية': r.nationality,
+                'الشهر': r.month,
+                'الراتب الأساسي': r.baseSalary,
+                'أيام الحضور': r._meta?.presentDays ?? '',
+                'أيام الغياب': r._meta?.absentDays ?? '',
+                'إجمالي الساعات': r.totalHours,
+                'الخصومات (غياب)': r.deductions,
+                'التسبقات': r.advances,
+                'الصافي': r.net,
+                'الحالة': r.status
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'الرواتب');
+            const month = rows[0]?.month || new Date().toISOString().slice(0, 7);
+            XLSX.writeFile(workbook, `كشف_الرواتب_${month}.xlsx`);
+            showToast('تم تصدير كشف الرواتب (XLSX)');
+        }
+
+        function exportPayrollRowsCSV(rows) {
+            const headers = [
+                'الموظف', 'الجنسية', 'الشهر', 'الراتب الأساسي', 'أيام الحضور', 'أيام الغياب',
+                'إجمالي الساعات', 'الخصومات (غياب)', 'التسبقات', 'الصافي', 'الحالة'
+            ];
+            const lines = [headers.join(',')];
+            rows.forEach(r => {
+                const values = [
+                    r.employee, r.nationality, r.month,
+                    safeNumber(r.baseSalary), r._meta?.presentDays ?? '', r._meta?.absentDays ?? '',
+                    safeNumber(r.totalHours), safeNumber(r.deductions), safeNumber(r.advances),
+                    safeNumber(r.net), r.status
+                ].map(v => `"${String(v).replace(/\"/g, '""')}"`);
+                lines.push(values.join(','));
+            });
+            const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const month = rows[0]?.month || new Date().toISOString().slice(0, 7);
+            a.download = `كشف_الرواتب_${month}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('تم تصدير كشف الرواتب (CSV)');
         }
 
         // ===== قسم الإعدادات =====
