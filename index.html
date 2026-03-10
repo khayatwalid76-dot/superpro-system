@@ -3703,6 +3703,162 @@
             });
         }
 
+        // ===== تبديل الوضع الليلي =====
+        function toggleDarkMode() {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            if (isDarkMode) {
+                document.body.classList.remove('dark-mode');
+                sessionStorage.setItem('darkMode', 'false');
+            } else {
+                document.body.classList.add('dark-mode');
+                sessionStorage.setItem('darkMode', 'true');
+            }
+            showToast(document.body.classList.contains('dark-mode') ? '🌙 تفعيل الوضع الليلي' : '☀️ تفعيل الوضع الفاتح');
+        }
+
+        // ===== التباين العالي =====
+        function toggleHighContrast() {
+            const isHighContrast = document.body.classList.contains('high-contrast');
+            if (isHighContrast) {
+                document.body.classList.remove('high-contrast');
+                document.documentElement.classList.remove('high-contrast');
+                localStorage.setItem('highContrast', 'false');
+            } else {
+                document.body.classList.add('high-contrast');
+                document.documentElement.classList.add('high-contrast');
+                localStorage.setItem('highContrast', 'true');
+            }
+            showToast(document.body.classList.contains('high-contrast') ? '🔆 تفعيل التباين العالي' : '🔅 تعطيل التباين العالي');
+        }
+
+        // ===== تغيير اللغة =====
+        function changeLanguage(lang) {
+            if (!['ar', 'en', 'fr'].includes(lang)) return false;
+            
+            localStorage.setItem('language', lang);
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // تحديث الأزرار النشطة
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const langNames = {
+                'ar': 'العربية 🇸🇦',
+                'en': 'English 🇺🇸',
+                'fr': 'Français 🇫🇷'
+            };
+            
+            showToast('🌍 اللغة: ' + langNames[lang]);
+            
+            // إعادة تحميل الصفحة لتطبيق اللغة
+            setTimeout(() => location.reload(), 300);
+            return true;
+        }
+
+        // ===== النسخة الاحتياطية =====
+        function backupData() {
+            try {
+                const backup = {
+                    data: {
+                        employees, clients, attendance, contracts, services, settings,
+                        tasks, events, dailyWork, dailyIncome, dailyExpenses,
+                        financialTransactions, salaryAdvances
+                    },
+                    timestamp: new Date().toISOString(),
+                    version: '2.5.1',
+                    language: localStorage.getItem('language') || 'ar',
+                    darkMode: sessionStorage.getItem('darkMode') || 'false',
+                    highContrast: localStorage.getItem('highContrast') || 'false'
+                };
+                
+                const backupStr = JSON.stringify(backup, null, 2);
+                const blob = new Blob([backupStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'superpro_backup_' + new Date().toLocaleDateString('ar-SA').replace(/\//g, '-') + '_' + Date.now() + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('💾 تم تحميل النسخة الاحتياطية بنجاح');
+                logActivity('نسخة احتياطية', 'تم تحميل نسخة احتياطية من النظام');
+                console.log('✅ تم حفظ النسخة الاحتياطية');
+            } catch (err) {
+                showToast('❌ خطأ في حفظ النسخة الاحتياطية', 'error');
+                console.error('خطأ في النسخة الاحتياطية:', err);
+            }
+        }
+
+        // ===== استرجاع البيانات =====
+        function restoreData(jsonFile) {
+            if (!jsonFile) return;
+            
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    
+                    if (backup.data) {
+                        employees = backup.data.employees || [];
+                        clients = backup.data.clients || [];
+                        attendance = backup.data.attendance || [];
+                        contracts = backup.data.contracts || [];
+                        services = backup.data.services || [];
+                        settings = backup.data.settings || {};
+                        tasks = backup.data.tasks || [];
+                        events = backup.data.events || [];
+                        dailyWork = backup.data.dailyWork || [];
+                        dailyIncome = backup.data.dailyIncome || [];
+                        dailyExpenses = backup.data.dailyExpenses || [];
+                        financialTransactions = backup.data.financialTransactions || [];
+                        salaryAdvances = backup.data.salaryAdvances || [];
+                        
+                        // استرجاع الإعدادات
+                        if (backup.language) {
+                            localStorage.setItem('language', backup.language);
+                            document.documentElement.lang = backup.language;
+                            document.documentElement.dir = backup.language === 'ar' ? 'rtl' : 'ltr';
+                        }
+                        
+                        if (backup.darkMode) {
+                            sessionStorage.setItem('darkMode', backup.darkMode);
+                            if (backup.darkMode === 'true') {
+                                document.body.classList.add('dark-mode');
+                            } else {
+                                document.body.classList.remove('dark-mode');
+                            }
+                        }
+                        
+                        if (backup.highContrast) {
+                            localStorage.setItem('highContrast', backup.highContrast);
+                            if (backup.highContrast === 'true') {
+                                document.body.classList.add('high-contrast');
+                                document.documentElement.classList.add('high-contrast');
+                            } else {
+                                document.body.classList.remove('high-contrast');
+                                document.documentElement.classList.remove('high-contrast');
+                            }
+                        }
+                        
+                        saveData();
+                        showToast('✅ تم استرجاع جميع البيانات والإعدادات بنجاح');
+                        logActivity('استرجاع نسخة احتياطية', 'تم استرجاع البيانات من ملف النسخة الاحتياطية');
+                        
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                } catch (err) {
+                    showToast('❌ خطأ في استرجاع النسخة الاحتياطية - تأكد من أن الملف صحيح', 'error');
+                    console.error('خطأ في استرجاع النسخة:', err);
+                }
+            };
+            reader.readAsText(jsonFile);
+        }
+
         // ===== إصلاح مخططات لوحة التحكم =====
         function initCharts() {
             // رسم بياني للأداء الشهري - يعتمد على البيانات الفعلية

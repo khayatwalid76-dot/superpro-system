@@ -267,7 +267,7 @@ class ComplianceAndCompliance {
       resolvedViolations: this.violations.filter(v => v.status === 'resolved').length,
       activeCertifications: this.certifications.filter(c => c.status === 'active').length,
       expiredCertifications: this.certifications.filter(c => c.status === 'expired').length,
-      findingsBySeverity: this.getFindings BySeverity(),
+      findingsBySeverity: this.getFindingsBySeverity(),
       regulatoryStatus: this.getRegulationStatus(),
       violationsByCategory: this.getViolationsByCategory(),
       recommendations: []
