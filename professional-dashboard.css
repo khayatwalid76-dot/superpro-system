@@ -957,6 +957,122 @@ body[dir="ltr"] {
 }
 
 /* ================================================
+   نظام تصفية التواريخ والعقود
+   ================================================ */
+
+.date-filter-container {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.1));
+    border: 2px solid #667eea;
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.date-filter-container h6 {
+    color: #667eea;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-filter-container h6::before {
+    content: '⏳';
+}
+
+.date-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.date-filter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-filter-item label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.date-filter-item input[type="date"],
+.date-filter-item input[type="month"] {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    background: white;
+}
+
+.date-filter-item input[type="date"]:focus,
+.date-filter-item input[type="month"]:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.filter-buttons .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    min-width: 100px;
+}
+
+.filter-buttons .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.filter-buttons .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.filter-buttons .btn-outline-secondary {
+    border-width: 2px;
+}
+
+/* دعم الوضع الليلي للتصفية */
+[data-theme="dark"] .date-filter-container {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(240, 147, 251, 0.2));
+    border-color: #667eea;
+}
+
+[data-theme="dark"] .date-filter-container h6 {
+    color: #a0d8f7;
+}
+
+[data-theme="dark"] .date-filter-item label {
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .date-filter-item input[type="date"],
+[data-theme="dark"] .date-filter-item input[type="month"] {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+[data-theme="dark"] .date-filter-item input[type="date"]:focus,
+[data-theme="dark"] .date-filter-item input[type="month"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* ================================================
    الطباعة الاحترافية
    ================================================ */
 
