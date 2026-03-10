@@ -3,7 +3,7 @@
 let currentUser = null;
 let currentLanguage = localStorage.getItem('language') || 'ar';
 let currentTheme = localStorage.getItem('theme') || 'light';
-let highContrastEnabled = localStorage.getItem('highContrast') === 'true' || false;
+let highContrastEnabled = localStorage.getItem('highContrast') === 'true' ? true : false;
 let isNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
 let appNotifications = [];
 let appData = {
@@ -839,7 +839,9 @@ function initializeAllModules() {
 // ============= NOTIFICATIONS INITIALIZATION =============
 function initializeNotifications() {
   console.log('🔔 تهيئة نظام الإشعارات...');
-  advancedNotificationsModule.alertInfo('🚀', currentLanguage === 'ar' ? 'تم تحميل النظام بنجاح' : 'System loaded successfully');
+  if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertInfo) {
+    advancedNotificationsModule.alertInfo('🚀', currentLanguage === 'ar' ? 'تم تحميل النظام بنجاح' : 'System loaded successfully');
+  }
   console.log('✅ تم تهيئة الإشعارات');
 }
 
@@ -976,9 +978,12 @@ function toggleDarkMode() {
       '<i class="fas fa-sun me-2"></i>الوضع الفاتح' : '<i class="fas fa-moon me-2"></i>الوضع الليلي';
   }
   
-  advancedNotificationsModule.alertInfo('🌙', currentLanguage === 'ar' ? 
-    `تم التبديل إلى ${currentTheme === 'dark' ? 'الوضع الليلي' : 'الوضع الفاتح'}` : 
-    `Switched to ${currentTheme} mode`);
+  // Show notification if module is loaded
+  if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertInfo) {
+    advancedNotificationsModule.alertInfo('🌙', currentLanguage === 'ar' ? 
+      `تم التبديل إلى ${currentTheme === 'dark' ? 'الوضع الليلي' : 'الوضع الفاتح'}` : 
+      `Switched to ${currentTheme} mode`);
+  }
   
   console.log(`🌙 تم تبديل الوضع إلى: ${currentTheme}`);
 }
@@ -1000,7 +1005,7 @@ function initDarkMode() {
 // ============= HIGH CONTRAST MODE =============
 function toggleHighContrast() {
   highContrastEnabled = !highContrastEnabled;
-  localStorage.setItem('highContrast', highContrastEnabled);
+  localStorage.setItem('highContrast', highContrastEnabled ? 'true' : 'false');
   
   if(highContrastEnabled) {
     document.body.classList.add('high-contrast');
@@ -1010,9 +1015,12 @@ function toggleHighContrast() {
     document.documentElement.classList.remove('high-contrast');
   }
   
-  advancedNotificationsModule.alertInfo('🔆', currentLanguage === 'ar' ? 
-    `${highContrastEnabled ? 'تفعيل' : 'تعطيل'} التباين العالي` : 
-    `${highContrastEnabled ? 'Enable' : 'Disable'} High Contrast`);
+  // Show notification if module is loaded
+  if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertInfo) {
+    advancedNotificationsModule.alertInfo('🔆', currentLanguage === 'ar' ? 
+      `${highContrastEnabled ? 'تفعيل' : 'تعطيل'} التباين العالي` : 
+      `${highContrastEnabled ? 'Enable' : 'Disable'} High Contrast`);
+  }
   
   console.log(`🔆 التباين العالي: ${highContrastEnabled ? 'مفعّل' : 'معطّل'}`);
 }
@@ -1230,10 +1238,14 @@ function backupData() {
     a.click();
     URL.revokeObjectURL(url);
     
-    advancedNotificationsModule.alertSuccess('💾 نسخة احتياطية', 'تم تحميل النسخة الاحتياطية بنجاح');
+    if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertSuccess) {
+      advancedNotificationsModule.alertSuccess('💾 نسخة احتياطية', 'تم تحميل النسخة الاحتياطية بنجاح');
+    }
     console.log('✅ تم تحميل نسخة احتياطية');
   } catch(err) {
-    advancedNotificationsModule.alertError('❌ خطأ', 'فشل تحميل النسخة الاحتياطية');
+    if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertError) {
+      advancedNotificationsModule.alertError('❌ خطأ', 'فشل تحميل النسخة الاحتياطية');
+    }
     console.error('خطأ في النسخة الاحتياطية:', err);
   }
 }
@@ -1264,13 +1276,19 @@ function restoreData(jsonFile) {
           }
           if(backup.settings.highContrast !== undefined) {
             highContrastEnabled = backup.settings.highContrast;
-            localStorage.setItem('highContrast', highContrastEnabled);
+            localStorage.setItem('highContrast', backup.settings.highContrast ? 'true' : 'false');
+            if(backup.settings.highContrast) {
+              document.body.classList.add('high-contrast');
+              document.documentElement.classList.add('high-contrast');
+            }
           }
         }
         
         saveData();
         
-        advancedNotificationsModule.alertSuccess('✅ استرجاع البيانات', 'تم استرجاع جميع البيانات والإعدادات بنجاح');
+        if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertSuccess) {
+          advancedNotificationsModule.alertSuccess('✅ استرجاع البيانات', 'تم استرجاع جميع البيانات والإعدادات بنجاح');
+        }
         console.log('✅ تم استرجاع البيانات من النسخة الاحتياطية');
         
         // Reload after delay
@@ -1279,7 +1297,9 @@ function restoreData(jsonFile) {
         throw new Error('صيغة النسخة الاحتياطية غير صحيحة');
       }
     } catch(err) {
-      advancedNotificationsModule.alertError('❌ خطأ', `فشل استرجاع البيانات: ${err.message}`);
+      if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertError) {
+        advancedNotificationsModule.alertError('❌ خطأ', `فشل استرجاع البيانات: ${err.message}`);
+      }
       console.error('❌ خطأ في استرجاع البيانات:', err);
     }
   };
@@ -1406,7 +1426,10 @@ function changeLanguage(lang) {
     'fr': 'Français 🇫🇷'
   };
   
-  advancedNotificationsModule.alertInfo('🌍 اللغة', `تم التبديل إلى ${langNames[lang] || lang}`);
+  // Show notification if module is loaded
+  if(typeof advancedNotificationsModule !== 'undefined' && advancedNotificationsModule.alertInfo) {
+    advancedNotificationsModule.alertInfo('🌍 اللغة', `تم التبديل إلى ${langNames[lang] || lang}`);
+  }
   console.log(`✅ تم تغيير اللغة: ${lang}`);
   
   // Reload after short delay to ensure localStorage is saved
