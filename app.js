@@ -3,6 +3,7 @@
 let currentUser = null;
 let currentLanguage = localStorage.getItem('language') || 'ar';
 let currentTheme = localStorage.getItem('theme') || 'light';
+let highContrastEnabled = localStorage.getItem('highContrast') === 'true' || false;
 let isNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
 let appNotifications = [];
 let appData = {
@@ -39,6 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set initial language
   document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.lang = currentLanguage;
+  
+  // Initialize theme
+  initDarkMode();
+  initHighContrast();
   
   loadData();
   console.log('✅ تم تحميل البيانات');
@@ -955,7 +960,7 @@ function toggleDarkMode() {
   currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', currentTheme);
   document.documentElement.setAttribute('data-theme', currentTheme);
-  console.log(`🌙 تم تبديل الوضع إلى: ${currentTheme}`);
+  document.body.setAttribute('data-theme', currentTheme);
   
   // Update toggle button
   const darkModeToggle = document.getElementById('darkModeToggle');
@@ -963,11 +968,61 @@ function toggleDarkMode() {
     darkModeToggle.innerHTML = currentTheme === 'dark' ? 
       '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
   }
+  
+  // Update option label
+  const darkModeOption = document.getElementById('darkModeOption');
+  if(darkModeOption) {
+    darkModeOption.innerHTML = currentTheme === 'dark' ? 
+      '<i class="fas fa-sun me-2"></i>الوضع الفاتح' : '<i class="fas fa-moon me-2"></i>الوضع الليلي';
+  }
+  
+  advancedNotificationsModule.alertInfo('🌙', currentLanguage === 'ar' ? 
+    `تم التبديل إلى ${currentTheme === 'dark' ? 'الوضع الليلي' : 'الوضع الفاتح'}` : 
+    `Switched to ${currentTheme} mode`);
+  
+  console.log(`🌙 تم تبديل الوضع إلى: ${currentTheme}`);
 }
 
 function initDarkMode() {
   document.documentElement.setAttribute('data-theme', currentTheme);
+  document.body.setAttribute('data-theme', currentTheme);
+  
+  // Update toggle button
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  if(darkModeToggle) {
+    darkModeToggle.innerHTML = currentTheme === 'dark' ? 
+      '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  }
+  
   console.log(`✅ وضع الظلام: ${currentTheme}`);
+}
+
+// ============= HIGH CONTRAST MODE =============
+function toggleHighContrast() {
+  highContrastEnabled = !highContrastEnabled;
+  localStorage.setItem('highContrast', highContrastEnabled);
+  
+  if(highContrastEnabled) {
+    document.body.classList.add('high-contrast');
+    document.documentElement.classList.add('high-contrast');
+  } else {
+    document.body.classList.remove('high-contrast');
+    document.documentElement.classList.remove('high-contrast');
+  }
+  
+  advancedNotificationsModule.alertInfo('🔆', currentLanguage === 'ar' ? 
+    `${highContrastEnabled ? 'تفعيل' : 'تعطيل'} التباين العالي` : 
+    `${highContrastEnabled ? 'Enable' : 'Disable'} High Contrast`);
+  
+  console.log(`🔆 التباين العالي: ${highContrastEnabled ? 'مفعّل' : 'معطّل'}`);
+}
+
+function initHighContrast() {
+  if(highContrastEnabled) {
+    document.body.classList.add('high-contrast');
+    document.documentElement.classList.add('high-contrast');
+  }
+  console.log(`✅ التباين العالي: ${highContrastEnabled ? 'مفعّل' : 'معطّل'}`);
 }
 
 // ============= PDF EXPORT SYSTEM =============
@@ -1153,37 +1208,79 @@ function sendEmailNotification(to, subject, body) {
 
 // ============= DATA BACKUP SYSTEM =============
 function backupData() {
-  const backup = {
-    data: appData,
-    timestamp: new Date().toISOString(),
-    version: '2.0'
-  };
-  
-  const backupStr = JSON.stringify(backup);
-  const blob = new Blob([backupStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `superpro_backup_${Date.now()}.json`;
-  a.click();
-  
-  console.log('✅ تم تحميل نسخة احتياطية');
+  try {
+    const backup = {
+      data: appData,
+      timestamp: new Date().toISOString(),
+      version: '2.5.1',
+      settings: {
+        language: currentLanguage,
+        theme: currentTheme,
+        highContrast: highContrastEnabled
+      },
+      user: currentUser || {}
+    };
+    
+    const backupStr = JSON.stringify(backup, null, 2);
+    const blob = new Blob([backupStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `superpro_backup_${new Date().toLocaleDateString('ar-SA').replace(/\//g, '-')}_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    advancedNotificationsModule.alertSuccess('💾 نسخة احتياطية', 'تم تحميل النسخة الاحتياطية بنجاح');
+    console.log('✅ تم تحميل نسخة احتياطية');
+  } catch(err) {
+    advancedNotificationsModule.alertError('❌ خطأ', 'فشل تحميل النسخة الاحتياطية');
+    console.error('خطأ في النسخة الاحتياطية:', err);
+  }
 }
 
 function restoreData(jsonFile) {
+  if(!jsonFile) return;
+  
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const backup = JSON.parse(e.target.result);
+      
       if(backup.data) {
         appData = backup.data;
+        
+        // Restore settings
+        if(backup.settings) {
+          if(backup.settings.language) {
+            currentLanguage = backup.settings.language;
+            localStorage.setItem('language', backup.settings.language);
+            document.documentElement.dir = backup.settings.language === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = backup.settings.language;
+          }
+          if(backup.settings.theme) {
+            currentTheme = backup.settings.theme;
+            localStorage.setItem('theme', backup.settings.theme);
+            document.documentElement.setAttribute('data-theme', backup.settings.theme);
+          }
+          if(backup.settings.highContrast !== undefined) {
+            highContrastEnabled = backup.settings.highContrast;
+            localStorage.setItem('highContrast', highContrastEnabled);
+          }
+        }
+        
         saveData();
+        
+        advancedNotificationsModule.alertSuccess('✅ استرجاع البيانات', 'تم استرجاع جميع البيانات والإعدادات بنجاح');
         console.log('✅ تم استرجاع البيانات من النسخة الاحتياطية');
-        alert('✅ تم استرجاع البيانات بنجاح');
+        
+        // Reload after delay
+        setTimeout(() => location.reload(), 500);
+      } else {
+        throw new Error('صيغة النسخة الاحتياطية غير صحيحة');
       }
     } catch(err) {
+      advancedNotificationsModule.alertError('❌ خطأ', `فشل استرجاع البيانات: ${err.message}`);
       console.error('❌ خطأ في استرجاع البيانات:', err);
-      alert('❌ فشل استرجاع البيانات');
     }
   };
   reader.readAsText(jsonFile);
@@ -1293,6 +1390,7 @@ function changeLanguage(lang) {
   
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.setAttribute('lang', lang);
   
   // Update language selector
   document.querySelectorAll('.language-btn').forEach(btn => {
@@ -1302,10 +1400,17 @@ function changeLanguage(lang) {
     }
   });
   
-  advancedNotificationsModule.alertInfo('🌍 اللغة', `تم التبديل إلى ${lang}`);
+  const langNames = {
+    'ar': 'العربية 🇸🇦',
+    'en': 'English 🇺🇸',
+    'fr': 'Français 🇫🇷'
+  };
+  
+  advancedNotificationsModule.alertInfo('🌍 اللغة', `تم التبديل إلى ${langNames[lang] || lang}`);
   console.log(`✅ تم تغيير اللغة: ${lang}`);
   
-  location.reload();
+  // Reload after short delay to ensure localStorage is saved
+  setTimeout(() => location.reload(), 300);
   return true;
 }
 
