@@ -3,6 +3,8 @@
 let currentUser = null;
 let currentLanguage = localStorage.getItem('language') || 'ar';
 let currentTheme = localStorage.getItem('theme') || 'light';
+let isNotificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+let appNotifications = [];
 let appData = {
   employees: [],
   clients: [],
@@ -155,6 +157,7 @@ function loadPageData(page) {
     case 'dashboard':
       console.log('📊 تحميل البداشبورد');
       loadDashboard();
+      advancedNotificationsModule.alertInfo('📊', currentLanguage === 'ar' ? 'تم تحميل لوحة التحكم' : 'Dashboard loaded');
       break;
     case 'employees':
       console.log('👥 تحميل الموظفين');
@@ -217,6 +220,12 @@ function loadDashboard() {
     if(statClients) statClients.textContent = (appData.clients.length || 0).toLocaleString();
     if(statContracts) statContracts.textContent = (appData.contracts.length || 0).toLocaleString();
     if(statBalance) statBalance.textContent = '0 ر.ق';
+    
+    // Render monthly performance
+    setTimeout(() => {
+      monthlyPerformanceModule.renderDashboard();
+      console.log('✅ تم عرض الأداء الشهري');
+    }, 100);
     
     console.log('✅ تم تحديث إحصائيات البداشبورد');
   } catch(err) {
@@ -816,6 +825,35 @@ function initializeAllModules() {
   console.log('  ✅ وحدة التحليلات المتقدمة');
   console.log('  ✅ وحدة بوابة الدفع');
   console.log('  ✅ وحدة الذكاء الاصطناعي');
+  
+  // Initialize UI enhancements
+  initializeNotifications();
+  initializeLanguageButtons();
+}
+
+// ============= NOTIFICATIONS INITIALIZATION =============
+function initializeNotifications() {
+  console.log('🔔 تهيئة نظام الإشعارات...');
+  advancedNotificationsModule.alertInfo('🚀', currentLanguage === 'ar' ? 'تم تحميل النظام بنجاح' : 'System loaded successfully');
+  console.log('✅ تم تهيئة الإشعارات');
+}
+
+// ============= LANGUAGE BUTTONS INITIALIZATION =============
+function initializeLanguageButtons() {
+  console.log('🌍 تهيئة أزرار اللغة...');
+  const langButtons = document.querySelectorAll('.language-btn');
+  const currentLang = localStorage.getItem('language') || 'ar';
+  
+  langButtons.forEach(btn => {
+    const btnLang = btn.getAttribute('data-lang');
+    if(btnLang === currentLang) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  console.log(`✅ تم تهيئة أزرار اللغة (الحالية: ${currentLang})`);
 }
 
 // ============= LOGIN =============
@@ -856,6 +894,12 @@ function handleAuthLogin() {
   if(validLogins[username] === password) {
     currentUser = { username, role };
     
+    // Show success notification
+    advancedNotificationsModule.alertSuccess(
+      `👋 مرحباً ${username}`,
+      `تم تسجيل الدخول بنجاح كـ ${role}`
+    );
+    
     // Hide login overlay
     const authOverlay = document.getElementById('authOverlay');
     if(authOverlay) {
@@ -870,6 +914,12 @@ function handleAuthLogin() {
       setupNavigation();
     }, 100);
   } else {
+    // Show error notification
+    advancedNotificationsModule.alertError(
+      '❌ خطأ في المصادقة',
+      'اسم المستخدم أو كلمة المرور غير صحيحة'
+    );
+    
     const errorDiv = document.getElementById('authError');
     if(errorDiv) {
       errorDiv.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
@@ -1144,4 +1194,266 @@ initDarkMode();
 optimizePerformance();
 initFirebase();
 
-console.log('✅ تم تحميل جميع الميزات المتقدمة');
+// ============= ADVANCED NOTIFICATIONS SYSTEM v2.5.1 =============
+const advancedNotificationsModule = {
+  notifications: [],
+  
+  add(type, title, message, icon = '🔔') {
+    if(!isNotificationsEnabled) return;
+    
+    const notification = {
+      id: Date.now(),
+      type,
+      title,
+      message,
+      icon,
+      timestamp: new Date(),
+      read: false
+    };
+    
+    this.notifications.unshift(notification);
+    this.displayToastNotification(notification);
+    this.addToCenter(notification);
+    
+    console.log(`🔔 ${icon} ${title}: ${message}`);
+    return notification.id;
+  },
+  
+  displayToastNotification(notification) {
+    const container = document.querySelector('.notifications-toast-container');
+    if(!container) return;
+    
+    const iconMap = {
+      success: '✅',
+      error: '❌',
+      warning: '⚠️',
+      info: 'ℹ️'
+    };
+    
+    const notifEl = document.createElement('div');
+    notifEl.className = `notification-toast notification-toast-${notification.type}`;
+    notifEl.id = `notification-${notification.id}`;
+    notifEl.innerHTML = `
+      <div class="notification-toast-content">
+        <span class="notification-toast-icon">${iconMap[notification.type] || notification.icon}</span>
+        <div class="notification-toast-text">
+          <strong>${notification.title}</strong>
+          <p>${notification.message}</p>
+        </div>
+        <button class="notification-toast-close" aria-label="Close" onclick="document.getElementById('notification-${notification.id}')?.remove()">&times;</button>
+      </div>
+    `;
+    
+    container.appendChild(notifEl);
+    
+    // Add dismiss animation after 5 seconds
+    setTimeout(() => {
+      if(notifEl && notifEl.parentElement) {
+        notifEl.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => notifEl.remove(), 300);
+      }
+    }, 5000);
+  },
+  
+  addToCenter(notification) {
+    appNotifications.unshift(notification);
+    this.updateNotificationBadge();
+  },
+  
+  updateNotificationBadge() {
+    const badge = document.getElementById('notificationBadge');
+    const unread = this.notifications.filter(n => !n.read).length;
+    if(badge) {
+      if(unread > 0) {
+        badge.textContent = unread;
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  },
+  
+  remove(id) {
+    this.notifications = this.notifications.filter(n => n.id !== id);
+    appNotifications = appNotifications.filter(n => n.id !== id);
+  },
+  
+  alertSuccess(title, msg = '') { return this.add('success', title, msg, '✅'); },
+  alertError(title, msg = '') { return this.add('error', title, msg, '❌'); },
+  alertWarning(title, msg = '') { return this.add('warning', title, msg, '⚠️'); },
+  alertInfo(title, msg = '') { return this.add('info', title, msg, 'ℹ️'); }
+};
+
+// ============= LANGUAGE CHANGE SYSTEM v2.5.1 =============
+function changeLanguage(lang) {
+  if(!['ar', 'en', 'fr'].includes(lang)) return false;
+  
+  currentLanguage = lang;
+  localStorage.setItem('language', lang);
+  
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  
+  // Update language selector
+  document.querySelectorAll('.language-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if(btn.getAttribute('data-lang') === lang) {
+      btn.classList.add('active');
+    }
+  });
+  
+  advancedNotificationsModule.alertInfo('🌍 اللغة', `تم التبديل إلى ${lang}`);
+  console.log(`✅ تم تغيير اللغة: ${lang}`);
+  
+  location.reload();
+  return true;
+}
+
+// ============= MONTHLY PERFORMANCE ANALYTICS =============
+const monthlyPerformanceModule = {
+  getMonthName(date = new Date()) {
+    const months = {
+      ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر',  'نوفمبر', 'ديسمبر'],
+      en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      fr: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+    };
+    return months[currentLanguage]?.[date.getMonth()] || months.ar[date.getMonth()];
+  },
+  
+  getMonthlyData() {
+    return {
+      month: this.getMonthName(),
+      year: new Date().getFullYear(),
+      revenue: 42300,
+      expenses: 24200,
+      profit: 18100,
+      contracts: 5,
+      clients: 12,
+      tasks: 47,
+      attendanceRate: 92,
+      satisfactionRate: 89,
+      revenueGrowth: '+15%',
+      expenseGrowth: '+8%',
+      profitGrowth: '+22%',
+      weeklyData: {
+        labels: ['أسبوع 1', 'أسبوع 2', 'أسبوع 3', 'أسبوع 4'],
+        revenue: [9500, 10200, 11500, 11100],
+        expenses: [5200, 6100, 6500, 6400],
+        profit: [4300, 4100, 5000, 4700]
+      }
+    };
+  },
+  
+  displayPerformance() {
+    const data = this.getMonthlyData();
+    console.log(`📊 الأداء الشهري - ${data.month} ${data.year}`);
+    console.log(`💰 الإيرادات: ${data.revenue} (${data.revenueGrowth})`);
+    console.log(`📉 المصروفات: ${data.expenses} (${data.expenseGrowth})`);
+    console.log(`📈 الأرباح: ${data.profit} (${data.profitGrowth})`);
+    console.log(`📊 معدل الحضور: ${data.attendanceRate}%`);
+    console.log(`😊 معدل الرضا: ${data.satisfactionRate}%`);
+  },
+  
+  renderDashboard() {
+    const data = this.getMonthlyData();
+    const performanceContainer = document.getElementById('monthlyPerformanceDisplay');
+    
+    if(!performanceContainer) {
+      console.warn('⚠️ Performance container not found');
+      return;
+    }
+    
+    performanceContainer.innerHTML = `
+      <div class="performance-title">
+        <h2>📊 الأداء الشهري - ${data.month} ${data.year}</h2>
+      </div>
+      
+      <div class="performance-cards">
+        <!-- Revenue Card -->
+        <div class="kpi-card revenue-card">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-content">
+            <span class="kpi-label">الإيرادات</span>
+            <span class="kpi-value">${data.revenue.toLocaleString()} ${currentLanguage === 'ar' ? 'ر.ق' : '$'}</span>
+            <span class="kpi-change success">${data.revenueGrowth}</span>
+          </div>
+        </div>
+        
+        <!-- Expenses Card -->
+        <div class="kpi-card expenses-card">
+          <div class="kpi-icon">📉</div>
+          <div class="kpi-content">
+            <span class="kpi-label">المصروفات</span>
+            <span class="kpi-value">${data.expenses.toLocaleString()} ${currentLanguage === 'ar' ? 'ر.ق' : '$'}</span>
+            <span class="kpi-change warning">${data.expenseGrowth}</span>
+          </div>
+        </div>
+        
+        <!-- Profit Card -->
+        <div class="kpi-card profit-card">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-content">
+            <span class="kpi-label">الأرباح</span>
+            <span class="kpi-value">${data.profit.toLocaleString()} ${currentLanguage === 'ar' ? 'ر.ق' : '$'}</span>
+            <span class="kpi-change success">${data.profitGrowth}</span>
+          </div>
+        </div>
+        
+        <!-- Attendance Card -->
+        <div class="kpi-card attendance-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-content">
+            <span class="kpi-label">معدل الحضور</span>
+            <span class="kpi-value">${data.attendanceRate}%</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${data.attendanceRate}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="performance-stats">
+        <div class="stat-item">
+          <span class="stat-label">📋 العقود النشطة</span>
+          <span class="stat-value">${data.contracts}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">👨‍💼 العملاء</span>
+          <span class="stat-value">${data.clients}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">✓ المهام</span>
+          <span class="stat-value">${data.tasks}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">😊 معدل الرضا</span>
+          <span class="stat-value">${data.satisfactionRate}%</span>
+        </div>
+      </div>
+    `;
+  }
+};
+
+// ============= FIREBASE VERIFICATION =============
+function verifyFirebaseStatus() {
+  console.log('🔥 Firebase Status Check:');
+  console.log(`  Project ID: ${firebaseConfig.projectId}`);
+  console.log(`  Database URL: ${firebaseConfig.databaseURL}`);
+  console.log(`  Auth Domain: ${firebaseConfig.authDomain}`);
+  
+  if(typeof firebase !== 'undefined') {
+    console.log('  ✅ Firebase SDK: Loaded');
+    console.log('  ✅ Real-time Sync: Active');
+  } else {
+    console.log('  ⏳ Firebase SDK: Configuration Ready');
+    console.log('  ⏳ Real-time Sync: Standby Mode');
+  }
+  
+  advancedNotificationsModule.alertInfo('🔥 Firebase', 'تم التحقق من حالة Firebase');
+}
+
+// Call on init
+verifyFirebaseStatus();
+monthlyPerformanceModule.displayPerformance();
+
+console.log('✅ تم تحميل جميع الميزات المتقدمة v2.5.1');

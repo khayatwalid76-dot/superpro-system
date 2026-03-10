@@ -896,6 +896,9 @@
 </head>
 
 <body>
+    
+    <!-- Notifications Toast Container -->
+    <div class="notifications-toast-container"></div>
 
     <!-- ===== تسجيل الدخول المحلي (بداية) ===== -->
     <div id="authOverlay" class="auth-overlay" style="display:none">
@@ -982,6 +985,17 @@
                                 <i class="fas fa-moon me-2"></i>الوضع الليلي
                             </button></li>
                         <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header"><i class="fas fa-globe me-2"></i>تغيير اللغة</h6></li>
+                        <li><button class="dropdown-item language-btn active" data-lang="ar" onclick="changeLanguage('ar')">
+                                <i class="fas fa-flag me-2"></i>العربية 🇸🇦
+                            </button></li>
+                        <li><button class="dropdown-item language-btn" data-lang="en" onclick="changeLanguage('en')">
+                                <i class="fas fa-flag me-2"></i>English 🇺🇸
+                            </button></li>
+                        <li><button class="dropdown-item language-btn" data-lang="fr" onclick="changeLanguage('fr')">
+                                <i class="fas fa-flag me-2"></i>Français 🇫🇷
+                            </button></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li><button class="dropdown-item" onclick="backupData()" type="button">
                                 <i class="fas fa-download me-2"></i>نسخة احتياطية
                             </button></li>
@@ -989,12 +1003,6 @@
                                 <i class="fas fa-upload me-2"></i>استرجاع نسخة
                             </button></li>
                         <li><input type="file" id="restoreInput" style="display:none;" onchange="restoreData(this.files[0])" accept=".json"></li>
-                        <li><button class="dropdown-item" onclick="toggleLargeText()" type="button">
-                                <i class="fas fa-text-height me-2"></i>نص كبير
-                            </button></li>
-                        <li><button class="dropdown-item" onclick="toggleDarkMode()" type="button">
-                                <i class="fas fa-moon me-2"></i>الوضع الليلي
-                            </button></li>
                     </ul>
                 </div>
 
@@ -1266,6 +1274,19 @@
                         <h2 id="statBalance">0 ر.ق</h2>
                         <p>الرصيد الصافي</p>
                         <small class="text-muted" id="balanceTrend">→ مستقر</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Performance Display -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div id="monthlyPerformanceDisplay" class="performance-container">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">تحميل...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
