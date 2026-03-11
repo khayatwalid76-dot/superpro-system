@@ -4451,7 +4451,9 @@
 
         function setupContractEvents() {
             const saveBtn = document.getElementById('saveContractBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            
+            saveBtn.onclick = function () {
                 const number = document.getElementById('contractNumber').value;
                 const client = document.getElementById('contractClient').value;
                 const employee = document.getElementById('contractEmployee').value;
@@ -4501,11 +4503,14 @@
                 modal.hide();
 
                 document.getElementById('contractForm').reset();
+                document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
+                saveBtn.textContent = 'حفظ العقد';
+                
                 updateContractStats();
                 updateContractsTable();
                 showToast('تم إضافة العقد بنجاح');
                 logActivity('إضافة عقد', `#${contractData.number} • ${contractData.client} • ${contractData.employee} • ${contractData.paymentStatus} • قيمة ${contractData.amount}`);
-            });
+            };
 
             // إضافة معالجات الفلترة
             document.querySelectorAll('#contracts [data-filter]').forEach(btn => {
@@ -4792,7 +4797,9 @@
         }
 
         function setupFinanceEvents() {
-            document.getElementById('saveFinanceBtn').addEventListener('click', function () {
+            const saveBtn = document.getElementById('saveFinanceBtn');
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 const date = document.getElementById('financeTransactionDate').value;
                 const type = document.getElementById('financeTransactionType').value;
                 const description = document.getElementById('financeTransactionDescription').value;
@@ -4822,16 +4829,16 @@
                 document.getElementById('financeForm').reset();
                 filterFinanceByDate();
                 showToast('تم إضافة المعاملة المالية بنجاح');
-            });
+            };
 
-            document.getElementById('applyFinanceFilter').addEventListener('click', filterFinanceByDate);
+            document.getElementById('applyFinanceFilter').onclick = filterFinanceByDate;
 
-            document.getElementById('resetFinanceFilter').addEventListener('click', function () {
+            document.getElementById('resetFinanceFilter').onclick = function () {
                 document.getElementById('financeFromDate').value = '';
                 document.getElementById('financeToDate').value = '';
                 document.getElementById('financeMonth').value = '';
                 filterFinanceByDate();
-            });
+            };
         }
 
         function deleteFinancialTransaction(index) {
@@ -5208,7 +5215,9 @@
 
         function setupClientEvents() {
             const saveBtn = document.getElementById('saveClientBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            
+            saveBtn.onclick = function () {
                 const name = document.getElementById('clientName').value;
                 const phone = document.getElementById('clientPhone').value;
                 const email = document.getElementById('clientEmail').value;
@@ -5236,10 +5245,13 @@
                 modal.hide();
 
                 document.getElementById('clientForm').reset();
+                document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
+                saveBtn.textContent = 'حفظ العميل';
+                
                 renderClientsTable();
                 showToast('تم إضافة العميل بنجاح');
                 logActivity('إضافة عميل', `${clientData.name} • ${clientData.phone || ''} • ${clientData.area || ''}`);
-            });
+            };
 
             document.getElementById('client-search').addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
@@ -5327,7 +5339,9 @@
             fillDriversSelect();
 
             const saveBtn = document.getElementById('saveDailyWorkBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            
+            saveBtn.onclick = function () {
                 let clientName = '';
                 const clientSelect = document.getElementById('dailyWorkClient');
                 const clientManualInput = document.getElementById('dailyWorkClientManual');
@@ -5444,7 +5458,7 @@
                         showToast('تنبيه: حالة الدفع غير مدفوع. يرجى متابعة تحصيل المبلغ', 'warning');
                     }, 1000);
                 }
-            });
+            };
 
             document.getElementById('toggleClientInput').addEventListener('click', function () {
                 const clientSelect = document.getElementById('dailyWorkClient');
@@ -5770,7 +5784,9 @@
             fillDailyIncomeEmployeeSelect();
 
             const saveBtn = document.getElementById('saveDailyIncomeBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            
+            saveBtn.onclick = function () {
                 const date = document.getElementById('dailyIncomeDate').value;
                 const type = document.getElementById('dailyIncomeType').value;
                 const source = document.getElementById('dailyIncomeSource').value;
@@ -5811,7 +5827,7 @@
                 filterDailyIncomeByDate();
                 showToast('تم إضافة المدخول بنجاح');
                 logActivity('إضافة مدخول', `${incomeData.date} • ${incomeData.type} • ${incomeData.source} • ${incomeData.amount} • ${incomeData.paymentMethod} • ${incomeData.status}`);
-            });
+            };
 
             document.getElementById('dailyIncome-search').addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
@@ -5885,7 +5901,8 @@
             fillEmployeeExpenseSelect();
 
             const saveBtn = document.getElementById('saveDailyExpenseBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 const date = document.getElementById('dailyExpenseDate').value;
                 const type = document.getElementById('dailyExpenseType').value;
                 const employee = document.getElementById('dailyExpenseEmployee').value;
@@ -5929,7 +5946,7 @@
                 filterDailyExpensesByDate();
                 showToast('تم إضافة المصروف بنجاح');
                 logActivity('إضافة مصروف', `${expenseData.date} • ${expenseData.type} • ${expenseData.employee || ''} • ${expenseData.amount} • ${expenseData.paymentMethod}`);
-            });
+            };
 
             document.getElementById('dailyExpenses-search').addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
@@ -6124,7 +6141,10 @@
 
         function setupEmployeeEvents() {
             const saveBtn = document.getElementById('saveEmployeeBtn');
-            saveBtn.addEventListener('click', function () {
+            // إزالة جميع معالجات الأحداث السابقة
+            saveBtn.onclick = null;
+            
+            saveBtn.onclick = function () {
                 const name = document.getElementById('employeeName').value;
                 const nationality = document.getElementById('employeeNationality').value;
                 const job = document.getElementById('employeeJob').value;
@@ -6156,11 +6176,14 @@
                 modal.hide();
 
                 document.getElementById('employeeForm').reset();
+                document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                saveBtn.textContent = 'حفظ الموظف';
+                
                 updateEmployeeStats();
                 renderEmployeesTable();
                 showToast('تم إضافة الموظف بنجاح');
                 logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
-            });
+            };
 
             document.getElementById('employee-search').addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
@@ -6347,7 +6370,8 @@
             fillAttendanceEmployeeSelect();
 
             const saveBtn = document.getElementById('saveAttendanceBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 const employee = document.getElementById('attEmployeeSelect').value;
                 const date = document.getElementById('attDate').value;
                 const status = document.getElementById('attStatus').value;
@@ -6372,7 +6396,7 @@
 
                 showToast('تم تسجيل الحضور بنجاح');
                 loadAttendanceTable();
-            });
+            };
 
             loadAttendanceTable();
         }
@@ -6486,7 +6510,8 @@
 
         function setupServiceEvents() {
             const saveBtn = document.getElementById('saveServiceBtn');
-            saveBtn.addEventListener('click', function () {
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 const name = document.getElementById('serviceName').value;
                 const type = document.getElementById('serviceType').value;
                 const price = document.getElementById('servicePrice').value;
@@ -6516,7 +6541,7 @@
                 document.getElementById('serviceForm').reset();
                 renderServicesTable();
                 showToast('تم إضافة الخدمة بنجاح');
-            });
+            };
         }
 
         function editService(index) {
@@ -6627,7 +6652,8 @@
         function setupTaskEvents() {
             const saveBtn = document.getElementById('saveTaskBtn');
             if (saveBtn) {
-                saveBtn.addEventListener('click', function () {
+                saveBtn.onclick = null;
+                saveBtn.onclick = function () {
                     const title = document.getElementById('taskTitle').value;
                     const assignee = document.getElementById('taskAssignee').value;
                     const priority = document.getElementById('taskPriority').value;
@@ -6659,7 +6685,7 @@
                     document.getElementById('taskForm').reset();
                     renderTasksBoard();
                     showToast('تم إضافة المهمة بنجاح');
-                });
+                };
             }
 
             fillTaskAssigneeSelect();
@@ -6858,7 +6884,9 @@
                 renderCalendar(year, month);
             });
 
-            document.getElementById('saveEventBtn').addEventListener('click', function () {
+            const saveEventBtn = document.getElementById('saveEventBtn');
+            saveEventBtn.onclick = null;
+            saveEventBtn.onclick = function () {
                 const title = document.getElementById('eventTitle').value;
                 const date = document.getElementById('eventDate').value;
                 const startTime = document.getElementById('eventStartTime').value;
@@ -6892,7 +6920,7 @@
                 renderCalendar(dateObj.getFullYear(), dateObj.getMonth());
 
                 showToast('تم إضافة الموعد بنجاح');
-            });
+            };
         }
 
         function showDayEvents(date) {
@@ -7104,31 +7132,44 @@
             fillEmployeeSelect('payrollEmployee');
 
             // تشغيل الحساب
-            document.getElementById('calculatePayroll')?.addEventListener('click', function () {
-                const month = (document.getElementById('payrollMonth')?.value || '').trim();
-                if (!month) {
-                    showToast('يرجى اختيار الشهر', 'warning');
-                    return;
-                }
-                const employeeName = (document.getElementById('payrollEmployee')?.value || '').trim();
-                const rows = calculatePayrollRows({ month, employeeName });
-                window.__lastPayrollRows = rows;
-                renderPayrollTable(rows);
-                showToast(`تم حساب الرواتب (${rows.length})`, 'success');
-                logActivity('حساب الرواتب', `الشهر ${month}${employeeName ? ` • الموظف ${employeeName}` : ''} • عدد السجلات ${rows.length}`);
-            });
+            let calculateBtn = document.getElementById('calculatePayroll');
+            if (calculateBtn) {
+                calculateBtn.onclick = null;
+                calculateBtn.onclick = function () {
+                    const month = (document.getElementById('payrollMonth')?.value || '').trim();
+                    if (!month) {
+                        showToast('يرجى اختيار الشهر', 'warning');
+                        return;
+                    }
+                    const employeeName = (document.getElementById('payrollEmployee')?.value || '').trim();
+                    const rows = calculatePayrollRows({ month, employeeName });
+                    window.__lastPayrollRows = rows;
+                    renderPayrollTable(rows);
+                    showToast(`تم حساب الرواتب (${rows.length})`, 'success');
+                    logActivity('حساب الرواتب', `الشهر ${month}${employeeName ? ` • الموظف ${employeeName}` : ''} • عدد السجلات ${rows.length}`);
+                };
+            }
 
             // تصدير
-            document.getElementById('exportPayrollXLSX')?.addEventListener('click', function () {
-                const rows = window.__lastPayrollRows || [];
-                if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
-                exportPayrollRowsXLSX(rows);
-            });
-            document.getElementById('exportPayrollCSV')?.addEventListener('click', function () {
-                const rows = window.__lastPayrollRows || [];
-                if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
-                exportPayrollRowsCSV(rows);
-            });
+            let exportXlsx = document.getElementById('exportPayrollXLSX');
+            if (exportXlsx) {
+                exportXlsx.onclick = null;
+                exportXlsx.onclick = function () {
+                    const rows = window.__lastPayrollRows || [];
+                    if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                    exportPayrollRowsXLSX(rows);
+                };
+            }
+
+            let exportCsv = document.getElementById('exportPayrollCSV');
+            if (exportCsv) {
+                exportCsv.onclick = null;
+                exportCsv.onclick = function () {
+                    const rows = window.__lastPayrollRows || [];
+                    if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                    exportPayrollRowsCSV(rows);
+                };
+            }
         }
 
         function getMonthMeta(monthStr) {
@@ -7449,7 +7490,9 @@
         }
 
         function setupSettingsEvents() {
-            document.getElementById('saveSettingsBtn').addEventListener('click', function () {
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            saveSettingsBtn.onclick = null;
+            saveSettingsBtn.onclick = function () {
                 settings.companyName = document.getElementById('companyName').value;
                 settings.currency = document.getElementById('currency').value;
                 settings.language = document.getElementById('language').value;
@@ -7457,11 +7500,15 @@
 
                 saveData();
                 showToast('تم حفظ الإعدادات بنجاح');
-            });
+            };
 
-            document.getElementById('exportAllDataBtn').addEventListener('click', exportAllData);
+            const exportBtn = document.getElementById('exportAllDataBtn');
+            exportBtn.onclick = null;
+            exportBtn.onclick = exportAllData;
 
-            document.getElementById('importDataBtn').addEventListener('click', function () {
+            const importBtn = document.getElementById('importDataBtn');
+            importBtn.onclick = null;
+            importBtn.onclick = function () {
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = '.json';
@@ -7498,7 +7545,7 @@
                 };
 
                 input.click();
-            });
+            };
         }
 
         // ===== دوال مساعدة جديدة =====
