@@ -6024,82 +6024,38 @@
                 saveData();
                 updateDailyExpensesStats();
                 filterDailyExpensesByDate();
-                showToast('تم حذف سجل المصروف بنجاح');
-                logActivity('حذف مصروف', exp ? `${exp.date} • ${exp.type} • ${exp.employee || ''} • ${exp.amount}` : '');
-            }
-        }
 
         // ===== نظام التنقل بين الأقسام =====
         function setupNavigation() {
             console.log('🔗 Setting up navigation...');
             
-            // تأخير صغير للتأكد من تحميل العناصر
-            setTimeout(() => {
-                const navLinks = document.querySelectorAll('.nav-link[data-module]');
-                console.log(`Found ${navLinks.length} navigation links`);
-                
-                if (navLinks.length === 0) {
-                    console.warn('⚠️ No navigation links found! Retrying...');
-                    // إعادة محاولة بعد 500ms
-                    setTimeout(setupNavigation, 500);
-                    return;
-                }
-                
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
+            const navLinks = document.querySelectorAll('.nav-link[data-module]');
+            console.log(`Found ${navLinks.length} navigation links`);
+            
+            if (navLinks.length === 0) {
+                console.warn('⚠️ No navigation links found! Retrying...');
+                // إعادة محاولة بعد 500ms
+                setTimeout(setupNavigation, 500);
+                return;
+            }
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                        console.log(`👆 Clicking on: ${this.getAttribute('data-module')}`);
-                        
-                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                        this.classList.add('active');
+                    console.log(`👆 Clicking on: ${this.getAttribute('data-module')}`);
+                    
+                    // إزالة الكلاس النشط من كل الروابط
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
 
-                        const moduleId = this.getAttribute('data-module');
+                    const moduleId = this.getAttribute('data-module');
 
-                        document.querySelectorAll('.module-container').forEach(module => {
-                            module.style.display = 'none';
-                        });
-
-                        const targetModule = document.getElementById(moduleId);
-                        if (targetModule) {
-                            targetModule.style.display = 'block';
-                            console.log(`✅ Showing module: ${moduleId}`);
-
-                            if (moduleId === 'dashboard') {
-                                loadDashboard();
-                            } else if (moduleId === 'employees') {
-                                loadEmployees();
-                            } else if (moduleId === 'attendance') {
-                                loadAttendance();
-                            } else if (moduleId === 'clients') {
-                                loadClients();
-                            } else if (moduleId === 'contracts') {
-                                loadContracts();
-                            } else if (moduleId === 'dailyWork') {
-                                loadDailyWork();
-                                setupDailyWorkEvents();
-                            } else if (moduleId === 'dailyIncome') {
-                                loadDailyIncome();
-                                setupDailyIncomeEvents();
-                            } else if (moduleId === 'dailyExpenses') {
-                                loadDailyExpenses();
-                                setupDailyExpensesEvents();
-                            } else if (moduleId === 'services') {
-                                loadServices();
-                            } else if (moduleId === 'finance') {
-                                loadFinance();
-                            } else if (moduleId === 'payroll') {
-                                loadPayroll();
-                            } else if (moduleId === 'calendar') {
-                                loadCalendar();
-                            } else if (moduleId === 'tasks') {
-                                loadTasksBoard();
-                            } else if (moduleId === 'reports') {
-                                loadReports();
-                            } else if (moduleId === 'settings') {
-                                loadSettings();
-                            } else if (moduleId === 'activityLog') {
+                    // إخفاء جميع الوحدات
+                    document.querySelectorAll('.module-container').forEach(module => {
+                        module.style.display = 'none';
                                 loadActivityLog();
                             }
                         } else {
@@ -6118,11 +6074,104 @@
             }, 100);
         }
 
-        // ===== وظائف الموظفين =====
-        function loadEmployees() {
-            updateEmployeeStats();
-            renderEmployeesTable();
-            setupEmployeeEvents();
+        // ============= PAGE DATA LOADERS =============
+        function loadPageData(page) {
+            console.log(`📋 loadPageData: معالجة صفحة = ${page}`);
+            switch(page) {
+                case 'dashboard':
+                    console.log('📊 تحميل لوحة التحكم');
+                    loadDashboard();
+                    break;
+                case 'employees':
+                    console.log('👥 تحميل الموظفين');
+                    loadEmployees();
+                    break;
+                case 'attendance':
+                    console.log('✅ تحميل الحضور');
+                    loadAttendance();
+                    break;
+                case 'payroll':
+                    console.log('💰 تحميل الرواتب');
+                    loadPayroll();
+                    break;
+                case 'clients':
+                    console.log('👨‍💼 تحميل العملاء');
+                    loadClients();
+                    break;
+                case 'contracts':
+                    console.log('📋 تحميل العقود');
+                    loadContracts();
+                    break;
+                case 'dailyWork':
+                    console.log('📅 تحميل العمل اليومي');
+                    loadDailyWork();
+                    break;
+                case 'dailyIncome':
+                    console.log('💵 تحميل المدخولات');
+                    loadDailyIncome();
+                    break;
+                case 'dailyExpenses':
+                    console.log('💸 تحميل المصروفات');
+                    loadDailyExpenses();
+                    break;
+                case 'tasks':
+                    console.log('📝 تحميل المهام');
+                    loadTasks();
+                    break;
+                case 'reports':
+                    console.log('📈 تحميل التقارير');
+                    loadReports();
+                    break;
+                case 'analytics':
+                    console.log('📊 تحميل التحليلات');
+                    loadAnalytics();
+                    break;
+                case 'services':
+                    console.log('🛎️ تحميل الخدمات');
+                    loadServices();
+                    break;
+                case 'finance':
+                    console.log('💳 تحميل الحسابات المالية');
+                    loadFinance();
+                    break;
+                case 'calendar':
+                    console.log('📅 تحميل التقويم');
+                    loadCalendar();
+                    break;
+                case 'settings':
+                    console.log('⚙️ تحميل الإعدادات');
+                    loadSettings();
+                    break;
+                case 'activityLog':
+                    console.log('📋 تحميل سجل الأنشطة');
+                    loadActivityLog();
+                    break;
+                case 'notifications':
+                    console.log('🔔 تحميل الإشعارات');
+                    loadNotifications();
+                    break;
+                case 'documents':
+                    console.log('📄 تحميل المستندات');
+                    loadDocuments();
+                    break;
+                case 'search':
+                    console.log('🔍 تحميل البحث المتقدم');
+                    loadSearch();
+                    break;
+                case 'security':
+                    console.log('🔐 تحميل الأمان');
+                    loadSecurity();
+                    break;
+                case 'invoices':
+                    console.log('💰 تحميل الفواتير');
+                    loadInvoices();
+                    break;
+                case 'hr':
+                    console.log('👥 تحميل الموارد البشرية');
+                    loadHR();
+                    break;
+                default:
+                    console.log(`⏭️  لا يوجد محمل للصفحة: ${page}`);
         }
 
         function updateEmployeeStats() {
