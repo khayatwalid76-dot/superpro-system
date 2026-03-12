@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SUPER PRO SYSTEM v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<style>
+:root{
+  --p:#0a2540;--p2:#1a4a7a;--p3:#0d3660;
+  --acc:#00d4aa;--acc2:#ff6b35;--acc3:#ffd700;
+  --ok:#27ae60;--err:#e74c3c;--warn:#f39c12;
+  --bg:#060e1c;--bg2:#0b1a30;--bg3:#0f2240;
+  --card:#0d1f38;--card2:#112647;
+  --bdr:rgba(0,212,170,.15);--bdr2:rgba(255,255,255,.07);
+  --txt:#e8f4fd;--txt2:#8ab0c8;--txt3:#4a7a9b;
+  --r:14px;--shd:0 8px 32px rgba(0,0,0,.5);
+  --sidebar:280px;--header:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--p2);border-radius:10px}
+#loginScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 30% 50%,#0d2a4a 0%,#060e1c 60%);display:flex;align-items:center;justify-content:center}
+.login-box{width:100%;max-width:440px;padding:48px 40px;background:rgba(13,31,56,.95);border:1px solid var(--bdr);border-radius:24px;box-shadow:0 24px 80px rgba(0,0,0,.6);animation:fadeUp .5s ease}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo .brand{font-size:28px;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,var(--acc),#74b9ff);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-logo p{color:var(--txt3);font-size:13px;margin-top:4px}
+.login-form .form-group{margin-bottom:18px}
+.login-form label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:7px}
+.login-form input{width:100%;padding:12px 16px;background:var(--card2);border:1px solid var(--bdr2);border-radius:10px;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:14px;transition:all .2s}
+.login-form input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,212,170,.1)}
+.btn-login{width:100%;padding:14px;margin-top:8px;background:linear-gradient(135deg,var(--acc),#00b894);border:none;border-radius:10px;color:#060e1c;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,170,.4)}
+.login-error{display:none;padding:10px 14px;margin-top:12px;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);border-radius:8px;color:#e74c3c;font-size:13px;text-align:center}
+.role-selector{display:flex;gap:8px;margin-bottom:20px}
+.role-btn{flex:1;padding:9px;border:1px solid var(--bdr2);border-radius:8px;background:none;color:var(--txt3);cursor:pointer;font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;transition:all .2s}
+.role-btn.active{background:rgba(0,212,170,.1);border-color:var(--acc);color:var(--acc)}
+#appWrapper{display:none}
+.header{position:fixed;top:0;left:0;right:0;height:var(--header);background:linear-gradient(90deg,var(--p) 0%,var(--p3) 100%);border-bottom:1px solid var(--bdr);z-index:100;display:flex;align-items:center;padding:0 20px;gap:16px}
+.header-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:900;letter-spacing:1px;background:linear-gradient(135deg,#fff,var(--acc));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-brand i{font-size:20px;-webkit-text-fill-color:var(--acc)}
+.header-search{flex:1;max-width:380px;position:relative}
+.header-search input{width:100%;padding:8px 14px 8px 38px;background:rgba(255,255,255,.07);border:1px solid var(--bdr2);border-radius:10px;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:13px}
+.header-search input:focus{outline:none;border-color:var(--acc);background:rgba(255,255,255,.1)}
+.header-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px}
+.header-actions{margin-right:auto;display:flex;align-items:center;gap:10px}
+.header-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--bdr2);background:rgba(255,255,255,.06);color:var(--txt2);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .2s;font-size:15px}
+.header-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(0,212,170,.08)}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:var(--err);border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.user-chip{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1px solid var(--bdr2);background:rgba(255,255,255,.06);cursor:pointer;transition:all .2s}
+.user-chip:hover{border-color:var(--acc)}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--p2),var(--acc));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff}
+.user-info .name{font-size:13px;font-weight:700;color:var(--txt)}
+.user-info .role{font-size:11px;color:var(--txt3)}
+.sidebar{position:fixed;top:var(--header);bottom:0;right:0;width:var(--sidebar);background:var(--bg2);border-left:1px solid var(--bdr);overflow-y:auto;z-index:90;transition:transform .3s ease}
+.sidebar-section{padding:16px 14px 6px;font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--txt3);text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 16px;margin:2px 8px;border-radius:10px;cursor:pointer;transition:all .2s;color:var(--txt2);font-size:13.5px}
+.nav-item:hover,.nav-item.active{background:rgba(0,212,170,.1);color:var(--acc)}
+.nav-item.active{border-right:3px solid var(--acc)}
+.nav-item i{width:18px;text-align:center;font-size:14px}
+.nav-badge{margin-right:auto;background:var(--err);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px}
+.main{margin-right:var(--sidebar);padding-top:var(--header);min-height:100vh}
+.page{display:none;padding:28px}
+.page.active{display:block;animation:fadeUp .3s ease}
+.card{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.card-header{padding:16px 20px;background:linear-gradient(90deg,var(--p2),var(--p3));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.card-title{font-size:15px;font-weight:700;color:var(--txt)}
+.card-body{padding:20px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;border:none;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--p2),var(--p3));color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,74,122,.5)}
+.btn-accent{background:linear-gradient(135deg,var(--acc),#00b894);color:#060e1c}
+.btn-outline{background:none;border:1px solid var(--bdr2);color:var(--txt2)}
+.btn-outline:hover{border-color:var(--acc);color:var(--acc);background:rgba(0,212,170,.06)}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:7px}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;justify-content:center}
+.table-wrap{overflow-x:auto;max-height:550px;overflow-y:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--p3);color:var(--txt);padding:13px 16px;font-size:12px;font-weight:700;text-align:right;position:sticky;top:0;z-index:1;white-space:nowrap;border-bottom:2px solid var(--acc)}
+tbody td{padding:11px 16px;border-bottom:1px solid var(--bdr2);color:var(--txt2);font-size:13px;transition:background .15s}
+tbody tr:hover td{background:rgba(0,212,170,.04)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-cyan{background:rgba(0,212,170,.12);color:var(--acc)}
+.badge-green{background:rgba(39,174,96,.15);color:#2ecc71}
+.badge-red{background:rgba(231,76,60,.15);color:#e74c3c}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:20px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.7);transform:scale(.95);transition:transform .2s}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-box.modal-sm{max-width:440px}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--bdr2);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,var(--p2),var(--p3))}
+.modal-head h5{font-size:16px;font-weight:800;color:var(--txt)}
+.modal-body{padding:24px}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--bdr2);display:flex;gap:10px;justify-content:flex-end}
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px}
+.page-hdr-title{font-size:22px;font-weight:900;color:var(--txt)}
+.page-hdr-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+.page-hdr-actions{display:flex;gap:10px;flex-wrap:wrap}
+.language-switcher{display:flex;gap:6px;align-items:center}
+.lang-btn{background:rgba(0,212,170,.08);border:1px solid var(--bdr2);color:var(--txt3);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .2s;font-weight:600}
+.lang-btn.active{background:var(--acc);color:#060e1c;border-color:var(--acc)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s}
+.stat-val{font-size:28px;font-weight:900;color:var(--txt);margin-bottom:4px}
+.stat-lbl{font-size:12.5px;color:var(--txt2)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+label{font-size:12.5px;font-weight:700;color:var(--txt2)}
+input,select,textarea{padding:10px 14px;background:var(--card2);border:1px solid var(--bdr2);border-radius:9px;color:var(--txt);font-family:'Tajawal',sans-serif;font-size:13px;transition:all .2s;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,212,170,.1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.sidebar{transform:translateX(100%);z-index:150}.main{margin-right:0}.page{padding:16px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand">★ SUPER PRO</div>
+      <p>نظام إدارة الشركة المتكامل</p>
+    </div>
+    <div class="login-form">
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:8px">اختر نوع المستخدم</div>
+        <div class="role-selector">
+          <button class="role-btn active" data-role="admin">👑 مدير</button>
+          <button class="role-btn" data-role="supervisor">🎯 مشرف</button>
+          <button class="role-btn" data-role="viewer">👁 عرض فقط</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="loginUser" placeholder="admin" value="admin"/>
+      </div>
+      <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="loginPass" placeholder="••••••" value="1234"/>
+      </div>
+      <button class="btn-login" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i> دخول إلى النظام
+      </button>
+      <div class="login-error" id="loginError">❌ خطأ في تسجيل الدخول</div>
+      <div style="margin-top:16px;padding:12px;background:rgba(0,212,170,.06);border-radius:8px;font-size:11px;color:var(--txt3);text-align:center">
+        🔑 تجريبي: admin/1234 | مشرف: supervisor/1234 | عرض: viewer/1234
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP WRAPPER -->
+<div id="appWrapper">
+
+<!-- HEADER -->
+<header class="header">
+  <button class="header-btn" id="sidebarToggle" style="font-size:16px">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="header-brand">
+    <i class="fas fa-star-of-life"></i>
+    <span>SUPER PRO</span>
+  </div>
+  <div class="header-search" style="margin-right:16px">
+    <i class="fas fa-search"></i>
+    <input type="text" id="globalSearch" placeholder="بحث عام..." autocomplete="off"/>
+  </div>
+  <div class="header-actions">
+    <div class="language-switcher">
+      <button class="lang-btn active" data-lang="ar" onclick="changeLanguage('ar')">🇸🇦 ع</button>
+      <button class="lang-btn" data-lang="en" onclick="changeLanguage('en')">🇺🇸 EN</button>
+      <button class="lang-btn" data-lang="fr" onclick="changeLanguage('fr')">🇫🇷 FR</button>
+    </div>
+    <div style="font-size:11px;color:var(--txt3)" id="currentDate"></div>
+    <div class="header-btn" id="notifBtn">
+      <i class="fas fa-bell"></i>
+      <span class="notif-badge" id="notifBadge">0</span>
+    </div>
+    <div class="header-btn" id="printBtn" title="طباعة" onclick="window.print()">
+      <i class="fas fa-print"></i>
+    </div>
+    <div class="user-chip" id="userChipBtn">
+      <div class="user-avatar" id="userAvatarHdr">م</div>
+      <div class="user-info">
+        <div class="name" id="userNameHdr">المدير</div>
+        <div class="role" id="userRoleHdr">مدير</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">الرئيسية</div>
+  <div class="nav-item active" data-page="dashboard"><i class="fas fa-home"></i><span>لوحة التحكم</span></div>
+
+  <div class="sidebar-section">إدارة</div>
+  <div class="nav-item" data-page="employees"><i class="fas fa-users"></i><span>الموظفين</span></div>
+  <div class="nav-item" data-page="attendance"><i class="fas fa-clock"></i><span>الحضور</span></div>
+  <div class="nav-item" data-page="payroll"><i class="fas fa-money-check-alt"></i><span>الرواتب</span></div>
+
+  <div class="sidebar-section">عمليات</div>
+  <div class="nav-item" data-page="clients"><i class="fas fa-user-tie"></i><span>العملاء</span></div>
+  <div class="nav-item" data-page="contracts"><i class="fas fa-file-contract"></i><span>العقود</span></div>
+  <div class="nav-item" data-page="dailyWork"><i class="fas fa-calendar-day"></i><span>العمل اليومي</span></div>
+
+  <div class="sidebar-section">مالية</div>
+  <div class="nav-item" data-page="income"><i class="fas fa-arrow-down" style="color:#2ecc71"></i><span>المدخولات</span></div>
+  <div class="nav-item" data-page="expenses"><i class="fas fa-arrow-up" style="color:#e74c3c"></i><span>المصروفات</span></div>
+
+  <div class="sidebar-section">تنظيفات</div>
+  <div class="nav-item" data-page="teams"><i class="fas fa-people-carry"></i><span>الفرق</span></div>
+  <div class="nav-item" data-page="locations"><i class="fas fa-map-marker-alt"></i><span>المواقع</span></div>
+
+  <div class="sidebar-section">أدوات</div>
+  <div class="nav-item" data-page="tasks"><i class="fas fa-tasks"></i><span>المهام</span></div>
+  <div class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i><span>التقارير</span></div>
+  <div class="nav-item" data-page="settings"><i class="fas fa-cogs"></i><span>الإعدادات</span></div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="page-hdr">
+    <div>
+      <div class="page-hdr-title">لوحة التحكم</div>
+      <div class="page-hdr-sub" id="dashGreeting">مرحباً بك في النظام</div>
+    </div>
+    <div class="page-hdr-actions">
+      <button class="btn btn-primary btn-sm" onclick="loadDashboard()"><i class="fas fa-sync-alt"></i> تحديث</button>
+    </div>
+  </div>
+  <div class="stat-grid" id="dashStats"></div>
+  <div id="dashAlerts" style="margin-bottom:20px"></div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">آخر العمليات</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>التاريخ</th><th>النوع</th><th>الوصف</th><th>المبلغ</th></tr></thead>
+          <tbody id="recentTbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLOYEES PAGE -->
+<div class="page" id="page-employees">
+  <div class="page-hdr">
+    <div><div class="page-hdr-title">الموظفين</div></div>
+    <div class="page-hdr-actions">
+      <button class="btn btn-primary" onclick="openModal('empModal')"><i class="fas fa-plus"></i> إضافة</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">قائمة الموظفين</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table id="empTable">
+          <thead><tr><th>#</th><th>الاسم</th><th>الجنسية</th><th>الوظيفة</th><th>الراتب</th><th>الحالة</th></tr></thead>
+          <tbody id="empTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDANCE PAGE -->
+<div class="page" id="page-attendance">
+  <div class="page-hdr">
+    <div><div class="page-hdr-title">الحضور والانصراف</div></div>
+    <div class="page-hdr-actions">
+      <button class="btn btn-primary" onclick="openModal('attModal')"><i class="fas fa-plus"></i> تسجيل</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">سجلات الحضور</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table><thead><tr><th>#</th><th>الموظف</th><th>التاريخ</th><th>الحالة</th><th>الساعات</th></tr></thead>
+        <tbody id="attTbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYROLL PAGE -->
+<div class="page" id="page-payroll">
+  <div class="page-hdr">
+    <div><div class="page-hdr-title">الرواتب</div></div>
+    <div class="page-hdr-actions">
+      <button class="btn btn-primary" onclick="calcPayroll()"><i class="fas fa-calculator"></i> احتساب</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">كشف الرواتب</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table id="payrollTable">
+          <thead><tr><th>#</th><th>الموظف</th><th>الراتب</th><th>أيام</th><th>الصافي</th></tr></thead>
+          <tbody id="payrollTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENTS PAGE -->
+<div class="page" id="page-clients">
+  <div class="page-hdr">
+    <div><div class="page-hdr-title">العملاء</div></div>
+    <div class="page-hdr-actions">
+      <button class="btn btn-primary" onclick="openModal('clientModal')"><i class="fas fa-plus"></i> إضافة</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">قائمة العملاء</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table id="clientTable"><thead><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المنطقة</th></tr></thead>
+        <tbody id="clientTbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRACTS PAGE -->
+<div class="page" id="page-contracts">
+  <div class="page-hdr">
+    <div><div class="page-hdr-title">العقود</div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">قائمة العقود</span></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap">
+        <table><thead><tr><th>#</th><th>رقم العقد</th><th>العميل</th><th>القيمة</th></tr></thead>
+        <tbody id="contractTbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY WORK PAGE -->
+<div class="page" id="page-dailyWork">
+  <div class="page-hdr"><div class="page-hdr-title">العمل اليومي</div></div>
+  <div class="card"><div class="card-body">بيانات العمل اليومي</div></div>
+</div>
+
+<!-- INCOME PAGE -->
+<div class="page" id="page-income">
+  <div class="page-hdr"><div class="page-hdr-title">المدخولات</div></div>
+  <div class="card"><div class="card-body">المدخولات والإيرادات</div></div>
+</div>
+
+<!-- EXPENSES PAGE -->
+<div class="page" id="page-expenses">
+  <div class="page-hdr"><div class="page-hdr-title">المصروفات</div></div>
+  <div class="card"><div class="card-body">المصروفات والتكاليف</div></div>
+</div>
+
+<!-- TEAMS PAGE -->
+<div class="page" id="page-teams">
+  <div class="page-hdr"><div class="page-hdr-title">الفرق</div></div>
+  <div class="card">
+    <div class="card-body">
+      <table style="width:100%;border-collapse:collapse">
+        <thead style="background:rgba(0,212,170,.1)">
+          <tr style="border-bottom:2px solid var(--bdr)">
+            <th style="padding:12px;text-align:right">م</th>
+            <th style="padding:12px;text-align:right">الفريق</th>
+            <th style="padding:12px;text-align:center">المدير</th>
+            <th style="padding:12px;text-align:center">الأعضاء</th>
+            <th style="padding:12px;text-align:center">المهام</th>
+            <th style="padding:12px;text-align:center">الحالة</th>
+          </tr>
+        </thead>
+        <tbody id="teamsTbody" style="font-size:13px"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- LOCATIONS PAGE -->
+<div class="page" id="page-locations">
+  <div class="page-hdr"><div class="page-hdr-title">المواقع</div></div>
+  <div class="card">
+    <div class="card-body">
+      <table style="width:100%;border-collapse:collapse">
+        <thead style="background:rgba(0,212,170,.1)">
+          <tr style="border-bottom:2px solid var(--bdr)">
+            <th style="padding:12px;text-align:right">م</th>
+            <th style="padding:12px;text-align:right">الموقع</th>
+            <th style="padding:12px;text-align:right">العنوان</th>
+            <th style="padding:12px;text-align:center">الموظفون</th>
+            <th style="padding:12px;text-align:center">العملاء</th>
+          </tr>
+        </thead>
+        <tbody id="locationsTbody" style="font-size:13px"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TASKS PAGE -->
+<div class="page" id="page-tasks">
+  <div class="page-hdr"><div class="page-hdr-title">لوحة المهام</div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px">
+    <div class="card" style="background:linear-gradient(135deg,rgba(0,212,170,.1),rgba(0,100,100,.1))">
+      <div class="card-body" style="padding:20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">✅</div>
+        <div style="font-size:13px;color:var(--txt2)">المهام المكتملة</div>
+        <div style="font-size:28px;font-weight:900;color:#00d4aa;margin-top:8px">12</div>
+      </div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,180,0,.1))">
+      <div class="card-body" style="padding:20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">⏳</div>
+        <div style="font-size:13px;color:var(--txt2)">المهام الجارية</div>
+        <div style="font-size:28px;font-weight:900;color:#ffd700;margin-top:8px">8</div>
+      </div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(231,76,60,.1),rgba(200,50,50,.1))">
+      <div class="card-body" style="padding:20px;text-align:center">
+        <div style="font-size:32px;margin-bottom:10px">🔴</div>
+        <div style="font-size:13px;color:var(--txt2)">المهام العاجلة</div>
+        <div style="font-size:28px;font-weight:900;color:#e74c3c;margin-top:8px">3</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORTS PAGE -->
+<div class="page" id="page-reports">
+  <div class="page-hdr"><div class="page-hdr-title">التقارير الشاملة</div></div>
+  <div id="reportsContainer"></div>
+</div>
+
+<!-- SETTINGS PAGE -->
+<div class="page" id="page-settings">
+  <div class="page-hdr"><div class="page-hdr-title">الإعدادات</div></div>
+  <div class="card">
+    <div class="card-body">
+      <div style="display:grid;gap:20px">
+        <div style="border-bottom:1px solid var(--bdr);padding-bottom:16px">
+          <h4 style="color:var(--acc);margin-bottom:12px">🔐 الأمان</h4>
+          <button class="btn btn-outline" style="margin-bottom:8px"><i class="fas fa-key"></i> تغيير كلمة المرور</button>
+          <button class="btn btn-outline"><i class="fas fa-shield-alt"></i> إعدادات الأمان</button>
+        </div>
+        <div style="border-bottom:1px solid var(--bdr);padding-bottom:16px">
+          <h4 style="color:var(--acc);margin-bottom:12px">📊 البيانات</h4>
+          <button class="btn btn-outline" style="margin-bottom:8px"><i class="fas fa-download"></i> تحميل البيانات</button>
+          <button class="btn btn-outline"><i class="fas fa-upload"></i> رفع النسخة الاحتياطية</button>
+        </div>
+        <div>
+          <h4 style="color:var(--acc);margin-bottom:12px">🌐 اللغة والتنسيقات</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline active">العربية</button>
+            <button class="btn btn-outline">English</button>
+            <button class="btn btn-outline">Français</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MODALS -->
+<div id="empModal" class="modal-overlay">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h5>إضافة موظف</h5><button class="btn btn-outline btn-icon btn-sm" onclick="closeModal('empModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>الاسم *</label><input id="empName"/></div>
+        <div class="form-group"><label>الجنسية</label><input id="empNationality"/></div>
+        <div class="form-group"><label>الوظيفة</label><input id="empJob"/></div>
+        <div class="form-group"><label>الراتب</label><input type="number" id="empSalary"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('empModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveEmployee()"><i class="fas fa-save"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div id="clientModal" class="modal-overlay">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h5>إضافة عميل</h5><button class="btn btn-outline btn-icon btn-sm" onclick="closeModal('clientModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>الاسم *</label><input id="clientName"/></div>
+        <div class="form-group"><label>الهاتف</label><input id="clientPhone"/></div>
+        <div class="form-group"><label>المنطقة</label><input id="clientArea"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('clientModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveClient()"><i class="fas fa-save"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div id="attModal" class="modal-overlay">
+  <div class="modal-box modal-sm">
+    <div class="modal-head"><h5>تسجيل حضور</h5><button class="btn btn-outline btn-icon btn-sm" onclick="closeModal('attModal')"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="form-group"><label>الموظف</label><select id="attEmployee"><option value="">اختر</option></select></div>
+        <div class="form-group"><label>التاريخ</label><input type="date" id="attDate"/></div>
+        <div class="form-group"><label>الحالة</label><select id="attStatus"><option>حاضر</option><option>غياب</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('attModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveAttendance()"><i class="fas fa-save"></i> حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- FIREBASE INITIALIZATION -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { getDatabase, ref, set, get, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
+// Firebase Config - User's Project
+const firebaseConfig = {
+  apiKey: 'AIzaSyClOXATkxQ8XLrorz80JhkUdxXjbcySr2E',
+  authDomain: 'superpro-system-8871f.firebaseapp.com',
+  databaseURL: 'https://superpro-system-8871f-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'superpro-system-8871f',
+  storageBucket: 'superpro-system-8871f.appspot.com',
+  messagingSenderId: '123456789',
+  appId: '1:123456789:web:abc123def456ghi789jkl'
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Make Firebase functions globally available for other scripts
+window.getDatabase = getDatabase;
+window.ref = ref;
+window.set = set;
+window.get = get;
+window.update = update;
+window.remove = remove;
+window.onValue = onValue;
+window.getAuth = getAuth;
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.signOut = signOut;
+window.onAuthStateChanged = onAuthStateChanged;
+
+console.log('🔥 Firebase initialized successfully');
+</script>
+
+<!-- REAL DATA -->
+<script src="real-data.js"></script>
+
+<!-- FIREBASE SERVICE LAYER -->
+<script src="firebase-service.js"></script>
+
+<!-- LANGUAGE SYSTEM -->
+<script src="language-system.js"></script>
+
+<!-- ENHANCED AUTHENTICATION -->
+<script src="enhanced-auth.js"></script>
+
+<!-- NOTIFICATION SYSTEM -->
+<script src="notification-system.js"></script>
+
+<!-- REPORTING SYSTEM -->
+<script src="reporting-system.js"></script>
+
+<!-- PERFORMANCE OPTIMIZATION -->
+<script src="performance-optimization.js"></script>
+
+<!-- APP MAIN LOGIC -->
+<script src="app.js"></script>
+
+<!-- Helper functions if app.js doesn't load properly -->
+<script>
+// Fallback navigation if app.js fails to load
+function setupNavigationFallback() {
+    const navLinks = document.querySelectorAll('.nav-link[data-module]');
+    if (navLinks.length === 0) return;
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const module = this.dataset.module;
+            navigateFallback(module);
+        });
+    });
+    
+    setTimeout(() => {
+        navigateFallback('dashboard');
+    }, 300);
+}
+
+function navigateFallback(page) {
+    if (!page) return;
+    
+    // Hide all
+    document.querySelectorAll('.module-container').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Remove active
+    document.querySelectorAll('.nav-link, .nav-item').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Show selected
+    const module = document.getElementById(page);
+    if (module) {
+        module.style.display = 'block';
+    }
+    
+    // Mark active
+    const navLink = document.querySelector(`[data-module="${page}"]`);
+    if (navLink) {
+        navLink.classList.add('active');
+        const navItem = navLink.closest('.nav-item');
+        if (navItem) navItem.classList.add('active');
+    }
+}
+
+// Setup navigation after app loads
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (typeof setupNavigation !== 'function') {
+            setupNavigationFallback();
+        }
+    }, 500);
+});
+</script>
+</body>
+</html>
