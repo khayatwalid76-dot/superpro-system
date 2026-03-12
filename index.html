@@ -1229,7 +1229,7 @@
     <div class="main-content">
         <!-- شريط التشخيص لمشاكل الجافاسكريبت -->
         <div id="js-status-bar"
-            style="background:#e74c3c;color:white;padding:10px;text-align:center;font-weight:bold;z-index:10000;position:relative;">
+            style="display:none;background:#e74c3c;color:white;padding:10px;text-align:center;font-weight:bold;z-index:10000;position:relative;">
             ⏳ إذا استمر ظهور هذا الشريط، فهذا يعني أن الجافاسكريبت معطل وهناك خطأ يمنع النظام من العمل.
         </div>
         <!-- DASHBOARD -->
@@ -3627,26 +3627,34 @@
 
         // حفظ البيانات (محلي + سحابي)
         function saveData() {
-            const data = {
-                employees, clients, attendance, contracts, services, settings,
-                tasks, events, dailyWork, dailyIncome, dailyExpenses,
-                financialTransactions, salaryAdvances
-            };
-            sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
-            sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(clients));
-            sessionStorage.setItem(LS_KEYS.attendance, JSON.stringify(attendance));
-            sessionStorage.setItem(LS_KEYS.contracts, JSON.stringify(contracts));
-            sessionStorage.setItem(LS_KEYS.services, JSON.stringify(services));
-            sessionStorage.setItem(LS_KEYS.settings, JSON.stringify(settings));
-            sessionStorage.setItem(LS_KEYS.tasks, JSON.stringify(tasks));
-            sessionStorage.setItem(LS_KEYS.events, JSON.stringify(events));
-            sessionStorage.setItem(LS_KEYS.dailyWork, JSON.stringify(dailyWork));
-            sessionStorage.setItem(LS_KEYS.dailyIncome, JSON.stringify(dailyIncome));
-            sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
-            sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
-            sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
+            try {
+                console.log('💾 Saving data...');
+                const data = {
+                    employees, clients, attendance, contracts, services, settings,
+                    tasks, events, dailyWork, dailyIncome, dailyExpenses,
+                    financialTransactions, salaryAdvances
+                };
+                sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
+                sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(clients));
+                sessionStorage.setItem(LS_KEYS.attendance, JSON.stringify(attendance));
+                sessionStorage.setItem(LS_KEYS.contracts, JSON.stringify(contracts));
+                sessionStorage.setItem(LS_KEYS.services, JSON.stringify(services));
+                sessionStorage.setItem(LS_KEYS.settings, JSON.stringify(settings));
+                sessionStorage.setItem(LS_KEYS.tasks, JSON.stringify(tasks));
+                sessionStorage.setItem(LS_KEYS.events, JSON.stringify(events));
+                sessionStorage.setItem(LS_KEYS.dailyWork, JSON.stringify(dailyWork));
+                sessionStorage.setItem(LS_KEYS.dailyIncome, JSON.stringify(dailyIncome));
+                sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
+                sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
+                sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
 
-            // التخزين السحابي
+                console.log('✅ Data saved to sessionStorage');
+                
+                // Also save to localStorage for persistence
+                localStorage.setItem('superpro_data', JSON.stringify(data));
+                console.log('✅ Data backed up to localStorage');
+
+                // التخزين السحابي
             if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
                 firebaseDb.ref(FB_PATH).set(data).catch(() => {});
             }
@@ -6017,62 +6025,91 @@
 
         // ===== نظام التنقل بين الأقسام =====
         function setupNavigation() {
-            document.querySelectorAll('.nav-link[data-module]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
+            console.log('🔗 Setting up navigation...');
+            
+            // تأخير صغير للتأكد من تحميل العناصر
+            setTimeout(() => {
+                const navLinks = document.querySelectorAll('.nav-link[data-module]');
+                console.log(`Found ${navLinks.length} navigation links`);
+                
+                if (navLinks.length === 0) {
+                    console.warn('⚠️ No navigation links found! Retrying...');
+                    // إعادة محاولة بعد 500ms
+                    setTimeout(setupNavigation, 500);
+                    return;
+                }
+                
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
+                        console.log(`👆 Clicking on: ${this.getAttribute('data-module')}`);
+                        
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
 
-                    const moduleId = this.getAttribute('data-module');
+                        const moduleId = this.getAttribute('data-module');
 
-                    document.querySelectorAll('.module-container').forEach(module => {
-                        module.style.display = 'none';
-                    });
+                        document.querySelectorAll('.module-container').forEach(module => {
+                            module.style.display = 'none';
+                        });
 
-                    const targetModule = document.getElementById(moduleId);
-                    if (targetModule) {
-                        targetModule.style.display = 'block';
+                        const targetModule = document.getElementById(moduleId);
+                        if (targetModule) {
+                            targetModule.style.display = 'block';
+                            console.log(`✅ Showing module: ${moduleId}`);
 
-                        if (moduleId === 'dashboard') {
-                            loadDashboard();
-                        } else if (moduleId === 'employees') {
-                            loadEmployees();
-                        } else if (moduleId === 'attendance') {
-                            loadAttendance();
-                        } else if (moduleId === 'clients') {
-                            loadClients();
-                        } else if (moduleId === 'contracts') {
-                            loadContracts();
-                        } else if (moduleId === 'dailyWork') {
-                            loadDailyWork();
-                            setupDailyWorkEvents();
-                        } else if (moduleId === 'dailyIncome') {
-                            loadDailyIncome();
-                            setupDailyIncomeEvents();
-                        } else if (moduleId === 'dailyExpenses') {
-                            loadDailyExpenses();
-                            setupDailyExpensesEvents();
-                        } else if (moduleId === 'services') {
-                            loadServices();
-                        } else if (moduleId === 'finance') {
-                            loadFinance();
-                        } else if (moduleId === 'payroll') {
-                            loadPayroll();
-                        } else if (moduleId === 'calendar') {
-                            loadCalendar();
-                        } else if (moduleId === 'tasks') {
-                            loadTasksBoard();
-                        } else if (moduleId === 'reports') {
-                            loadReports();
-                        } else if (moduleId === 'settings') {
-                            loadSettings();
-                        } else if (moduleId === 'activityLog') {
-                            loadActivityLog();
+                            if (moduleId === 'dashboard') {
+                                loadDashboard();
+                            } else if (moduleId === 'employees') {
+                                loadEmployees();
+                            } else if (moduleId === 'attendance') {
+                                loadAttendance();
+                            } else if (moduleId === 'clients') {
+                                loadClients();
+                            } else if (moduleId === 'contracts') {
+                                loadContracts();
+                            } else if (moduleId === 'dailyWork') {
+                                loadDailyWork();
+                                setupDailyWorkEvents();
+                            } else if (moduleId === 'dailyIncome') {
+                                loadDailyIncome();
+                                setupDailyIncomeEvents();
+                            } else if (moduleId === 'dailyExpenses') {
+                                loadDailyExpenses();
+                                setupDailyExpensesEvents();
+                            } else if (moduleId === 'services') {
+                                loadServices();
+                            } else if (moduleId === 'finance') {
+                                loadFinance();
+                            } else if (moduleId === 'payroll') {
+                                loadPayroll();
+                            } else if (moduleId === 'calendar') {
+                                loadCalendar();
+                            } else if (moduleId === 'tasks') {
+                                loadTasksBoard();
+                            } else if (moduleId === 'reports') {
+                                loadReports();
+                            } else if (moduleId === 'settings') {
+                                loadSettings();
+                            } else if (moduleId === 'activityLog') {
+                                loadActivityLog();
+                            }
+                        } else {
+                            console.warn(`❌ Module not found: ${moduleId}`);
                         }
-                    }
+                    });
                 });
-            });
+                
+                // Load dashboard by default
+                console.log('📊 Loading dashboard by default...');
+                const dashboardModule = document.getElementById('dashboard');
+                if (dashboardModule) {
+                    dashboardModule.style.display = 'block';
+                    loadDashboard();
+                }
+            }, 100);
         }
 
         // ===== وظائف الموظفين =====
