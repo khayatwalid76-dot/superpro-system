@@ -73,23 +73,39 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize all modules
   initializeAllModules();
+  
+  // Hide JS status bar - indicates JS has loaded
+  const jsStatusBar = document.getElementById('js-status-bar');
+  if(jsStatusBar) {
+    jsStatusBar.style.display = 'none';
+    console.log('✅ تم إخفاء شريط الحالة');
+  }
 });
 
 // ============= NAVIGATION SETUP =============
 function setupNavigation() {
   console.log('🔗 إعداد التنقل...');
+  console.log('📊 حالة الصفحة:', {
+    navbarExists: !!document.getElementById('mainNavbar'),
+    sidebarExists: !!document.getElementById('sidebar'),
+    dashboardExists: !!document.getElementById('dashboard'),
+    appWrapperExists: !!document.getElementById('appWrapper')
+  });
   
   const navLinks = document.querySelectorAll('.nav-link[data-module]');
   console.log(`وجدت ${navLinks.length} رابط تنقل`);
   
   if(navLinks.length === 0) {
     console.warn('⚠️ لم يتم العثور على روابط تنقل!');
+    console.warn('❌ محاولة البحث بطرق بديلة...');
+    const altLinks = document.querySelectorAll('[data-module]');
+    console.log(`🔍 عناصر بـ data-module: ${altLinks.length}`);
     return;
   }
   
   navLinks.forEach((link, index) => {
     const module = link.dataset.module;
-    console.log(`  ${index + 1}. ${module}`);
+    console.log(`  ${index + 1}. ${module} - ${link.style.display}`);
     
     link.addEventListener('click', function(e) {
       e.preventDefault();
@@ -100,7 +116,9 @@ function setupNavigation() {
   });
   
   // Auto-navigate to dashboard
+  console.log('⏳ سيتم الانتقال إلى dashboard بعد 200ms...');
   setTimeout(() => {
+    console.log('▶️ استدعاء navigate("dashboard")');
     navigate('dashboard');
   }, 200);
 }
@@ -116,7 +134,10 @@ function navigate(page) {
   
   try {
     // Hide all modules
-    document.querySelectorAll('.module-container').forEach(el => {
+    const containers = document.querySelectorAll('.module-container');
+    console.log(`🔍 وجدت ${containers.length} module-container عنصر`);
+    containers.forEach((el, idx) => {
+      console.log(`  ${idx + 1}. ${el.id} - الحالة الحالية: ${el.style.display}`);
       el.style.display = 'none';
     });
     
@@ -131,10 +152,12 @@ function navigate(page) {
     // Show selected module
     const module = document.getElementById(page);
     if(module) {
+      console.log(`✅ وجدت وحدة: ${page}`);
       module.style.display = 'block';
       console.log(`✅ تم عرض: ${page}`);
     } else {
       console.warn(`⚠️ لم يتم العثور على وحدة: ${page}`);
+      console.warn(`❌ البحث عن element بـ id="${page}"`);
       return;
     }
     
@@ -142,13 +165,18 @@ function navigate(page) {
     const navLink = document.querySelector(`[data-module="${page}"]`);
     if(navLink) {
       navLink.classList.add('active');
+      console.log(`✅ تم تلوين nav-link للـ ${page}`);
       const navItem = navLink.closest('.nav-item');
       if(navItem) {
         navItem.classList.add('active');
+        console.log(`✅ تم تلوين nav-item للـ ${page}`);
       }
+    } else {
+      console.warn(`⚠️ لم يتم العثور على nav-link للـ ${page}`);
     }
     
     // Load page data
+    console.log(`📦 استدعاء loadPageData(${page})`);
     loadPageData(page);
     
   } catch(err) {
@@ -158,6 +186,7 @@ function navigate(page) {
 
 // ============= PAGE DATA LOADERS =============
 function loadPageData(page) {
+  console.log(`📋 loadPageData: معالجة صفحة = ${page}`);
   switch(page) {
     case 'dashboard':
       console.log('📊 تحميل البداشبورد');
@@ -215,21 +244,37 @@ function loadPageData(page) {
 
 // ============= DASHBOARD LOADER =============
 function loadDashboard() {
+  console.log('📊 بدء تحميل لوحة التحكم...');
   try {
     const statEmployees = document.getElementById('statEmployees');
     const statClients = document.getElementById('statClients');
     const statContracts = document.getElementById('statContracts');
     const statBalance = document.getElementById('statBalance');
     
+    console.log('🔍 حالة عناصر الإحصائيات:', {
+      employees: !!statEmployees,
+      clients: !!statClients,
+      contracts: !!statContracts,
+      balance: !!statBalance
+    });
+    
     if(statEmployees) statEmployees.textContent = (appData.employees.length || 0).toLocaleString();
     if(statClients) statClients.textContent = (appData.clients.length || 0).toLocaleString();
     if(statContracts) statContracts.textContent = (appData.contracts.length || 0).toLocaleString();
     if(statBalance) statBalance.textContent = '0 ر.ق';
     
+    console.log('✅ تم تحديث الإحصائيات');
+    
     // Render monthly performance
+    console.log('⏳ سيتم استدعاء renderDashboard بعد 100ms...');
     setTimeout(() => {
-      monthlyPerformanceModule.renderDashboard();
-      console.log('✅ تم عرض الأداء الشهري');
+      console.log('▶️ استدعاء monthlyPerformanceModule.renderDashboard()');
+      if(typeof monthlyPerformanceModule !== 'undefined' && monthlyPerformanceModule.renderDashboard) {
+        monthlyPerformanceModule.renderDashboard();
+        console.log('✅ تم عرض الأداء الشهري');
+      } else {
+        console.warn('⚠️ monthlyPerformanceModule غير معرّف');
+      }
     }, 100);
     
     console.log('✅ تم تحديث إحصائيات البداشبورد');
@@ -1490,6 +1535,9 @@ const monthlyPerformanceModule = {
       console.warn('⚠️ Performance container not found');
       return;
     }
+    
+    // Show content (hide loading spinner)
+    performanceContainer.style.display = 'block';
     
     performanceContainer.innerHTML = `
       <div class="performance-title">
