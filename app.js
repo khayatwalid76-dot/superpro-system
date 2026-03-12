@@ -74,12 +74,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize all modules
   initializeAllModules();
   
+  // Initialize UI components
+  initializeUIComponents();
+  
   // Hide JS status bar - indicates JS has loaded
   const jsStatusBar = document.getElementById('js-status-bar');
   if(jsStatusBar) {
     jsStatusBar.style.display = 'none';
     console.log('✅ تم إخفاء شريط الحالة');
   }
+  
+  // Hide any loading indicators
+  const loadingIndicators = document.querySelectorAll('.loading-spinner, .loading-indicator');
+  loadingIndicators.forEach(indicator => {
+    indicator.style.display = 'none';
+  });
+  console.log('✅ تم إخفاء مؤشرات التحميل');
 });
 
 // ============= NAVIGATION SETUP =============
@@ -283,20 +293,1236 @@ function loadDashboard() {
   }
 }
 
-// ============= STUB LOADERS =============
-function loadEmployees() { console.log('📋 تحميل قائمة الموظفين'); }
-function loadAttendance() { console.log('📋 تحميل قائمة الحضور'); }
-function loadPayroll() { console.log('📋 تحميل قائمة الرواتب'); }
-function loadClients() { console.log('📋 تحميل قائمة العملاء'); }
+// ============= CRUD OPERATIONS =============
+
+// Employee Operations
+function addEmployee() {
+  console.log('➕ إضافة موظف جديد');
+  try {
+    const name = document.getElementById('employeeName')?.value;
+    const position = document.getElementById('employeePosition')?.value;
+    const department = document.getElementById('employeeDepartment')?.value;
+    const salary = document.getElementById('employeeSalary')?.value;
+    const phone = document.getElementById('employeePhone')?.value;
+    
+    if (!name || !position || !salary) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newEmployee = {
+      id: Date.now(),
+      name,
+      position,
+      department: department || 'غير محدد',
+      salary,
+      phone: phone || 'غير محدد',
+      status: 'نشط',
+      hireDate: new Date().toISOString().split('T')[0]
+    };
+    
+    appData.employees.push(newEmployee);
+    saveData();
+    loadEmployees();
+    
+    // Clear form
+    const form = document.getElementById('addEmployeeForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addEmployeeModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة الموظف بنجاح');
+    console.log('✅ تم إضافة موظف:', newEmployee);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة الموظف:', err);
+    alert('❌ حدث خطأ أثناء إضافة الموظف');
+  }
+}
+
+function editEmployee(index) {
+  console.log(`✏️ تعديل موظف: ${index}`);
+  try {
+    const employee = appData.employees[index];
+    if (!employee) {
+      alert('❌ لم يتم العثور على الموظف');
+      return;
+    }
+    
+    // Fill form with employee data
+    document.getElementById('editEmployeeName').value = employee.name;
+    document.getElementById('editEmployeePosition').value = employee.position;
+    document.getElementById('editEmployeeDepartment').value = employee.department || '';
+    document.getElementById('editEmployeeSalary').value = employee.salary;
+    document.getElementById('editEmployeePhone').value = employee.phone || '';
+    
+    // Store index for later use
+    document.getElementById('editEmployeeIndex').value = index;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editEmployeeModal'));
+    modal.show();
+  } catch(err) {
+    console.error('❌ خطأ في تعديل الموظف:', err);
+    alert('❌ حدث خطأ أثناء تعديل الموظف');
+  }
+}
+
+function updateEmployee() {
+  console.log('💾 تحديث بيانات الموظف');
+  try {
+    const index = document.getElementById('editEmployeeIndex').value;
+    const employee = appData.employees[index];
+    
+    if (!employee) {
+      alert('❌ لم يتم العثور على الموظف');
+      return;
+    }
+    
+    employee.name = document.getElementById('editEmployeeName').value;
+    employee.position = document.getElementById('editEmployeePosition').value;
+    employee.department = document.getElementById('editEmployeeDepartment').value;
+    employee.salary = document.getElementById('editEmployeeSalary').value;
+    employee.phone = document.getElementById('editEmployeePhone').value;
+    
+    saveData();
+    loadEmployees();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editEmployeeModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم تحديث بيانات الموظف بنجاح');
+    console.log('✅ تم تحديث موظف:', employee);
+  } catch(err) {
+    console.error('❌ خطأ في تحديث الموظف:', err);
+    alert('❌ حدث خطأ أثناء تحديث الموظف');
+  }
+}
+
+function deleteEmployee(index) {
+  console.log(`🗑️ حذف موظف: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+      return;
+    }
+    
+    const employee = appData.employees[index];
+    appData.employees.splice(index, 1);
+    saveData();
+    loadEmployees();
+    
+    alert('✅ تم حذف الموظف بنجاح');
+    console.log('✅ تم حذف موظف:', employee);
+  } catch(err) {
+    console.error('❌ خطأ في حذف الموظف:', err);
+    alert('❌ حدث خطأ أثناء حذف الموظف');
+  }
+}
+
+// Client Operations
+function addClient() {
+  console.log('➕ إضافة عميل جديد');
+  try {
+    const name = document.getElementById('clientName')?.value;
+    const phone = document.getElementById('clientPhone')?.value;
+    const email = document.getElementById('clientEmail')?.value;
+    const company = document.getElementById('clientCompany')?.value;
+    
+    if (!name || !phone) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newClient = {
+      id: Date.now(),
+      name,
+      phone,
+      email: email || '',
+      company: company || '',
+      status: 'نشط',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.clients.push(newClient);
+    saveData();
+    loadClients();
+    
+    // Clear form
+    const form = document.getElementById('addClientForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addClientModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة العميل بنجاح');
+    console.log('✅ تم إضافة عميل:', newClient);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة العميل:', err);
+    alert('❌ حدث خطأ أثناء إضافة العميل');
+  }
+}
+
+function editClient(index) {
+  console.log(`✏️ تعديل عميل: ${index}`);
+  try {
+    const client = appData.clients[index];
+    if (!client) {
+      alert('❌ لم يتم العثور على العميل');
+      return;
+    }
+    
+    // Fill form with client data
+    document.getElementById('editClientName').value = client.name;
+    document.getElementById('editClientPhone').value = client.phone;
+    document.getElementById('editClientEmail').value = client.email || '';
+    document.getElementById('editClientCompany').value = client.company || '';
+    
+    // Store index for later use
+    document.getElementById('editClientIndex').value = index;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editClientModal'));
+    modal.show();
+  } catch(err) {
+    console.error('❌ خطأ في تعديل العميل:', err);
+    alert('❌ حدث خطأ أثناء تعديل العميل');
+  }
+}
+
+function updateClient() {
+  console.log('💾 تحديث بيانات العميل');
+  try {
+    const index = document.getElementById('editClientIndex').value;
+    const client = appData.clients[index];
+    
+    if (!client) {
+      alert('❌ لم يتم العثور على العميل');
+      return;
+    }
+    
+    client.name = document.getElementById('editClientName').value;
+    client.phone = document.getElementById('editClientPhone').value;
+    client.email = document.getElementById('editClientEmail').value;
+    client.company = document.getElementById('editClientCompany').value;
+    
+    saveData();
+    loadClients();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editClientModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم تحديث بيانات العميل بنجاح');
+    console.log('✅ تم تحديث عميل:', client);
+  } catch(err) {
+    console.error('❌ خطأ في تحديث العميل:', err);
+    alert('❌ حدث خطأ أثناء تحديث العميل');
+  }
+}
+
+function deleteClient(index) {
+  console.log(`🗑️ حذف عميل: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+      return;
+    }
+    
+    const client = appData.clients[index];
+    appData.clients.splice(index, 1);
+    saveData();
+    loadClients();
+    
+    alert('✅ تم حذف العميل بنجاح');
+    console.log('✅ تم حذف عميل:', client);
+  } catch(err) {
+    console.error('❌ خطأ في حذف العميل:', err);
+    alert('❌ حدث خطأ أثناء حذف العميل');
+  }
+}
+
+// Contract Operations
+function addContract() {
+  console.log('➕ إضافة عقد جديد');
+  try {
+    const contractNumber = document.getElementById('contractNumber')?.value;
+    const clientName = document.getElementById('contractClientName')?.value;
+    const type = document.getElementById('contractType')?.value;
+    const amount = document.getElementById('contractAmount')?.value;
+    const startDate = document.getElementById('contractStartDate')?.value;
+    const endDate = document.getElementById('contractEndDate')?.value;
+    
+    if (!contractNumber || !clientName || !amount) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newContract = {
+      id: Date.now(),
+      contractNumber,
+      clientName,
+      type: type || 'غير محدد',
+      amount,
+      startDate: startDate || new Date().toISOString().split('T')[0],
+      endDate: endDate || '',
+      status: 'نشط',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.contracts.push(newContract);
+    saveData();
+    loadContracts();
+    
+    // Clear form
+    const form = document.getElementById('addContractForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addContractModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة العقد بنجاح');
+    console.log('✅ تم إضافة عقد:', newContract);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة العقد:', err);
+    alert('❌ حدث خطأ أثناء إضافة العقد');
+  }
+}
+
+function editContract(index) {
+  console.log(`✏️ تعديل عقد: ${index}`);
+  try {
+    const contract = appData.contracts[index];
+    if (!contract) {
+      alert('❌ لم يتم العثور على العقد');
+      return;
+    }
+    
+    // Fill form with contract data
+    document.getElementById('editContractNumber').value = contract.contractNumber;
+    document.getElementById('editContractClientName').value = contract.clientName;
+    document.getElementById('editContractType').value = contract.type || '';
+    document.getElementById('editContractAmount').value = contract.amount;
+    document.getElementById('editContractStartDate').value = contract.startDate || '';
+    document.getElementById('editContractEndDate').value = contract.endDate || '';
+    
+    // Store index for later use
+    document.getElementById('editContractIndex').value = index;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editContractModal'));
+    modal.show();
+  } catch(err) {
+    console.error('❌ خطأ في تعديل العقد:', err);
+    alert('❌ حدث خطأ أثناء تعديل العقد');
+  }
+}
+
+function updateContract() {
+  console.log('💾 تحديث بيانات العقد');
+  try {
+    const index = document.getElementById('editContractIndex').value;
+    const contract = appData.contracts[index];
+    
+    if (!contract) {
+      alert('❌ لم يتم العثور على العقد');
+      return;
+    }
+    
+    contract.contractNumber = document.getElementById('editContractNumber').value;
+    contract.clientName = document.getElementById('editContractClientName').value;
+    contract.type = document.getElementById('editContractType').value;
+    contract.amount = document.getElementById('editContractAmount').value;
+    contract.startDate = document.getElementById('editContractStartDate').value;
+    contract.endDate = document.getElementById('editContractEndDate').value;
+    
+    saveData();
+    loadContracts();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editContractModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم تحديث بيانات العقد بنجاح');
+    console.log('✅ تم تحديث عقد:', contract);
+  } catch(err) {
+    console.error('❌ خطأ في تحديث العقد:', err);
+    alert('❌ حدث خطأ أثناء تحديث العقد');
+  }
+}
+
+function deleteContract(index) {
+  console.log(`🗑️ حذف عقد: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا العقد؟')) {
+      return;
+    }
+    
+    const contract = appData.contracts[index];
+    appData.contracts.splice(index, 1);
+    saveData();
+    loadContracts();
+    
+    alert('✅ تم حذف العقد بنجاح');
+    console.log('✅ تم حذف عقد:', contract);
+  } catch(err) {
+    console.error('❌ خطأ في حذف العقد:', err);
+    alert('❌ حدث خطأ أثناء حذف العقد');
+  }
+}
+
+function markContractAsPaid(index) {
+  console.log(`💰 تحديد العقد كمدفوع: ${index}`);
+  try {
+    const contract = appData.contracts[index];
+    if (contract) {
+      contract.status = 'مدفوع';
+      contract.paidDate = new Date().toISOString().split('T')[0];
+      saveData();
+      loadContracts();
+      alert('✅ تم تحديث حالة العقد إلى مدفوع');
+    }
+  } catch(err) {
+    console.error('❌ خطأ في تحديث العقد:', err);
+    alert('❌ حدث خطأ أثناء تحديث العقد');
+  }
+}
+
+// Attendance Operations
+function deleteAttendance(index) {
+  console.log(`🗑️ حذف سجل حضور: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف سجل الحضور؟')) {
+      return;
+    }
+    
+    const record = appData.attendance[index];
+    appData.attendance.splice(index, 1);
+    saveData();
+    loadAttendance();
+    
+    alert('✅ تم حذف سجل الحضور بنجاح');
+    console.log('✅ تم حذف سجل حضور:', record);
+  } catch(err) {
+    console.error('❌ خطأ في حذف سجل الحضور:', err);
+    alert('❌ حدث خطأ أثناء حذف سجل الحضور');
+  }
+}
+function loadEmployees() {
+  console.log('📋 تحميل قائمة الموظفين');
+  try {
+    const tbody = document.querySelector('#employeesTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول الموظفين');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.employees.forEach((emp, index) => {
+      const row = `
+        <tr>
+          <td>${emp.id}</td>
+          <td>${emp.name}</td>
+          <td>${emp.position}</td>
+          <td>${emp.department}</td>
+          <td>${emp.salary}</td>
+          <td>${emp.phone}</td>
+          <td>
+            <span class="badge bg-${emp.status === 'نشط' ? 'success' : 'secondary'}">
+              ${emp.status || 'نشط'}
+            </span>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-warning" onclick="editEmployee(${index})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteEmployee(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.employees.length} موظف`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل الموظفين:', err);
+  }
+}
+
+function loadAttendance() { 
+  console.log('📋 تحميل قائمة الحضور');
+  try {
+    const tbody = document.querySelector('#attendanceTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول الحضور');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.attendance.forEach((record, index) => {
+      const row = `
+        <tr>
+          <td>${record.employeeName}</td>
+          <td>${record.date}</td>
+          <td>${record.checkIn}</td>
+          <td>${record.checkOut}</td>
+          <td>${record.hours || '0'} ساعة</td>
+          <td>${record.source || 'يدوي'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${index})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.attendance.length} سجل حضور`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل الحضور:', err);
+  }
+}
+
+function loadPayroll() { 
+  console.log('📋 تحميل قائمة الرواتب');
+  try {
+    const tbody = document.querySelector('#payrollTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول الرواتب');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.payroll.forEach((record, index) => {
+      const row = `
+        <tr>
+          <td>${record.employeeName}</td>
+          <td>${record.month}</td>
+          <td>${record.salary}</td>
+          <td>${record.deductions || '0'}</td>
+          <td>${record.netSalary || record.salary}</td>
+          <td>${record.status || 'غير مدفوع'}</td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.payroll.length} سجل راتب`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل الرواتب:', err);
+  }
+}
+
+function loadClients() { 
+  console.log('📋 تحميل قائمة العملاء');
+  try {
+    const tbody = document.querySelector('#clientsTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول العملاء');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.clients.forEach((client, index) => {
+      const row = `
+        <tr>
+          <td>${client.name}</td>
+          <td>${client.phone}</td>
+          <td>${client.email || 'لا يوجد'}</td>
+          <td>${client.company || 'لا يوجد'}</td>
+          <td>
+            <span class="badge bg-success">نشط</span>
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-warning" onclick="editClient(${index})">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteClient(${index})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.clients.length} عميل`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل العملاء:', err);
+  }
+}
+
 function loadContracts() { 
   console.log('📋 تحميل قائمة العقود');
   setupContractFilters();
+  try {
+    const tbody = document.querySelector('#contractsTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول العقود');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.contracts.forEach((contract, index) => {
+      const row = `
+        <tr>
+          <td>${contract.contractNumber}</td>
+          <td>${contract.clientName}</td>
+          <td>${contract.type}</td>
+          <td>${contract.amount}</td>
+          <td>${contract.startDate}</td>
+          <td>${contract.endDate}</td>
+          <td>
+            <span class="badge bg-${contract.status === 'نشط' ? 'success' : 'secondary'}">
+              ${contract.status || 'نشط'}
+            </span>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-warning" onclick="editContract(${index})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-outline-success" onclick="markContractAsPaid(${index})">
+                <i class="fas fa-check"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteContract(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.contracts.length} عقد`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل العقود:', err);
+  }
 }
-function loadDailyWork() { console.log('📋 تحميل العمل اليومي'); }
-function loadIncome() { console.log('📋 تحميل المدخولات'); }
-function loadExpenses() { console.log('📋 تحميل المصروفات'); }
-function loadTasks() { console.log('📋 تحميل المهام'); }
-function loadReports() { console.log('📋 تحميل التقارير'); }
+function loadDailyWork() { 
+  console.log('📋 تحميل العمل اليومي');
+  try {
+    const tbody = document.querySelector('#dailyWorkTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول العمل اليومي');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.dailyWork.forEach((work, index) => {
+      const row = `
+        <tr>
+          <td>${work.date}</td>
+          <td>${work.description}</td>
+          <td>${work.clientName}</td>
+          <td>${work.amount}</td>
+          <td>${work.paymentMethod}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-warning" onclick="editDailyWork(${index})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-outline-success" onclick="markDailyWorkAsPaid(${index})">
+                <i class="fas fa-check"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteDailyWork(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.dailyWork.length} عمل يومي`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل العمل اليومي:', err);
+  }
+}
+
+function loadIncome() { 
+  console.log('📋 تحميل المدخولات');
+  try {
+    const tbody = document.querySelector('#incomeTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول المدخولات');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.income.forEach((inc, index) => {
+      const row = `
+        <tr>
+          <td>${inc.date}</td>
+          <td>${inc.description}</td>
+          <td>${inc.amount}</td>
+          <td>${inc.source || 'غير محدد'}</td>
+          <td>
+            <span class="badge bg-success">${inc.status || 'مثبت'}</span>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-secondary" onclick="printIncomeReceipt(${inc.id})" aria-label="طباعة إيصال">
+                <i class="fas fa-print"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteDailyIncome(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.income.length} مدخل`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل المدخولات:', err);
+  }
+}
+
+function loadExpenses() { 
+  console.log('📋 تحميل المصروفات');
+  try {
+    const tbody = document.querySelector('#expensesTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول المصروفات');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.expenses.forEach((exp, index) => {
+      const row = `
+        <tr>
+          <td>${exp.date}</td>
+          <td>${exp.description}</td>
+          <td>${exp.amount}</td>
+          <td>${exp.category || 'غير محدد'}</td>
+          <td>
+            <span class="badge bg-warning">${exp.status || 'مدفوع'}</span>
+          </td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-secondary" onclick="printExpenseReceipt(${exp.id})" aria-label="طباعة إيصال">
+                <i class="fas fa-print"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteDailyExpense(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.expenses.length} مصروف`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل المصروفات:', err);
+  }
+}
+
+function loadTasks() { 
+  console.log('📋 تحميل المهام');
+  try {
+    const tbody = document.querySelector('#tasksTable tbody');
+    if (!tbody) {
+      console.warn('⚠️ لم يتم العثور على جدول المهام');
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    appData.tasks.forEach((task, index) => {
+      const row = `
+        <tr>
+          <td>${task.title}</td>
+          <td>${task.description || 'لا يوجد'}</td>
+          <td>
+            <span class="badge bg-${getPriorityColor(task.priority)}">
+              ${task.priority || 'متوسط'}
+            </span>
+          </td>
+          <td>
+            <span class="badge bg-${getStatusColor(task.status)}">
+              ${task.status || 'قيد الانتظار'}
+            </span>
+          </td>
+          <td>${task.dueDate || 'غير محدد'}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-warning" onclick="editTask(${index})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="btn btn-outline-danger" onclick="deleteTask(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+    
+    console.log(`✅ تم تحميل ${appData.tasks.length} مهمة`);
+  } catch(err) {
+    console.error('❌ خطأ في تحميل المهام:', err);
+  }
+}
+
+function loadReports() { 
+  console.log('📋 تحميل التقارير');
+  try {
+    // Reports are generated dynamically, so we just show the reports interface
+    console.log('✅ تم تحميل واجهة التقارير');
+  } catch(err) {
+    console.error('❌ خطأ في تحميل التقارير:', err);
+  }
+}
+
+function loadAnalytics() { 
+  console.log('📊 تحميل التحليلات');
+  try {
+    // Analytics are generated dynamically, so we just show the analytics interface
+    console.log('✅ تم تحميل واجهة التحليلات');
+  } catch(err) {
+    console.error('❌ خطأ في تحميل التحليلات:', err);
+  }
+}
+
+// Additional CRUD Operations
+
+// Daily Work Operations
+function addDailyWork() {
+  console.log('➕ إضافة عمل يومي جديد');
+  try {
+    const date = document.getElementById('dailyWorkDate')?.value;
+    const description = document.getElementById('dailyWorkDescription')?.value;
+    const clientName = document.getElementById('dailyWorkClient')?.value;
+    const amount = document.getElementById('dailyWorkAmount')?.value;
+    const paymentMethod = document.getElementById('dailyWorkPaymentMethod')?.value;
+    
+    if (!date || !description || !amount) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newWork = {
+      id: Date.now(),
+      date,
+      description,
+      clientName: clientName || 'غير محدد',
+      amount,
+      paymentMethod: paymentMethod || 'نقدي',
+      status: 'غير مدفوع',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.dailyWork.push(newWork);
+    saveData();
+    loadDailyWork();
+    
+    // Clear form
+    const form = document.getElementById('addDailyWorkForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addDailyWorkModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة العمل اليومي بنجاح');
+    console.log('✅ تم إضافة عمل يومي:', newWork);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة العمل اليومي:', err);
+    alert('❌ حدث خطأ أثناء إضافة العمل اليومي');
+  }
+}
+
+function editDailyWork(index) {
+  console.log(`✏️ تعديل عمل يومي: ${index}`);
+  try {
+    const work = appData.dailyWork[index];
+    if (!work) {
+      alert('❌ لم يتم العثور على العمل اليومي');
+      return;
+    }
+    
+    // Fill form with work data
+    document.getElementById('editDailyWorkDate').value = work.date;
+    document.getElementById('editDailyWorkDescription').value = work.description;
+    document.getElementById('editDailyWorkClient').value = work.clientName || '';
+    document.getElementById('editDailyWorkAmount').value = work.amount;
+    document.getElementById('editDailyWorkPaymentMethod').value = work.paymentMethod || 'نقدي';
+    
+    // Store index for later use
+    document.getElementById('editDailyWorkIndex').value = index;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editDailyWorkModal'));
+    modal.show();
+  } catch(err) {
+    console.error('❌ خطأ في تعديل العمل اليومي:', err);
+    alert('❌ حدث خطأ أثناء تعديل العمل اليومي');
+  }
+}
+
+function updateDailyWork() {
+  console.log('💾 تحديث بيانات العمل اليومي');
+  try {
+    const index = document.getElementById('editDailyWorkIndex').value;
+    const work = appData.dailyWork[index];
+    
+    if (!work) {
+      alert('❌ لم يتم العثور على العمل اليومي');
+      return;
+    }
+    
+    work.date = document.getElementById('editDailyWorkDate').value;
+    work.description = document.getElementById('editDailyWorkDescription').value;
+    work.clientName = document.getElementById('editDailyWorkClient').value;
+    work.amount = document.getElementById('editDailyWorkAmount').value;
+    work.paymentMethod = document.getElementById('editDailyWorkPaymentMethod').value;
+    
+    saveData();
+    loadDailyWork();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editDailyWorkModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم تحديث بيانات العمل اليومي بنجاح');
+    console.log('✅ تم تحديث عمل يومي:', work);
+  } catch(err) {
+    console.error('❌ خطأ في تحديث العمل اليومي:', err);
+    alert('❌ حدث خطأ أثناء تحديث العمل اليومي');
+  }
+}
+
+function deleteDailyWork(index) {
+  console.log(`🗑️ حذف عمل يومي: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا العمل اليومي؟')) {
+      return;
+    }
+    
+    const work = appData.dailyWork[index];
+    appData.dailyWork.splice(index, 1);
+    saveData();
+    loadDailyWork();
+    
+    alert('✅ تم حذف العمل اليومي بنجاح');
+    console.log('✅ تم حذف عمل يومي:', work);
+  } catch(err) {
+    console.error('❌ خطأ في حذف العمل اليومي:', err);
+    alert('❌ حدث خطأ أثناء حذف العمل اليومي');
+  }
+}
+
+function markDailyWorkAsPaid(index) {
+  console.log(`💰 تحديد العمل اليومي كمدفوع: ${index}`);
+  try {
+    const work = appData.dailyWork[index];
+    if (work) {
+      work.status = 'مدفوع';
+      work.paidDate = new Date().toISOString().split('T')[0];
+      saveData();
+      loadDailyWork();
+      alert('✅ تم تحديث حالة العمل اليومي إلى مدفوع');
+    }
+  } catch(err) {
+    console.error('❌ خطأ في تحديث العمل اليومي:', err);
+    alert('❌ حدث خطأ أثناء تحديث العمل اليومي');
+  }
+}
+
+// Income Operations
+function addDailyIncome() {
+  console.log('➕ إضافة مدخل جديد');
+  try {
+    const date = document.getElementById('incomeDate')?.value;
+    const description = document.getElementById('incomeDescription')?.value;
+    const amount = document.getElementById('incomeAmount')?.value;
+    const source = document.getElementById('incomeSource')?.value;
+    
+    if (!date || !description || !amount) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newIncome = {
+      id: Date.now(),
+      date,
+      description,
+      amount,
+      source: source || 'غير محدد',
+      status: 'مثبت',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.income.push(newIncome);
+    saveData();
+    loadIncome();
+    
+    // Clear form
+    const form = document.getElementById('addIncomeForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addIncomeModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة المدخل بنجاح');
+    console.log('✅ تم إضافة مدخل:', newIncome);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة المدخل:', err);
+    alert('❌ حدث خطأ أثناء إضافة المدخل');
+  }
+}
+
+function deleteDailyIncome(index) {
+  console.log(`🗑️ حذف مدخل: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا المدخل؟')) {
+      return;
+    }
+    
+    const income = appData.income[index];
+    appData.income.splice(index, 1);
+    saveData();
+    loadIncome();
+    
+    alert('✅ تم حذف المدخل بنجاح');
+    console.log('✅ تم حذف مدخل:', income);
+  } catch(err) {
+    console.error('❌ خطأ في حذف المدخل:', err);
+    alert('❌ حدث خطأ أثناء حذف المدخل');
+  }
+}
+
+// Expense Operations
+function addDailyExpense() {
+  console.log('➕ إضافة مصروف جديد');
+  try {
+    const date = document.getElementById('expenseDate')?.value;
+    const description = document.getElementById('expenseDescription')?.value;
+    const amount = document.getElementById('expenseAmount')?.value;
+    const category = document.getElementById('expenseCategory')?.value;
+    
+    if (!date || !description || !amount) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newExpense = {
+      id: Date.now(),
+      date,
+      description,
+      amount,
+      category: category || 'غير محدد',
+      status: 'مدفوع',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.expenses.push(newExpense);
+    saveData();
+    loadExpenses();
+    
+    // Clear form
+    const form = document.getElementById('addExpenseForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addExpenseModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة المصروف بنجاح');
+    console.log('✅ تم إضافة مصروف:', newExpense);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة المصروف:', err);
+    alert('❌ حدث خطأ أثناء إضافة المصروف');
+  }
+}
+
+function deleteDailyExpense(index) {
+  console.log(`🗑️ حذف مصروف: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+      return;
+    }
+    
+    const expense = appData.expenses[index];
+    appData.expenses.splice(index, 1);
+    saveData();
+    loadExpenses();
+    
+    alert('✅ تم حذف المصروف بنجاح');
+    console.log('✅ تم حذف مصروف:', expense);
+  } catch(err) {
+    console.error('❌ خطأ في حذف المصروف:', err);
+    alert('❌ حدث خطأ أثناء حذف المصروف');
+  }
+}
+
+// Task Operations
+function addTask() {
+  console.log('➕ إضافة مهمة جديدة');
+  try {
+    const title = document.getElementById('taskTitle')?.value;
+    const description = document.getElementById('taskDescription')?.value;
+    const priority = document.getElementById('taskPriority')?.value;
+    const dueDate = document.getElementById('taskDueDate')?.value;
+    
+    if (!title) {
+      alert('يرجى ملء الحقول المطلوبة');
+      return;
+    }
+    
+    const newTask = {
+      id: Date.now(),
+      title,
+      description: description || '',
+      priority: priority || 'متوسط',
+      status: 'قيد الانتظار',
+      dueDate: dueDate || '',
+      createdAt: new Date().toISOString()
+    };
+    
+    appData.tasks.push(newTask);
+    saveData();
+    loadTasks();
+    
+    // Clear form
+    const form = document.getElementById('addTaskForm');
+    if (form) form.reset();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم إضافة المهمة بنجاح');
+    console.log('✅ تم إضافة مهمة:', newTask);
+  } catch(err) {
+    console.error('❌ خطأ في إضافة المهمة:', err);
+    alert('❌ حدث خطأ أثناء إضافة المهمة');
+  }
+}
+
+function editTask(index) {
+  console.log(`✏️ تعديل مهمة: ${index}`);
+  try {
+    const task = appData.tasks[index];
+    if (!task) {
+      alert('❌ لم يتم العثور على المهمة');
+      return;
+    }
+    
+    // Fill form with task data
+    document.getElementById('editTaskTitle').value = task.title;
+    document.getElementById('editTaskDescription').value = task.description || '';
+    document.getElementById('editTaskPriority').value = task.priority || 'متوسط';
+    document.getElementById('editTaskDueDate').value = task.dueDate || '';
+    document.getElementById('editTaskStatus').value = task.status || 'قيد الانتظار';
+    
+    // Store index for later use
+    document.getElementById('editTaskIndex').value = index;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+    modal.show();
+  } catch(err) {
+    console.error('❌ خطأ في تعديل المهمة:', err);
+    alert('❌ حدث خطأ أثناء تعديل المهمة');
+  }
+}
+
+function updateTask() {
+  console.log('💾 تحديث بيانات المهمة');
+  try {
+    const index = document.getElementById('editTaskIndex').value;
+    const task = appData.tasks[index];
+    
+    if (!task) {
+      alert('❌ لم يتم العثور على المهمة');
+      return;
+    }
+    
+    task.title = document.getElementById('editTaskTitle').value;
+    task.description = document.getElementById('editTaskDescription').value;
+    task.priority = document.getElementById('editTaskPriority').value;
+    task.dueDate = document.getElementById('editTaskDueDate').value;
+    task.status = document.getElementById('editTaskStatus').value;
+    
+    saveData();
+    loadTasks();
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+    if (modal) modal.hide();
+    
+    alert('✅ تم تحديث بيانات المهمة بنجاح');
+    console.log('✅ تم تحديث مهمة:', task);
+  } catch(err) {
+    console.error('❌ خطأ في تحديث المهمة:', err);
+    alert('❌ حدث خطأ أثناء تحديث المهمة');
+  }
+}
+
+function deleteTask(index) {
+  console.log(`🗑️ حذف مهمة: ${index}`);
+  try {
+    if (!confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+      return;
+    }
+    
+    const task = appData.tasks[index];
+    appData.tasks.splice(index, 1);
+    saveData();
+    loadTasks();
+    
+    alert('✅ تم حذف المهمة بنجاح');
+    console.log('✅ تم حذف مهمة:', task);
+  } catch(err) {
+    console.error('❌ خطأ في حذف المهمة:', err);
+    alert('❌ حدث خطأ أثناء حذف المهمة');
+  }
+}
+
+// Print functions (stubs)
+function printIncomeReceipt(id) {
+  console.log(`🖨️ طباعة إيصال مدخل: ${id}`);
+  alert('سيتم فتح نافذة الطباعة قريباً');
+}
+
+function printExpenseReceipt(id) {
+  console.log(`🖨️ طباعة إيصال مصروف: ${id}`);
+  alert('سيتم فتح نافذة الطباعة قريباً');
+}
+function getPriorityColor(priority) {
+  switch(priority) {
+    case 'عالي': return 'danger';
+    case 'متوسط': return 'warning';
+    case 'منخفض': return 'info';
+    default: return 'secondary';
+  }
+}
+
+function getStatusColor(status) {
+  switch(status) {
+    case 'مكتمل': return 'success';
+    case 'قيد التنفيذ': return 'primary';
+    case 'قيد الانتظار': return 'warning';
+    case 'ملغي': return 'danger';
+    default: return 'secondary';
+  }
+}
 
 // ============= CONTRACT FILTERING SYSTEM =============
 function setupContractFilters() {
@@ -848,7 +2074,249 @@ const hrModule = {
   }
 };
 
-// ============= INITIALIZE ALL MODULES =============
+// ============= UI COMPONENTS INITIALIZATION =============
+function initializeUIComponents() {
+  console.log('🎨 تهيئة مكونات واجهة المستخدم...');
+  
+  // Initialize Sidebar Toggle
+  const sidebarToggleBtn = document.getElementById('sidebarToggle');
+  if(sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', function () {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('show');
+        this.setAttribute('aria-expanded', sidebar.classList.contains('show'));
+        console.log('🔄 تم تبديل القائمة الجانبية');
+      }
+    });
+    console.log('✅ تم تهيئة زر القائمة الجانبية');
+  } else {
+    console.warn('⚠️ لم يتم العثور على زر القائمة الجانبية');
+  }
+  
+  // Initialize Notification Bell
+  const notificationBell = document.getElementById('notificationBell');
+  if(notificationBell) {
+    notificationBell.addEventListener('click', function () {
+      console.log('🔔 فتح لوحة الإشعارات');
+      // Toggle notification panel
+      const panel = document.getElementById('notificationPanel');
+      if (panel) {
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        this.setAttribute('aria-expanded', panel.style.display === 'block');
+      }
+    });
+    console.log('✅ تم تهيئة جرس الإشعارات');
+  } else {
+    console.warn('⚠️ لم يتم العثور على جرس الإشعارات');
+  }
+  
+  // Initialize Close Notification Panel
+  const closeNotificationPanel = document.getElementById('closeNotificationPanel');
+  if(closeNotificationPanel) {
+    closeNotificationPanel.addEventListener('click', function () {
+      console.log('🔔 إغلاق لوحة الإشعارات');
+      const panel = document.getElementById('notificationPanel');
+      if (panel) {
+        panel.style.display = 'none';
+        const bell = document.getElementById('notificationBell');
+        if (bell) bell.setAttribute('aria-expanded', 'false');
+      }
+    });
+    console.log('✅ تم تهيئة زر إغلاق الإشعارات');
+  }
+  
+  // Initialize Global Search
+  initGlobalSearch();
+  
+  // Initialize Accessibility Functions
+  initAccessibilityFunctions();
+  
+  console.log('✅ تم تهيئة جميع مكونات واجهة المستخدم');
+}
+
+// ============= GLOBAL SEARCH =============
+function initGlobalSearch() {
+  console.log('🔍 تهيئة البحث العالمي...');
+  const input = document.getElementById('globalSearchInput');
+  const resultsBox = document.getElementById('globalSearchResults');
+  
+  if (!input || !resultsBox) {
+    console.warn('⚠️ لم يتم العثور على عناصر البحث العالمي');
+    return;
+  }
+  
+  let searchTimeout;
+  
+  input.addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length < 2) {
+      resultsBox.style.display = 'none';
+      resultsBox.innerHTML = '';
+      return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+      performGlobalSearch(query, resultsBox);
+    }, 300);
+  });
+  
+  input.addEventListener('focus', function() {
+    if (this.value.trim().length >= 2) {
+      performGlobalSearch(this.value.trim(), resultsBox);
+    }
+  });
+  
+  // Hide results when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#searchContainer')) {
+      resultsBox.style.display = 'none';
+    }
+  });
+  
+  console.log('✅ تم تهيئة البحث العالمي');
+}
+
+function performGlobalSearch(query, resultsBox) {
+  const results = [];
+  
+  // Search in employees
+  appData.employees.forEach(emp => {
+    if (emp.name.toLowerCase().includes(query.toLowerCase()) ||
+        emp.position.toLowerCase().includes(query.toLowerCase())) {
+      results.push({
+        type: 'موظف',
+        title: emp.name,
+        description: emp.position,
+        action: () => navigate('employees')
+      });
+    }
+  });
+  
+  // Search in clients
+  appData.clients.forEach(client => {
+    if (client.name.toLowerCase().includes(query.toLowerCase()) ||
+        client.company?.toLowerCase().includes(query.toLowerCase())) {
+      results.push({
+        type: 'عميل',
+        title: client.name,
+        description: client.company || 'لا يوجد',
+        action: () => navigate('clients')
+      });
+    }
+  });
+  
+  // Search in contracts
+  appData.contracts.forEach(contract => {
+    if (contract.contractNumber.toLowerCase().includes(query.toLowerCase()) ||
+        contract.clientName.toLowerCase().includes(query.toLowerCase())) {
+      results.push({
+        type: 'عقد',
+        title: contract.contractNumber,
+        description: contract.clientName,
+        action: () => navigate('contracts')
+      });
+    }
+  });
+  
+  displaySearchResults(results, resultsBox, query);
+}
+
+function displaySearchResults(results, resultsBox, query) {
+  if (results.length === 0) {
+    resultsBox.innerHTML = `
+      <div class="p-3 text-muted">
+        <i class="fas fa-search me-2"></i>
+        لا توجد نتائج ل "${query}"
+      </div>
+    `;
+  } else {
+    resultsBox.innerHTML = results.slice(0, 5).map(result => `
+      <div class="search-result-item p-2 border-bottom hover:bg-light cursor-pointer" onclick="(${result.action})()">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-bold">${result.title}</div>
+            <div class="text-muted small">${result.description}</div>
+          </div>
+          <span class="badge bg-primary small">${result.type}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  resultsBox.style.display = 'block';
+}
+
+// ============= ACCESSIBILITY FUNCTIONS =============
+function initAccessibilityFunctions() {
+  console.log('♿ تهيئة وظائف الوصولية...');
+  
+  // High contrast toggle
+  window.toggleHighContrast = function() {
+    console.log('🔄 تبديل التباين العالي');
+    highContrastEnabled = !highContrastEnabled;
+    localStorage.setItem('highContrast', highContrastEnabled);
+    
+    if (highContrastEnabled) {
+      document.body.classList.add('high-contrast');
+      console.log('✅ تم تفعيل التباين العالي');
+    } else {
+      document.body.classList.remove('high-contrast');
+      console.log('✅ تم إلغاء التباين العالي');
+    }
+  };
+  
+  // Dark mode toggle
+  window.toggleDarkMode = function() {
+    console.log('🌙 تبديل الوضع الليلي');
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', currentTheme);
+    
+    if (currentTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      console.log('✅ تم تفعيل الوضع الليلي');
+    } else {
+      document.body.classList.remove('dark-mode');
+      console.log('✅ تم إلغاء الوضع الليلي');
+    }
+  };
+  
+  // Font size controls
+  window.increaseFontSize = function() {
+    console.log('🔍 زيادة حجم الخط');
+    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+    const newSize = Math.min(currentSize + 2, 24);
+    document.body.style.fontSize = newSize + 'px';
+    localStorage.setItem('fontSize', newSize + 'px');
+  };
+  
+  window.decreaseFontSize = function() {
+    console.log('🔽 تقليل حجم الخط');
+    const currentSize = parseFloat(getComputedStyle(document.body).fontSize);
+    const newSize = Math.max(currentSize - 2, 12);
+    document.body.style.fontSize = newSize + 'px';
+    localStorage.setItem('fontSize', newSize + 'px');
+  };
+  
+  console.log('✅ تم تهيئة وظائف الوصولية');
+}
+
+// ============= THEME INITIALIZATION =============
+function initDarkMode() {
+  console.log('🌙 تهيئة الوضع الليلي...');
+  if (currentTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+}
+
+function initHighContrast() {
+  console.log('♿ تهيئة التباين العالي...');
+  if (highContrastEnabled) {
+    document.body.classList.add('high-contrast');
+  }
+}
 function initializeAllModules() {
   console.log('🚀 تهيئة جميع الوحدات المتقدمة...');
   
@@ -923,6 +2391,7 @@ function handleLogin() {
     console.log('✅ تم تسجيل الدخول:', username);
     
     setupNavigation();
+    initializeUIComponents();
   } else {
     alert('يرجى إدخال اسم المستخدم وكلمة المرور');
   }
@@ -964,6 +2433,7 @@ function handleAuthLogin() {
     // Setup navigation after successful login
     setTimeout(() => {
       setupNavigation();
+      initializeUIComponents();
     }, 100);
   } else {
     // Show error notification

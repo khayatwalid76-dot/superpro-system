@@ -125,11 +125,20 @@
             border: 1px solid rgba(52, 152, 219, 0.15);
         }
 
-        @media print {
-            body.printing #printArea {
-                display: block !important;
-            }
+        /* Search Results Styling */
+        .search-results-dropdown {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
+        .search-result-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
             body.printing * {
                 visibility: hidden !important;
             }
