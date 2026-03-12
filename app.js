@@ -37,59 +37,92 @@ const firebaseConfig = {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('✅ بدء تحميل التطبيق...');
   
-  // Set initial language
-  document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
-  document.documentElement.lang = currentLanguage;
-  
-  // Initialize theme
-  initDarkMode();
-  initHighContrast();
-  
-  loadData();
-  console.log('✅ تم تحميل البيانات');
-  
-  // Setup login handlers
-  const authLoginBtn = document.getElementById('authLoginBtn');
-  if(authLoginBtn) {
-    authLoginBtn.addEventListener('click', handleAuthLogin);
-    console.log('✅ تم إعداد زر الدخول');
-  }
-  
-  const authPassword = document.getElementById('authPassword');
-  if(authPassword) {
-    authPassword.addEventListener('keypress', function(e) {
-      if(e.key === 'Enter') handleAuthLogin();
+  try {
+    // Set initial language
+    document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLanguage;
+    
+    // Initialize theme
+    initDarkMode();
+    initHighContrast();
+    
+    // Initialize Firebase (will fallback to local if not available)
+    initializeFirebase();
+    
+    // Load data with error handling
+    loadData();
+    console.log('✅ تم تحميل البيانات');
+    
+    // Setup login handlers
+    const authLoginBtn = document.getElementById('authLoginBtn');
+    if(authLoginBtn) {
+      authLoginBtn.addEventListener('click', handleAuthLogin);
+      console.log('✅ تم إعداد زر الدخول');
+    }
+    
+    const authPassword = document.getElementById('authPassword');
+    if(authPassword) {
+      authPassword.addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') handleAuthLogin();
+      });
+    }
+    
+    // Show login overlay
+    const authOverlay = document.getElementById('authOverlay');
+    if(authOverlay) {
+      authOverlay.style.display = 'flex';
+      console.log('✅ تم عرض شاشة الدخول');
+    } else {
+      console.warn('⚠️ لم يتم العثور على شاشة الدخول');
+      // Try to show app directly if no auth overlay
+      const appWrapper = document.getElementById('appWrapper');
+      if(appWrapper) {
+        appWrapper.style.display = 'flex';
+        setupNavigation();
+        initializeUIComponents();
+      }
+    }
+    
+    // Initialize all modules
+    initializeAllModules();
+    
+    // Initialize UI components
+    initializeUIComponents();
+    
+    // Hide JS status bar - indicates JS has loaded
+    const jsStatusBar = document.getElementById('js-status-bar');
+    if(jsStatusBar) {
+      jsStatusBar.style.display = 'none';
+      console.log('✅ تم إخفاء شريط الحالة');
+    }
+    
+    // Hide any loading indicators
+    const loadingIndicators = document.querySelectorAll('.loading-spinner, .loading-indicator');
+    loadingIndicators.forEach(indicator => {
+      indicator.style.display = 'none';
     });
+    console.log('✅ تم إخفاء مؤشرات التحميل');
+    
+    console.log('🎉 تم تهيئة التطبيق بنجاح!');
+    
+  } catch(error) {
+    console.error('❌ خطأ في تهيئة التطبيق:', error);
+    // Show error message to user
+    document.body.innerHTML = `
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h2 style="color: #dc3545;">❌ حدث خطأ في تحميل النظام</h2>
+        <p>يرجى تحديث الصفحة والمحاولة مرة أخرى</p>
+        <button onclick="location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          تحديث الصفحة
+        </button>
+        <br><br>
+        <details style="text-align: right; margin-top: 20px;">
+          <summary>تفاصيل الخطأ (للمطورين)</summary>
+          <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; text-align: left;">${error.stack || error.message}</pre>
+        </details>
+      </div>
+    `;
   }
-  
-  // Show login overlay
-  const authOverlay = document.getElementById('authOverlay');
-  if(authOverlay) {
-    authOverlay.style.display = 'flex';
-    console.log('✅ تم عرض شاشة الدخول');
-  } else {
-    console.warn('⚠️ لم يتم العثور على شاشة الدخول');
-  }
-  
-  // Initialize all modules
-  initializeAllModules();
-  
-  // Initialize UI components
-  initializeUIComponents();
-  
-  // Hide JS status bar - indicates JS has loaded
-  const jsStatusBar = document.getElementById('js-status-bar');
-  if(jsStatusBar) {
-    jsStatusBar.style.display = 'none';
-    console.log('✅ تم إخفاء شريط الحالة');
-  }
-  
-  // Hide any loading indicators
-  const loadingIndicators = document.querySelectorAll('.loading-spinner, .loading-indicator');
-  loadingIndicators.forEach(indicator => {
-    indicator.style.display = 'none';
-  });
-  console.log('✅ تم إخفاء مؤشرات التحميل');
 });
 
 // ============= NAVIGATION SETUP =============
@@ -246,6 +279,50 @@ function loadPageData(page) {
     case 'analytics':
       console.log('📊 تحميل التحليلات');
       loadAnalytics();
+      break;
+    case 'services':
+      console.log('🛎️ تحميل الخدمات');
+      loadServices();
+      break;
+    case 'finance':
+      console.log('💳 تحميل الحسابات المالية');
+      loadFinance();
+      break;
+    case 'calendar':
+      console.log('📅 تحميل التقويم');
+      loadCalendar();
+      break;
+    case 'settings':
+      console.log('⚙️ تحميل الإعدادات');
+      loadSettings();
+      break;
+    case 'activityLog':
+      console.log('📋 تحميل سجل الأنشطة');
+      loadActivityLog();
+      break;
+    case 'notifications':
+      console.log('🔔 تحميل الإشعارات');
+      loadNotifications();
+      break;
+    case 'documents':
+      console.log('📄 تحميل المستندات');
+      loadDocuments();
+      break;
+    case 'search':
+      console.log('🔍 تحميل البحث المتقدم');
+      loadSearch();
+      break;
+    case 'security':
+      console.log('🔐 تحميل الأمان');
+      loadSecurity();
+      break;
+    case 'invoices':
+      console.log('💰 تحميل الفواتير');
+      loadInvoices();
+      break;
+    case 'hr':
+      console.log('👥 تحميل الموارد البشرية');
+      loadHR();
       break;
     default:
       console.log(`⏭️  لا يوجد محمل للصفحة: ${page}`);
@@ -2457,7 +2534,18 @@ function handleAuthLogin() {
 
 // ============= DATA PERSISTENCE =============
 function saveData() {
-  localStorage.setItem('superproDB', JSON.stringify(appData));
+  try {
+    localStorage.setItem('superproDB', JSON.stringify(appData));
+    console.log('✅ تم حفظ البيانات محلياً');
+    
+    // Try to sync with Firebase if available
+    if(appData.firebaseSync) {
+      syncWithFirebase();
+    }
+  } catch(error) {
+    console.error('❌ خطأ في حفظ البيانات:', error);
+    alert('حدث خطأ في حفظ البيانات. يرجى المحاولة مرة أخرى.');
+  }
 }
 
 function loadData() {
@@ -2468,11 +2556,211 @@ function loadData() {
       console.log('✅ تم تحميل البيانات من التخزين المحلي');
     } catch(e) {
       console.log('⚠️ فشل تحميل البيانات المحلية');
+      initializeDefaultData();
     }
+  } else {
+    console.log('📝 لا توجد بيانات محفوظة، تهيئة البيانات الافتراضية...');
+    initializeDefaultData();
   }
 }
 
-// ============= DARK MODE SYSTEM =============
+function initializeDefaultData() {
+  console.log('🔧 تهيئة البيانات الافتراضية...');
+  appData = {
+    employees: [
+      { id: 1, name: 'أحمد محمد', position: 'مدير مشروع', department: 'الإدارة', salary: '15000', phone: '0501234567', status: 'نشط', hireDate: '2024-01-15' },
+      { id: 2, name: 'فاطمة علي', position: 'مصممة', department: 'التصميم', salary: '8000', phone: '0507654321', status: 'نشط', hireDate: '2024-02-20' },
+      { id: 3, name: 'محمد سعيد', position: 'مطور', department: 'التقنية', salary: '12000', phone: '0509876543', status: 'نشط', hireDate: '2024-03-10' }
+    ],
+    clients: [
+      { id: 1, name: 'شركة النور للتقنية', phone: '0123456789', email: 'info@alnoor.com', company: 'شركة النور', status: 'نشط', createdAt: '2024-01-01' },
+      { id: 2, name: 'مؤسسة الأمل', phone: '0129876543', email: 'contact@amal.org', company: 'مؤسسة الأمل', status: 'نشط', createdAt: '2024-01-15' }
+    ],
+    contracts: [
+      { id: 1, contractNumber: 'CTR-2024-001', clientName: 'شركة النور للتقنية', type: 'تطوير برمجيات', amount: '50000', startDate: '2024-01-01', endDate: '2024-06-30', status: 'نشط', createdAt: '2024-01-01' },
+      { id: 2, contractNumber: 'CTR-2024-002', clientName: 'مؤسسة الأمل', type: 'تصميم موقع', amount: '25000', startDate: '2024-02-01', endDate: '2024-04-30', status: 'نشط', createdAt: '2024-02-01' }
+    ],
+    attendance: [
+      { id: 1, employeeName: 'أحمد محمد', date: '2024-03-12', checkIn: '08:30', checkOut: '17:30', hours: '9', source: 'يدوي' },
+      { id: 2, employeeName: 'فاطمة علي', date: '2024-03-12', checkIn: '09:00', checkOut: '17:00', hours: '8', source: 'يدوي' }
+    ],
+    payroll: [
+      { id: 1, employeeName: 'أحمد محمد', month: '2024-03', salary: '15000', deductions: '500', netSalary: '14500', status: 'غير مدفوع' },
+      { id: 2, employeeName: 'فاطمة علي', month: '2024-03', salary: '8000', deductions: '200', netSalary: '7800', status: 'غير مدفوع' }
+    ],
+    dailyWork: [
+      { id: 1, date: '2024-03-12', description: 'تطوير واجهة المستخدم', clientName: 'شركة النور', amount: '2000', paymentMethod: 'تحويل بنكي', status: 'غير مدفوع', createdAt: '2024-03-12' }
+    ],
+    income: [
+      { id: 1, date: '2024-03-12', description: 'دفعة أولى - مشروع النور', amount: '25000', source: 'تحويل بنكي', status: 'مثبت', createdAt: '2024-03-12' }
+    ],
+    expenses: [
+      { id: 1, date: '2024-03-12', description: 'إيجار المكتب', amount: '5000', category: 'تشغيلي', status: 'مدفوع', createdAt: '2024-03-12' }
+    ],
+    tasks: [
+      { id: 1, title: 'إكمال تصميم الشعار', description: 'تصميم شعار جديد للعميل', priority: 'عالي', status: 'قيد التنفيذ', dueDate: '2024-03-15', createdAt: '2024-03-12' },
+      { id: 2, title: 'اجتماع العميل', description: 'اجتماع مع شركة النور', priority: 'متوسط', status: 'قيد الانتظار', dueDate: '2024-03-14', createdAt: '2024-03-12' }
+    ],
+    notifications: [],
+    firebaseSync: true,
+    lastSync: new Date()
+  };
+  saveData();
+  console.log('✅ تم تهيئة البيانات الافتراضية وحفظها');
+}
+
+// ============= ADVANCED MODULE LOADERS =============
+function loadServices() {
+  console.log('🛎️ تحميل وحدة الخدمات...');
+  // Placeholder for services module
+  const container = document.getElementById('services');
+  if(container) {
+    console.log('✅ تم تحميل الخدمات');
+  }
+}
+
+function loadFinance() {
+  console.log('💳 تحميل وحدة الحسابات المالية...');
+  // Placeholder for finance module
+  const container = document.getElementById('finance');
+  if(container) {
+    console.log('✅ تم تحميل الحسابات المالية');
+  }
+}
+
+function loadCalendar() {
+  console.log('📅 تحميل وحدة التقويم...');
+  // Placeholder for calendar module
+  const container = document.getElementById('calendar');
+  if(container) {
+    console.log('✅ تم تحميل التقويم');
+  }
+}
+
+function loadSettings() {
+  console.log('⚙️ تحميل وحدة الإعدادات...');
+  // Placeholder for settings module
+  const container = document.getElementById('settings');
+  if(container) {
+    console.log('✅ تم تحميل الإعدادات');
+  }
+}
+
+function loadActivityLog() {
+  console.log('📋 تحميل وحدة سجل الأنشطة...');
+  // Placeholder for activity log module
+  const container = document.getElementById('activityLog');
+  if(container) {
+    console.log('✅ تم تحميل سجل الأنشطة');
+  }
+}
+
+function loadNotifications() {
+  console.log('🔔 تحميل وحدة الإشعارات...');
+  // Placeholder for notifications module
+  const container = document.getElementById('notifications');
+  if(container) {
+    console.log('✅ تم تحميل الإشعارات');
+  }
+}
+
+function loadDocuments() {
+  console.log('📄 تحميل وحدة المستندات...');
+  // Placeholder for documents module
+  const container = document.getElementById('documents');
+  if(container) {
+    console.log('✅ تم تحميل المستندات');
+  }
+}
+
+function loadSearch() {
+  console.log('🔍 تحميل وحدة البحث المتقدم...');
+  // Placeholder for search module
+  const container = document.getElementById('search');
+  if(container) {
+    console.log('✅ تم تحميل البحث المتقدم');
+  }
+}
+
+function loadSecurity() {
+  console.log('🔐 تحميل وحدة الأمان...');
+  // Placeholder for security module
+  const container = document.getElementById('security');
+  if(container) {
+    console.log('✅ تم تحميل الأمان');
+  }
+}
+
+function loadInvoices() {
+  console.log('💰 تحميل وحدة الفواتير...');
+  // Placeholder for invoices module
+  const container = document.getElementById('invoices');
+  if(container) {
+    console.log('✅ تم تحميل الفواتير');
+  }
+}
+
+function loadHR() {
+  console.log('👥 تحميل وحدة الموارد البشرية...');
+  // Placeholder for HR module
+  const container = document.getElementById('hr');
+  if(container) {
+    console.log('✅ تم تحميل الموارد البشرية');
+  }
+}
+
+// ============= FIREBASE INTEGRATION FIX =============
+function initializeFirebase() {
+  console.log('🔥 تهيئة Firebase...');
+  
+  // Check if Firebase is available
+  if(typeof firebase === 'undefined') {
+    console.log('⚠️ Firebase SDK غير متوفر، استخدام الوضع المحلي');
+    appData.firebaseSync = false;
+    return false;
+  }
+  
+  try {
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ تم تهيئة Firebase بنجاح');
+    
+    // Enable offline persistence
+    firebase.database().ref().keepSynced(true);
+    console.log('✅ تم تفعيل المزامنة دون اتصال');
+    
+    return true;
+  } catch(error) {
+    console.warn('⚠️ فشل تهيئة Firebase:', error);
+    appData.firebaseSync = false;
+    return false;
+  }
+}
+
+function syncWithFirebase() {
+  if(!appData.firebaseSync) {
+    console.log('📱 Firebase غير مفعل، استخدام التخزين المحلي فقط');
+    return;
+  }
+  
+  try {
+    const database = firebase.database();
+    const ref = database.ref('superproData');
+    
+    // Upload data to Firebase
+    ref.set(appData)
+      .then(() => {
+        console.log('✅ تم مزامنة البيانات مع Firebase');
+        appData.lastSync = new Date();
+        saveData();
+      })
+      .catch(error => {
+        console.warn('⚠️ فشل المزامنة مع Firebase:', error);
+      });
+  } catch(error) {
+    console.warn('⚠️ خطأ في المزامنة:', error);
+  }
+}
 function toggleDarkMode() {
   currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', currentTheme);
