@@ -7789,7 +7789,7 @@
         }
 
         // تهيئة البيانات: السحابة أولاً، ثم المحلي، ثم الملف الأصلي
-        function initializeDefaultData() {
+        async function initializeDefaultData() {
             console.log('🚀 تهيئة البيانات...');
 
             const tryFirebase = () => new Promise((resolve) => {
@@ -7821,10 +7821,10 @@
                 return false;
             };
 
-            const loadFromFile = () => {
-                fetch('user-data-full.json')
-                .then(response => response.json())
-                .then(fullData => {
+            const loadFromFile = async () => {
+                try {
+                    const response = await fetch('user-data-full.json');
+                    const fullData = await response.json();
                     console.log('✅ تم تحميل البيانات الأصلية:', fullData);
 
                     const userData = {
@@ -7949,17 +7949,18 @@
                     applyData(userData);
                     saveData();
                     showNotification(`تم تحميل البيانات الأصلية بنجاح`, 'success');
-                })
-                .catch(error => {
+                    return true;
+                } catch (error) {
                     console.error('❌ خطأ في تحميل البيانات:', error);
                     showNotification('❌ خطأ في تحميل البيانات الأصلية', 'error');
-                });
+                    return false;
+                }
             };
 
-            tryFirebase().then((fromCloud) => {
+            await tryFirebase().then((fromCloud) => {
                 if (fromCloud) return;
                 if (trySessionStorage()) return;
-                loadFromFile();
+                return loadFromFile();
             });
         }
 
