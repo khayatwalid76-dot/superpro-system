@@ -176,6 +176,7 @@
             position: fixed;
             top: 0;
             bottom: 0;
+            right: 0;
             width: 280px;
             padding-top: 60px;
             overflow: auto;
@@ -1291,11 +1292,7 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <div id="monthlyPerformanceDisplay" class="performance-container">
-                        <div class="text-center">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">تحميل...</span>
-                            </div>
-                        </div>
+                        <!-- سيتم تعبئته بواسطة loadDashboard() -->
                     </div>
                 </div>
             </div>
@@ -8243,6 +8240,10 @@
             sessionStorage.setItem(LS_KEYS.authUser, JSON.stringify(user));
             updateAuthUi();
             applyRolePermissions();
+            setTimeout(() => {
+                setupNavigation();
+                setupAllModalEvents();
+            }, 150);
         }
 
         function clearCurrentUser() {
@@ -8350,6 +8351,105 @@
                 clearCurrentUser();
                 showToast('تم تسجيل الخروج', 'info');
             });
+        }
+
+        function setupAllModalEvents() {
+            // موظف
+            const empModal = document.getElementById('employeeModal');
+            if (empModal && !empModal._eventSetup) {
+                empModal._eventSetup = true;
+                empModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveEmployeeBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditEmployee(); };
+                    }
+                });
+            }
+            // عميل
+            const clientModal = document.getElementById('clientModal');
+            if (clientModal && !clientModal._eventSetup) {
+                clientModal._eventSetup = true;
+                clientModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveClientBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditClient(); };
+                    }
+                });
+            }
+            // عقد
+            const contractModal = document.getElementById('contractModal');
+            if (contractModal && !contractModal._eventSetup) {
+                contractModal._eventSetup = true;
+                contractModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveContractBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditContract(); };
+                    }
+                });
+            }
+            // عمل يومي
+            const dwModal = document.getElementById('dailyWorkModal');
+            if (dwModal && !dwModal._eventSetup) {
+                dwModal._eventSetup = true;
+                dwModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveDailyWorkBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditDailyWork(); };
+                    }
+                });
+            }
+            // مدخول
+            const diModal = document.getElementById('dailyIncomeModal');
+            if (diModal && !diModal._eventSetup) {
+                diModal._eventSetup = true;
+                diModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveDailyIncomeBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditDailyIncome(); };
+                    }
+                });
+            }
+            // مصروف
+            const deModal = document.getElementById('dailyExpenseModal');
+            if (deModal && !deModal._eventSetup) {
+                deModal._eventSetup = true;
+                deModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveDailyExpenseBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditDailyExpense(); };
+                    }
+                });
+            }
+            // خدمة
+            const svcModal = document.getElementById('serviceModal');
+            if (svcModal && !svcModal._eventSetup) {
+                svcModal._eventSetup = true;
+                svcModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveServiceBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditService(); };
+                    }
+                });
+            }
+            // معاملة مالية
+            const finModal = document.getElementById('financeModal');
+            if (finModal && !finModal._eventSetup) {
+                finModal._eventSetup = true;
+                finModal.addEventListener('show.bs.modal', function() {
+                    const saveBtn = document.getElementById('saveFinanceBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = null;
+                        saveBtn.onclick = function() { addOrEditFinanceTransaction(); };
+                    }
+                });
+            }
         }
 
         // ===== سجل الأنشطة =====
@@ -8525,6 +8625,9 @@
                 
                 setupNavigation();
                 console.log("setupNavigation finished");
+                
+                setupAllModalEvents();
+                console.log("setupAllModalEvents finished");
 
                 initGlobalSearch();
                 console.log("initGlobalSearch finished");
