@@ -8614,6 +8614,11 @@
             try {
                 console.log("DOM content loaded");
 
+                // تحميل البيانات أولاً
+                console.log("Starting initializeDefaultData...");
+                await initializeDefaultData();
+                console.log("initializeDefaultData finished");
+                
                 initAuth();
                 console.log("initAuth finished");
                 
@@ -8642,6 +8647,10 @@
 
                 initializeSystem();
                 console.log("initializeSystem finished");
+
+                // تحميل لوحة التحكم بعد تحميل البيانات
+                loadDashboard();
+                console.log("loadDashboard finished");
 
                 // إعداد أزرار القائمة الجانبية
                 const sidebarToggleBtn = document.getElementById('sidebarToggle');
@@ -8706,29 +8715,195 @@
                         if (!confirm('هل تريد مسح سجل الأنشطة؟')) return;
                         setActivityLog([]);
                         logActivity('مسح سجل الأنشطة', '');
-                        loadActivityLog();
-                        showToast('تم مسح سجل الأنشطة', 'success');
-                    });
-                }
-
-                // تحميل البيانات الافتراضية
-                console.log("Starting initializeDefaultData...");
-                await initializeDefaultData();
-                console.log("initializeDefaultData finished");
-
-                // إخفاء شريط الحالة
-                console.log("Hiding js-status-bar");
-                const statusBar = document.getElementById('js-status-bar');
-                if (statusBar) {
-                    statusBar.style.display = 'none';
-                }
-                
-                console.log("System initialization complete!");
-            } catch (error) {
-                console.error("❌ خطأ في تهيئة النظام:", error);
-                showNotification('❌ خطأ في تحميل النظام: ' + error.message, 'error');
-            }
         });
+        (clients || []).forEach(c => {
+            const hay = `${c.name || ''} ${c.phone || ''} ${c.area || ''} ${c.service || ''}`.toLowerCase();
+            if (hay.includes(query)) push('عميل', 'clients', c.name || 'عميل', c.area || '');
+        });
+        (contracts || []).forEach(ct => {
+            const hay = `${ct.number || ''} ${ct.client || ''} ${ct.employee || ''} ${ct.paymentStatus || ''}`.toLowerCase();
+            if (hay.includes(query)) push('عقد', 'contracts', `#${ct.number} - ${ct.client}`, ct.paymentStatus || '');
+        });
+        (dailyIncome || []).forEach(inc => {
+            const hay = `${inc.date || ''} ${inc.source || ''} ${inc.type || ''} ${inc.amount || ''}`.toLowerCase();
+            if (hay.includes(query)) push('مدخول', 'dailyIncome', `${inc.source} - ${inc.amount} ر.ق`, inc.date || '');
+        });
+        (dailyExpenses || []).forEach(exp => {
+            const hay = `${exp.date || ''} ${exp.type || ''} ${exp.employee || ''} ${exp.amount || ''}`.toLowerCase();
+            if (hay.includes(query)) push('مصروف', 'dailyExpenses', `${exp.type} - ${exp.amount} ر.ق`, exp.date || '');
+        });
+
+        return res.slice(0, 12);
+    };
+
+    let t = null;
+    input.addEventListener('input', () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+            const results = buildResults(input.value);
+            if (!results.length) return hide();
+            box.innerHTML = results.map((r, i) => `
+                <div class="p-2 border-bottom search-item" style="cursor:pointer" data-module="${r.moduleId}" data-label="${String(r.label).replace(/\"/g, '&quot;')}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">${r.type}</span>
+                        <small class="text-muted">${r.hint || ''}</small>
+                    </div>
+                    <div class="fw-bold mt-1">${r.label}</div>
+                </div>
+            `).join('');
+            show();
+        }, 120);
+    });
+
+    box.addEventListener('click', (e) => {
+        const item = e.target.closest('.search-item');
+        if (!item) return;
+        const moduleId = item.getAttribute('data-module');
+        const label = item.getAttribute('data-label') || '';
+        hide();
+        input.value = '';
+        navigateToModule(moduleId);
+
+        setTimeout(() => {
+            if (moduleId === 'employees') highlightRowByText('#employees-table-body', label);
+            if (moduleId === 'clients') highlightRowByText('#clients-table-body', label);
+            if (moduleId === 'contracts') highlightRowByText('#contracts-table-body', label);
+            if (moduleId === 'dailyIncome') highlightRowByText('#dailyIncome-table-body', label.split(' - ')[0]);
+            if (moduleId === 'dailyExpenses') highlightRowByText('#dailyExpenses-table-body', label.split(' - ')[0]);
+        }, 250);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target === input || box.contains(e.target)) return;
+        hide();
+    });
+}
+
+// ===== تهيئة النظام عند تحميل الصفحة =====
+document.addEventListener('DOMContentLoaded', async function () {
+    try {
+        console.log("DOM content loaded");
+
+        initAuth();
+        console.log("initAuth finished");
+        
+        updateCurrentDate();
+        console.log("updateCurrentDate finished");
+        
+        initDarkMode();
+        console.log("initDarkMode finished");
+        
+        setupNavigation();
+        console.log("setupNavigation finished");
+        
+        setupAllModalEvents();
+        console.log("setupAllModalEvents finished");
+
+        initGlobalSearch();
+        console.log("initGlobalSearch finished");
+        
+        initCharts();
+        console.log("initCharts finished");
+        
+        setupAutoBackup();
+        console.log("setupAutoBackup finished");
+
+        setInterval(updateCurrentDate, 60000);
+
+        initializeSystem();
+        console.log("initializeSystem finished");
+
+        // إعداد أزرار القائمة الجانبية
+        const sidebarToggleBtn = document.getElementById('sidebarToggle');
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', function () {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.toggle('show');
+                this.setAttribute('aria-expanded', sidebar && sidebar.classList.contains('show'));
+            });
+        }
+
+        // إعداد أزرار التحكم
+        const refreshDashboardBtn = document.getElementById('refreshDashboard');
+        if (refreshDashboardBtn) {
+            refreshDashboardBtn.addEventListener('click', function () {
+                loadDashboard();
+                showToast('تم تحديث لوحة التحكم');
+            });
+        }
+
+        const filterDailyWorkBtn = document.getElementById('filterDailyWorkBtn');
+        if (filterDailyWorkBtn) {
+            filterDailyWorkBtn.addEventListener('click', filterDailyWorkByDate);
+        }
+
+        const filterDailyIncomeBtn = document.getElementById('filterDailyIncomeBtn');
+        if (filterDailyIncomeBtn) {
+            filterDailyIncomeBtn.addEventListener('click', filterDailyIncomeByDate);
+        }
+
+        const filterDailyExpensesBtn = document.getElementById('filterDailyExpensesBtn');
+        if (filterDailyExpensesBtn) {
+            filterDailyExpensesBtn.addEventListener('click', filterDailyExpensesByDate);
+        }
+
+        const exportEmployeesBtn = document.getElementById('exportEmployees');
+        if (exportEmployeesBtn) {
+            exportEmployeesBtn.addEventListener('click', exportEmployeesData);
+        }
+
+        const exportAllDataBtn = document.getElementById('exportAllDataBtn');
+        if (exportAllDataBtn) {
+            exportAllDataBtn.addEventListener('click', exportAllData);
+        }
+
+        const restoreOriginalDataBtn = document.getElementById('restoreOriginalDataBtn');
+        if (restoreOriginalDataBtn) {
+            restoreOriginalDataBtn.addEventListener('click', function () {
+                if (!confirm('هل تريد استرجاع البيانات الأصلية من user-data-full.json؟ سيتم استبدال جميع البيانات الحالية.')) return;
+                restoreOriginalDataFromFile();
+            });
+        }
+
+        const clearActivityLogBtn = document.getElementById('clearActivityLogBtn');
+        if (clearActivityLogBtn) {
+            clearActivityLogBtn.addEventListener('click', function () {
+                const u = getCurrentUser();
+                if (u?.role !== 'admin') {
+                    showToast('فقط المدير يمكنه مسح سجل الأنشطة', 'warning');
+                    return;
+                }
+                if (!confirm('هل تريد مسح سجل الأنشطة؟')) return;
+                setActivityLog([]);
+                logActivity('مسح سجل الأنشطة', '');
+                loadActivityLog();
+                showToast('تم مسح سجل الأنشطة', 'success');
+            });
+        }
+
+        // تحميل البيانات الافتراضية أولاً
+        console.log("Starting initializeDefaultData...");
+        await initializeDefaultData();
+        console.log("initializeDefaultData finished");
+        
+        // تحميل لوحة التحكم بعد البيانات
+        loadDashboard();
+        console.log("loadDashboard finished");
+
+        // إخفاء شريط الحالة
+        console.log("Hiding js-status-bar");
+        const statusBar = document.getElementById('js-status-bar');
+        if (statusBar) {
+            statusBar.style.display = 'none';
+        }
+        
+        console.log("System initialization complete!");
+    } catch (error) {
+        console.error("خطأ في تهيئة النظام:", error);
+        showNotification('خطأ في تحميل النظام: ' + error.message, 'error');
+    }
+});
+</script>
     </script>
 </body>
 
