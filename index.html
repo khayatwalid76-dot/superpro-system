@@ -3661,14 +3661,18 @@
                 console.log('✅ Data backed up to localStorage');
 
                 // التخزين السحابي
-            if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
-                firebaseDb.ref(FB_PATH).set(data).catch(() => {});
-            }
+                if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
+                    firebaseDb.ref(FB_PATH).set(data).catch(() => {});
+                }
 
-            if (document.getElementById('dashboard') && document.getElementById('dashboard').style.display !== 'none') {
-                loadDashboard();
+                if (document.getElementById('dashboard') && document.getElementById('dashboard').style.display !== 'none') {
+                    loadDashboard();
+                }
+                updateAllStats();
+            } catch (error) {
+                console.error('❌ Error saving data:', error);
+                showToast('خطأ في حفظ البيانات', 'error');
             }
-            updateAllStats();
         }
 
         // دالة عرض الإشعارات
