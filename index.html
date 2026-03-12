@@ -4387,14 +4387,12 @@
                     <td>${contract.startDate}</td>
                     <td>${contract.endDate}</td>
                     <td>
-                        <span class="badge ${contract.paymentStatus === 'مدفوع' ? 'bg-success' :
-                        contract.paymentStatus === 'مدفوع جزئي' ? 'bg-warning' : 'bg-danger'}">
+                        <span class="badge ${(contract.paymentStatus === 'مدفوع') ? 'bg-success' : (contract.paymentStatus === 'مدفوع جزئي') ? 'bg-warning' : 'bg-danger'}">
                             ${contract.paymentStatus}
                         </span>
                     </td>
                     <td>
-                        <span class="badge ${contract.status === 'نشط' ? 'bg-success' :
-                        contract.status === 'منتهي' ? 'bg-secondary' : 'bg-danger'}">
+                        <span class="badge ${(contract.status === 'نشط') ? 'bg-success' : (contract.status === 'منتهي') ? 'bg-secondary' : 'bg-danger'}">
                             ${contract.status}
                         </span>
                     </td>
