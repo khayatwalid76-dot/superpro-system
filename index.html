@@ -3600,6 +3600,92 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="data-manager.js"></script>
+    <script>
+        // =====================================================================
+        // INITIALIZATION: Bridge DataManager with existing global variables
+        // =====================================================================
+        let isDMReady = false;
+        let employees = [];
+        let clients = [];
+        let contracts = [];
+        let attendance = [];
+        let dailyWork = [];
+        let dailyIncome = [];
+        let dailyExpenses = [];
+        let financialTransactions = [];
+        let services = [];
+        let settings = {};
+        let tasks = [];
+        let events = [];
+        let salaryAdvances = [];
+
+        // Function to initialize DataManager and sync with global variables
+        function initializeDataManager() {
+            if (isDMReady) return;
+            isDMReady = true;
+
+            console.log('🔗 Initializing DataManager proxy...');
+            
+            // Initialize DataManager
+            if (typeof DataManager !== 'undefined' && DataManager) {
+                DataManager.init();
+                
+                // Sync existing global variables with DataManager
+                employees = DataManager.data.employees;
+                clients = DataManager.data.clients;
+                contracts = DataManager.data.contracts;
+                attendance = DataManager.data.attendance;
+                dailyWork = DataManager.data.dailyWork;
+                dailyIncome = DataManager.data.income;
+                dailyExpenses = DataManager.data.expenses;
+                services = DataManager.data.services;
+                tasks = DataManager.data.tasks;
+                events = DataManager.data.notifications;
+                settings = DataManager.data.settings || {};
+                
+                console.log('✅ DataManager initialized successfully');
+                console.log(`📊 Loaded: ${employees.length} employees, ${clients.length} clients, ${contracts.length} contracts`);
+                
+                return true;
+            } else {
+                console.warn('⚠️ DataManager not available, using local storage fallback');
+                return false;
+            }
+        }
+
+        // Override saveData to use DataManager  
+        const originalSaveData = typeof saveData === 'function' ? saveData : null;
+        
+        function saveData() {
+            if (isDMReady && typeof DataManager !== 'undefined' && DataManager) {
+                console.log('💾 Saving data via DataManager...');
+                return DataManager.save();
+            } else {
+                console.log('💾 Saving data to localStorage...');
+                try {
+                    const data = {
+                        employees, clients, attendance, contracts, services, settings,
+                        tasks, events, dailyWork, dailyIncome, dailyExpenses,
+                        financialTransactions, salaryAdvances
+                    };
+                    sessionStorage.setItem('superpro_data', JSON.stringify(data));
+                    localStorage.setItem('superpro_data', JSON.stringify(data));
+                    return true;
+                } catch (error) {
+                    console.error('❌ Error saving data:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Call initialization after DOM loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDataManager);
+        } else {
+            initializeDataManager();
+        }
+    </script>
     <script>
         // نظام التخزين
         const LS_KEYS = {
