@@ -6028,6 +6028,8 @@
                 saveData();
                 updateDailyExpensesStats();
                 filterDailyExpensesByDate();
+            }
+        }
 
         // ===== نظام التنقل بين الأقسام =====
         function setupNavigation() {
@@ -6038,7 +6040,6 @@
             
             if (navLinks.length === 0) {
                 console.warn('⚠️ No navigation links found! Retrying...');
-                // إعادة محاولة بعد 500ms
                 setTimeout(setupNavigation, 500);
                 return;
             }
@@ -6048,32 +6049,39 @@
                     e.preventDefault();
                     e.stopPropagation();
 
-                    console.log(`👆 Clicking on: ${this.getAttribute('data-module')}`);
+                    const moduleId = this.getAttribute('data-module');
+                    console.log(`👆 Clicking on: ${moduleId}`);
                     
                     // إزالة الكلاس النشط من كل الروابط
                     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                     document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
                     this.classList.add('active');
 
-                    const moduleId = this.getAttribute('data-module');
-
                     // إخفاء جميع الوحدات
                     document.querySelectorAll('.module-container').forEach(module => {
                         module.style.display = 'none';
-                                loadActivityLog();
-                            }
-                        } else {
-                            console.warn(`❌ Module not found: ${moduleId}`);
-                        }
                     });
+
+                    // إظهار الوحدة المطلوبة
+                    const targetModule = document.getElementById(moduleId);
+                    if (targetModule) {
+                        targetModule.style.display = 'block';
+                        console.log(`✅ Showing module: ${moduleId}`);
+                        
+                        // تحميل بيانات الوحدة
+                        loadPageData(moduleId);
+                    } else {
+                        console.warn(`❌ Module not found: ${moduleId}`);
+                    }
                 });
-                
-                // Load dashboard by default
-                console.log('📊 Loading dashboard by default...');
-                const dashboardModule = document.getElementById('dashboard');
-                if (dashboardModule) {
-                    dashboardModule.style.display = 'block';
-                    loadDashboard();
+            });
+            
+            // Load dashboard by default
+            console.log('📊 Loading dashboard by default...');
+            setTimeout(() => {
+                const dashboardLink = document.querySelector('[data-module="dashboard"]');
+                if (dashboardLink) {
+                    dashboardLink.click();
                 }
             }, 100);
         }
