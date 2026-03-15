@@ -3603,7 +3603,7 @@
     <script src="data-manager.js"></script>
     <script>
         // =====================================================================
-        // INITIALIZATION: Bridge DataManager with existing global variables
+        // INITIALIZATION: Global Variables & Data Management
         // =====================================================================
         let isDMReady = false;
         let employees = [];
@@ -3619,6 +3619,25 @@
         let tasks = [];
         let events = [];
         let salaryAdvances = [];
+
+        // نظام التخزين
+        const LS_KEYS = {
+            employees: 'superpro_employees',
+            clients: 'superpro_clients',
+            attendance: 'superpro_attendance',
+            contracts: 'superpro_contracts',
+            services: 'superpro_services',
+            settings: 'superpro_settings',
+            tasks: 'superpro_tasks',
+            events: 'superpro_events',
+            dailyWork: 'superpro_dailyWork',
+            dailyIncome: 'superpro_dailyIncome',
+            dailyExpenses: 'superpro_dailyExpenses',
+            financialTransactions: 'superpro_financialTransactions',
+            salaryAdvances: 'superpro_salaryAdvances',
+            authUser: 'superpro_auth_user',
+            activityLog: 'superpro_activity_log'
+        };
 
         // Function to initialize DataManager and sync with global variables
         function initializeDataManager() {
@@ -3653,73 +3672,6 @@
                 return false;
             }
         }
-
-        // Override saveData to use DataManager  
-        const originalSaveData = typeof saveData === 'function' ? saveData : null;
-        
-        function saveData() {
-            if (isDMReady && typeof DataManager !== 'undefined' && DataManager) {
-                console.log('💾 Saving data via DataManager...');
-                return DataManager.save();
-            } else {
-                console.log('💾 Saving data to localStorage...');
-                try {
-                    const data = {
-                        employees, clients, attendance, contracts, services, settings,
-                        tasks, events, dailyWork, dailyIncome, dailyExpenses,
-                        financialTransactions, salaryAdvances
-                    };
-                    sessionStorage.setItem('superpro_data', JSON.stringify(data));
-                    localStorage.setItem('superpro_data', JSON.stringify(data));
-                    return true;
-                } catch (error) {
-                    console.error('❌ Error saving data:', error);
-                    return false;
-                }
-            }
-        }
-
-        // Call initialization after DOM loads
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeDataManager);
-        } else {
-            initializeDataManager();
-        }
-    </script>
-    <script>
-        // نظام التخزين
-        const LS_KEYS = {
-            employees: 'superpro_employees',
-            clients: 'superpro_clients',
-            attendance: 'superpro_attendance',
-            contracts: 'superpro_contracts',
-            services: 'superpro_services',
-            settings: 'superpro_settings',
-            tasks: 'superpro_tasks',
-            events: 'superpro_events',
-            dailyWork: 'superpro_dailyWork',
-            dailyIncome: 'superpro_dailyIncome',
-            dailyExpenses: 'superpro_dailyExpenses',
-            financialTransactions: 'superpro_financialTransactions',
-            salaryAdvances: 'superpro_salaryAdvances',
-            authUser: 'superpro_auth_user',
-            activityLog: 'superpro_activity_log'
-        };
-
-        // البيانات الافتراضية - سيتم تحميلها من السحابة
-        let employees = [];
-        let clients = [];
-        let attendance = [];
-        let contracts = [];
-        let services = [];
-        let settings = {};
-        let tasks = [];
-        let events = [];
-        let dailyWork = [];
-        let dailyIncome = [];
-        let dailyExpenses = [];
-        let financialTransactions = [];
-        let salaryAdvances = [];
 
         // حفظ البيانات (محلي + سحابي)
         function saveData() {
@@ -4557,72 +4509,73 @@
 
         function setupContractEvents() {
             const contractModal = document.getElementById('contractModal');
-            const saveBtn = document.getElementById('saveContractBtn');
+            const saveBtnElement = document.getElementById('saveContractBtn');
             
             contractModal.addEventListener('show.bs.modal', function (e) {
                 document.getElementById('contractForm').reset();
                 document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
-                saveBtn.textContent = 'حفظ العقد';
+                saveBtnElement.textContent = 'حفظ العقد';
                 
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
-                const number = document.getElementById('contractNumber').value;
-                const client = document.getElementById('contractClient').value;
-                const employee = document.getElementById('contractEmployee').value;
-                const type = document.getElementById('contractType').value;
-                const startTime = document.getElementById('contractStartTime').value;
-                const endTime = document.getElementById('contractEndTime').value;
-                const amount = document.getElementById('contractAmount').value;
-                const paidAmount = document.getElementById('contractPaidAmount').value;
-                const startDate = document.getElementById('contractStartDate').value;
-                const endDate = document.getElementById('contractEndDate').value;
-                const paymentStatus = document.getElementById('contractPaymentStatus').value;
-                const status = document.getElementById('contractStatus').value;
-                const notes = document.getElementById('contractNotes').value;
+                saveBtnElement.onclick = null;
+                saveBtnElement.onclick = function () {
+                    const number = document.getElementById('contractNumber').value;
+                    const client = document.getElementById('contractClient').value;
+                    const employee = document.getElementById('contractEmployee').value;
+                    const type = document.getElementById('contractType').value;
+                    const startTime = document.getElementById('contractStartTime').value;
+                    const endTime = document.getElementById('contractEndTime').value;
+                    const amount = document.getElementById('contractAmount').value;
+                    const paidAmount = document.getElementById('contractPaidAmount').value;
+                    const startDate = document.getElementById('contractStartDate').value;
+                    const endDate = document.getElementById('contractEndDate').value;
+                    const paymentStatus = document.getElementById('contractPaymentStatus').value;
+                    const status = document.getElementById('contractStatus').value;
+                    const notes = document.getElementById('contractNotes').value;
 
-                const workDays = [];
-                document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => {
-                    workDays.push(cb.value);
-                });
+                    const workDays = [];
+                    document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => {
+                        workDays.push(cb.value);
+                    });
 
-                if (!number || !client || !employee || !amount || !startDate || !endDate) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
-                    return;
-                }
+                    if (!number || !client || !employee || !amount || !startDate || !endDate) {
+                        alert('يرجى ملء جميع الحقول المطلوبة');
+                        return;
+                    }
 
-                const contractData = {
-                    number,
-                    client,
-                    employee,
-                    type,
-                    workDays,
-                    startTime,
-                    endTime,
-                    amount: parseFloat(amount),
-                    paidAmount: parseFloat(paidAmount) || 0,
-                    startDate,
-                    endDate,
-                    paymentStatus,
-                    status,
-                    notes,
-                    createdAt: new Date().toISOString()
+                    const contractData = {
+                        number,
+                        client,
+                        employee,
+                        type,
+                        workDays,
+                        startTime,
+                        endTime,
+                        amount: parseFloat(amount),
+                        paidAmount: parseFloat(paidAmount) || 0,
+                        startDate,
+                        endDate,
+                        paymentStatus,
+                        status,
+                        notes,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    contracts.push(contractData);
+                    saveData();
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
+                    modal.hide();
+
+                    document.getElementById('contractForm').reset();
+                    document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
+                    saveBtnElement.textContent = 'حفظ العقد';
+                    
+                    updateContractStats();
+                    updateContractsTable();
+                    showToast('تم إضافة العقد بنجاح');
+                    logActivity('إضافة عقد', `#${contractData.number} • ${contractData.client} • ${contractData.employee} • ${contractData.paymentStatus} • قيمة ${contractData.amount}`);
                 };
-
-                contracts.push(contractData);
-                saveData();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
-                modal.hide();
-
-                document.getElementById('contractForm').reset();
-                document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
-                saveBtn.textContent = 'حفظ العقد';
-                
-                updateContractStats();
-                updateContractsTable();
-                showToast('تم إضافة العقد بنجاح');
-                logActivity('إضافة عقد', `#${contractData.number} • ${contractData.client} • ${contractData.employee} • ${contractData.paymentStatus} • قيمة ${contractData.amount}`);
-            };
+            });
 
             // إضافة معالجات الفلترة
             document.querySelectorAll('#contracts [data-filter]').forEach(btn => {
@@ -4665,11 +4618,10 @@
                 updateContractsTable();
             });
         }
-
+        
+        // Edit contract handler
         function editContract(index) {
             const contract = contracts[index];
-            if (!contract) return;
-
             document.getElementById('contractNumber').value = contract.number || '';
             document.getElementById('contractClient').value = contract.client || '';
             document.getElementById('contractEmployee').value = contract.employee || '';
@@ -5284,6 +5236,12 @@
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // ===== إدارة الموظفين المحسنة =====
+        function loadEmployees() {
+            renderEmployeesTable();
+            setupEmployeeEvents();
         }
 
         // ===== إدارة العملاء المحسنة =====
@@ -6275,6 +6233,7 @@
                 default:
                     console.log(`⏭️  لا يوجد محمل للصفحة: ${page}`);
         }
+        }
 
         function updateEmployeeStats() {
             document.getElementById('totalEmployeesCount').textContent = employees.length;
@@ -6810,6 +6769,7 @@
                 renderServicesTable();
                 showToast('تم إضافة الخدمة بنجاح');
             };
+            });
         }
 
         function editService(index) {
@@ -8760,179 +8720,6 @@
             });
         }
 
-        /*
-        // ===== تهيئة النظام عند تحميل الصفحة =====
-        document.addEventListener('DOMContentLoaded', async function () {
-            try {
-                console.log("DOM content loaded");
-
-                // تحميل البيانات أولاً
-                console.log("Starting initializeDefaultData...");
-                await initializeDefaultData();
-                console.log("initializeDefaultData finished");
-                
-                initAuth();
-                console.log("initAuth finished");
-                
-                updateCurrentDate();
-                console.log("updateCurrentDate finished");
-                
-                initDarkMode();
-                console.log("initDarkMode finished");
-                
-                setupNavigation();
-                console.log("setupNavigation finished");
-                
-                setupAllModalEvents();
-                console.log("setupAllModalEvents finished");
-
-                initGlobalSearch();
-                console.log("initGlobalSearch finished");
-                
-                initCharts();
-                console.log("initCharts finished");
-                
-                setupAutoBackup();
-                console.log("setupAutoBackup finished");
-
-                setInterval(updateCurrentDate, 60000);
-
-                initializeSystem();
-                console.log("initializeSystem finished");
-
-                // تحميل لوحة التحكم بعد تحميل البيانات
-                loadDashboard();
-                console.log("loadDashboard finished");
-
-                // إعداد أزرار القائمة الجانبية
-                const sidebarToggleBtn = document.getElementById('sidebarToggle');
-                if (sidebarToggleBtn) {
-                    sidebarToggleBtn.addEventListener('click', function () {
-                        const sidebar = document.getElementById('sidebar');
-                        if (sidebar) sidebar.classList.toggle('show');
-                        this.setAttribute('aria-expanded', sidebar && sidebar.classList.contains('show'));
-                    });
-                }
-
-                // إعداد أزرار التحكم
-                const refreshDashboardBtn = document.getElementById('refreshDashboard');
-                if (refreshDashboardBtn) {
-                    refreshDashboardBtn.addEventListener('click', function () {
-                        loadDashboard();
-                        showToast('تم تحديث لوحة التحكم');
-                    });
-                }
-
-                const filterDailyWorkBtn = document.getElementById('filterDailyWorkBtn');
-                if (filterDailyWorkBtn) {
-                    filterDailyWorkBtn.addEventListener('click', filterDailyWorkByDate);
-                }
-
-                const filterDailyIncomeBtn = document.getElementById('filterDailyIncomeBtn');
-                if (filterDailyIncomeBtn) {
-                    filterDailyIncomeBtn.addEventListener('click', filterDailyIncomeByDate);
-                }
-
-                const filterDailyExpensesBtn = document.getElementById('filterDailyExpensesBtn');
-                if (filterDailyExpensesBtn) {
-                    filterDailyExpensesBtn.addEventListener('click', filterDailyExpensesByDate);
-                }
-
-                const exportEmployeesBtn = document.getElementById('exportEmployees');
-                if (exportEmployeesBtn) {
-                    exportEmployeesBtn.addEventListener('click', exportEmployeesData);
-                }
-
-                const exportAllDataBtn = document.getElementById('exportAllDataBtn');
-                if (exportAllDataBtn) {
-                    exportAllDataBtn.addEventListener('click', exportAllData);
-                }
-
-                const restoreOriginalDataBtn = document.getElementById('restoreOriginalDataBtn');
-                if (restoreOriginalDataBtn) {
-                    restoreOriginalDataBtn.addEventListener('click', function () {
-                        if (!confirm('هل تريد استرجاع البيانات الأصلية من user-data-full.json؟ سيتم استبدال جميع البيانات الحالية.')) return;
-                        restoreOriginalDataFromFile();
-                    });
-                }
-
-                const clearActivityLogBtn = document.getElementById('clearActivityLogBtn');
-                if (clearActivityLogBtn) {
-                    clearActivityLogBtn.addEventListener('click', function () {
-                        const u = getCurrentUser();
-                        if (u?.role !== 'admin') {
-                            showToast('فقط المدير يمكنه مسح سجل الأنشطة', 'warning');
-                            return;
-                        }
-                        if (!confirm('هل تريد مسح سجل الأنشطة؟')) return;
-                        setActivityLog([]);
-                        logActivity('مسح سجل الأنشطة', '');
-        });
-        (clients || []).forEach(c => {
-            const hay = `${c.name || ''} ${c.phone || ''} ${c.area || ''} ${c.service || ''}`.toLowerCase();
-            if (hay.includes(query)) push('عميل', 'clients', c.name || 'عميل', c.area || '');
-        });
-        (contracts || []).forEach(ct => {
-            const hay = `${ct.number || ''} ${ct.client || ''} ${ct.employee || ''} ${ct.paymentStatus || ''}`.toLowerCase();
-            if (hay.includes(query)) push('عقد', 'contracts', `#${ct.number} - ${ct.client}`, ct.paymentStatus || '');
-        });
-        (dailyIncome || []).forEach(inc => {
-            const hay = `${inc.date || ''} ${inc.source || ''} ${inc.type || ''} ${inc.amount || ''}`.toLowerCase();
-            if (hay.includes(query)) push('مدخول', 'dailyIncome', `${inc.source} - ${inc.amount} ر.ق`, inc.date || '');
-        });
-        (dailyExpenses || []).forEach(exp => {
-            const hay = `${exp.date || ''} ${exp.type || ''} ${exp.employee || ''} ${exp.amount || ''}`.toLowerCase();
-            if (hay.includes(query)) push('مصروف', 'dailyExpenses', `${exp.type} - ${exp.amount} ر.ق`, exp.date || '');
-        });
-
-        return res.slice(0, 12);
-    };
-
-    let t = null;
-    input.addEventListener('input', () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-            const results = buildResults(input.value);
-            if (!results.length) return hide();
-            box.innerHTML = results.map((r, i) => `
-                <div class="p-2 border-bottom search-item" style="cursor:pointer" data-module="${r.moduleId}" data-label="${String(r.label).replace(/\"/g, '&quot;')}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary">${r.type}</span>
-                        <small class="text-muted">${r.hint || ''}</small>
-                    </div>
-                    <div class="fw-bold mt-1">${r.label}</div>
-                </div>
-            `).join('');
-            show();
-        }, 120);
-    });
-
-    box.addEventListener('click', (e) => {
-        const item = e.target.closest('.search-item');
-        if (!item) return;
-        const moduleId = item.getAttribute('data-module');
-        const label = item.getAttribute('data-label') || '';
-        hide();
-        input.value = '';
-        navigateToModule(moduleId);
-
-        setTimeout(() => {
-            if (moduleId === 'employees') highlightRowByText('#employees-table-body', label);
-            if (moduleId === 'clients') highlightRowByText('#clients-table-body', label);
-            if (moduleId === 'contracts') highlightRowByText('#contracts-table-body', label);
-            if (moduleId === 'dailyIncome') highlightRowByText('#dailyIncome-table-body', label.split(' - ')[0]);
-            if (moduleId === 'dailyExpenses') highlightRowByText('#dailyExpenses-table-body', label.split(' - ')[0]);
-        }, 250);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (e.target === input || box.contains(e.target)) return;
-        hide();
-    });
-}
-
-*/
-
 // ===== تهيئة النظام عند تحميل الصفحة =====
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -9055,6 +8842,34 @@ document.addEventListener('DOMContentLoaded', async function () {
     } catch (error) {
         console.error("خطأ في تهيئة النظام:", error);
         showNotification('خطأ في تحميل النظام: ' + error.message, 'error');
+    }
+});
+
+// Fallback: Ensure critical event handlers are set up
+window.addEventListener('load', function() {
+    try {
+        // Ensure all onClick handlers for edit buttons are working
+        document.querySelectorAll('[onclick*="edit"]').forEach(btn => {
+            const onclickAttr = btn.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.startsWith('edit')) {
+                // Ensure element is clickable
+                btn.style.cursor = 'pointer';
+                btn.style.pointerEvents = 'auto';
+            }
+        });
+        
+        // Ensure modals have handlers
+        ['contractModal', 'employeeModal', 'clientModal', 'dailyWorkModal', 'dailyIncomeModal', 'dailyExpenseModal', 'serviceModal', 'financeModal'].forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal && !modal._eventSetup) {
+                modal._eventSetup = true;
+                console.log(`✅ Modal ${modalId} is available`);
+            }
+        });
+        
+        console.log('✅ Fallback initialization complete');
+    } catch (e) {
+        console.log('Fallback initialization error:', e);
     }
 });
 </script>
