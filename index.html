@@ -5220,6 +5220,7 @@
 
         // ===== إدارة الموظفين المحسنة =====
         function loadEmployees() {
+            updateEmployeeStats();
             renderEmployeesTable();
             setupEmployeeEvents();
         }
@@ -6215,6 +6216,170 @@
         }
         }
 
+        // ===== الأنظمة المتقدمة =====
+        function loadAnalytics() {
+            const section = document.getElementById('analytics');
+            if (!section) return;
+            
+            section.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>📊 التحليلات والتقارير</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card p-3 text-center">
+                                    <i class="fas fa-chart-line" style="font-size:32px;color:#007bff"></i>
+                                    <h4> إجمالي الإيرادات</h4>
+                                    <p class="text-success">${dailyIncome.reduce((s,i) => s + (parseFloat(i.amount) || 0), 0).toLocaleString()} ر.ق</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card p-3 text-center">
+                                    <i class="fas fa-chart-bar" style="font-size:32px;color:#dc3545"></i>
+                                    <h4>إجمالي المصروفات</h4>
+                                    <p class="text-danger">${dailyExpenses.reduce((s,e) => s + (parseFloat(e.amount) || 0), 0).toLocaleString()} ر.ق</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card p-3 text-center">
+                                    <i class="fas fa-chart-pie" style="font-size:32px;color:#28a745"></i>
+                                    <h4>صافي الربح</h4>
+                                    <p class="text-primary">${(dailyIncome.reduce((s,i) => s + (parseFloat(i.amount) || 0), 0) - dailyExpenses.reduce((s,e) => s + (parseFloat(e.amount) || 0), 0)).toLocaleString()} ر.ق</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadNotifications() {
+            const section = document.getElementById('notifications');
+            if (!section) return;
+            
+            const activityLog = getActivityLog();
+            section.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>🔔 الإشعارات والتنبيهات</h5>
+                            <button class="btn btn-sm btn-light" onclick="setActivityLog([]); loadNotifications(); showToast('تم حذف الإشعارات');">مسح الكل</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="notificationsList">
+                            ${activityLog.length === 0 ? '<p class="text-muted text-center">لا توجد إشعارات</p>' : 
+                            activityLog.slice(0, 10).map(item => `
+                                <div class="alert alert-info">
+                                    <strong>${item.username}</strong> - ${item.action}
+                                    <small class="text-muted d-block">${new Date(item.ts).toLocaleString('ar-SA')}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadDocuments() {
+            const section = document.getElementById('documents');
+            if (!section) return;
+            
+            section.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5>📄 إدارة المستندات</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">قسم إدارة المستندات والملفات</p>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-success" onclick="backupData()">
+                                <i class="fas fa-download me-2"></i>تحميل نسخة احتياطية
+                            </button>
+                            <button class="btn btn-outline-success" onclick="document.querySelector('input[type=file]').click()">
+                                <i class="fas fa-upload me-2"></i>استيراد ملف
+                            </button>
+                            <button class="btn btn-outline-success" onclick="exportAllData()">
+                                <i class="fas fa-file-export me-2"></i>تصدير البيانات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadSearch() {
+            const section = document.getElementById('search');
+            if (!section) return;
+            
+            section.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5>🔍 البحث المتقدم</h5>
+                    </div>
+                    <div class="card-body">
+                        <input class="form-control mb-3" id="advancedSearchInput" placeholder="ابحث في جميع البيانات...">
+                        <div id="advancedSearchResults"></div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('advancedSearchInput')?.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                if (!query) {
+                    document.getElementById('advancedSearchResults').innerHTML = '';
+                    return;
+                }
+                
+                const results = [];
+                employees.forEach(emp => {
+                    if ((emp.name || '').toLowerCase().includes(query)) 
+                        results.push(`<div class="badge bg-primary">موظف: ${emp.name}</div>`);
+                });
+                clients.forEach(client => {
+                    if ((client.name || '').toLowerCase().includes(query)) 
+                        results.push(`<div class="badge bg-success">عميل: ${client.name}</div>`);
+                });
+                
+                document.getElementById('advancedSearchResults').innerHTML = results.slice(0, 10).join('');
+            });
+        }
+
+        function loadSecurity() {
+            const section = document.getElementById('security');
+            if (!section) return;
+            
+            const currentUser = getCurrentUser();
+            section.innerHTML = `
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5>🔐 الأمان والصلاحيات</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>مستخدم حالي</h6>
+                                <p><strong>${currentUser?.displayName || 'مستخدم'}</strong></p>
+                                <p class="text-muted">المستخدم: ${currentUser?.username}</p>
+                                <p class="text-muted">الصلاحية: ${currentUser?.role === 'admin' ? '🔴 مدير' : currentUser?.role === 'supervisor' ? '🟡 مشرف' : '🟢 عرض فقط'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>إجراءات الأمان</h6>
+                                <button class="btn btn-outline-danger btn-sm mb-2 w-100" onclick="alert('هذه الميزة قيد التطوير')">
+                                    <i class="fas fa-lock me-2"></i>تغيير كلمة المرور
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm mb-2 w-100" onclick="clearCurrentUser(); showToast('تم تسجيل الخروج')">
+                                    <i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function updateEmployeeStats() {
             document.getElementById('totalEmployeesCount').textContent = employees.length;
             const activeEmployees = employees.filter(emp => emp.status === 'نشط').length;
@@ -6319,59 +6484,59 @@
         function setupEmployeeEvents() {
             const employeeModal = document.getElementById('employeeModal');
             const saveBtn = document.getElementById('saveEmployeeBtn');
+            const addEmployeeBtn = document.querySelector('[data-bs-target="#employeeModal"]');
             
-            // معالج حدث فتح الـ modal لإضافة موظف جديد
-            employeeModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الـ form
-                document.getElementById('employeeForm').reset();
-                
-                // إعادة تعيين الرسالة والزر
-                document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                saveBtn.textContent = 'حفظ الموظف';
-                
-                // تعيين معالج الحدث لإضافة موظف جديد
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
-                    const name = document.getElementById('employeeName').value;
-                    const nationality = document.getElementById('employeeNationality').value;
-                    const job = document.getElementById('employeeJob').value;
-                    const salary = document.getElementById('employeeSalary').value;
-
-                    if (!name || !nationality || !job || !salary) {
-                        alert('يرجى ملء جميع الحقول المطلوبة');
-                        return;
-                    }
-
-                    const employeeData = {
-                        name: document.getElementById('employeeName').value,
-                        idNumber: document.getElementById('employeeIdNumber').value,
-                        hireDate: document.getElementById('employeeHireDate').value,
-                        nationality: document.getElementById('employeeNationality').value,
-                        job: document.getElementById('employeeJob').value,
-                        salary: document.getElementById('employeeSalary').value,
-                        phone: document.getElementById('employeePhone').value,
-                        status: document.getElementById('employeeStatus').value,
-                        residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                        gender: document.getElementById('employeeGender').value,
-                        joinDate: new Date().toISOString().split('T')[0]
-                    };
-
-                    employees.push(employeeData);
-                    saveData();
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
-                    modal.hide();
-
+            // معالج لزر إضافة موظف جديد
+            if (addEmployeeBtn) {
+                addEmployeeBtn.onclick = function() {
                     document.getElementById('employeeForm').reset();
                     document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
                     saveBtn.textContent = 'حفظ الموظف';
+                
                     
-                    updateEmployeeStats();
-                    renderEmployeesTable();
-                    showToast('تم إضافة الموظف بنجاح');
-                    logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
+                    saveBtn.onclick = null;
+                    saveBtn.onclick = function () {
+                        const name = document.getElementById('employeeName').value;
+                        const nationality = document.getElementById('employeeNationality').value;
+                        const job = document.getElementById('employeeJob').value;
+                        const salary = document.getElementById('employeeSalary').value;
+
+                        if (!name || !nationality || !job || !salary) {
+                            alert('يرجى ملء جميع الحقول المطلوبة');
+                            return;
+                        }
+
+                        const employeeData = {
+                            name: document.getElementById('employeeName').value,
+                            idNumber: document.getElementById('employeeIdNumber').value,
+                            hireDate: document.getElementById('employeeHireDate').value,
+                            nationality: document.getElementById('employeeNationality').value,
+                            job: document.getElementById('employeeJob').value,
+                            salary: document.getElementById('employeeSalary').value,
+                            phone: document.getElementById('employeePhone').value,
+                            status: document.getElementById('employeeStatus').value,
+                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
+                            gender: document.getElementById('employeeGender').value,
+                            joinDate: new Date().toISOString().split('T')[0]
+                        };
+
+                        employees.push(employeeData);
+                        saveData();
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
+                        modal.hide();
+
+                        document.getElementById('employeeForm').reset();
+                        document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                        saveBtn.textContent = 'حفظ الموظف';
+                        
+                        updateEmployeeStats();
+                        renderEmployeesTable();
+                        showToast('تم إضافة الموظف بنجاح');
+                        logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
+                    };
                 };
-            });
+            }
 
             document.getElementById('employee-search').addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
