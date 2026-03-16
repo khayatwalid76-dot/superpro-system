@@ -3560,6 +3560,226 @@
         </div>
     </div>
 
+    <!-- Invoice Add Modal -->
+    <div class="modal fade" id="invoiceAddModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">فاتورة جديدة</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="invoiceAddForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">رقم الفاتورة</label>
+                            <input id="invoiceNumber" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">اسم العميل</label>
+                            <input id="invoiceClientName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">التاريخ</label>
+                            <input id="invoiceDate" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المبلغ (ر.ق)</label>
+                            <input id="invoiceAmount" type="number" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الحالة</label>
+                            <select id="invoiceStatus" class="form-select" required>
+                                <option value="معلق">معلق</option>
+                                <option value="مدفوع">مدفوع</option>
+                                <option value="مرفوض">مرفوض</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الملاحظات (اختياري)</label>
+                            <textarea id="invoiceNotes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveInvoiceBtn">حفظ الفاتورة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Modal -->
+    <div class="modal fade" id="performanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تقييم الأداء</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="performanceForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم الموظف</label>
+                            <select id="performanceEmployeeName" class="form-select" required>
+                                <option value="">اختر موظف</option>
+                                ${employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">التاريخ</label>
+                            <input id="performanceDate" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">تقييم الأداء (1-10)</label>
+                            <input id="performanceRating" type="number" min="1" max="10" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المستوى</label>
+                            <select id="performanceLevel" class="form-select" required>
+                                <option value="متوسط">متوسط</option>
+                                <option value="جيد">جيد</option>
+                                <option value="ممتاز">ممتاز</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الملاحظات</label>
+                            <textarea id="performanceNotes" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="savePerformanceBtn">حفظ التقييم</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Modal -->
+    <div class="modal fade" id="trainingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">برنامج تدريبي جديد</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="trainingForm" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">اسم البرنامج</label>
+                            <input id="trainingName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">المدرب</label>
+                            <input id="trainingTrainer" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">تاريخ البدء</label>
+                            <input id="trainingStartDate" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">تاريخ الانتهاء</label>
+                            <input id="trainingEndDate" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">عدد الساعات</label>
+                            <input id="trainingHours" type="number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الفئة المستهدفة</label>
+                            <select id="trainingCategory" class="form-select" required>
+                                <option value="جميع الموظفين">جميع الموظفين</option>
+                                <option value="الإدارة">الإدارة</option>
+                                <option value="التقنية">التقنية</option>
+                                <option value="المبيعات">المبيعات</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">الوصف</label>
+                            <textarea id="trainingDescription" class="form-control" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveTrainingBtn">حفظ البرنامج</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HR File Modal -->
+    <div class="modal fade" id="hrFileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ملف الموظف</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="hrFileModalBody">
+                    <p class="text-muted">جاري التحميل...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary" id="downloadFileBtn">تحميل الملف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Edit Modal -->
+    <div class="modal fade" id="hrEditModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تعديل بيانات الموظف</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="hrEditForm" class="row g-3">
+                        <input id="hrEditEmployeeIndex" type="hidden">
+                        <div class="col-md-6">
+                            <label class="form-label">الاسم</label>
+                            <input id="hrEditName" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الوظيفة</label>
+                            <input id="hrEditJob" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الراتب (ر.ق)</label>
+                            <input id="hrEditSalary" type="number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الحالة</label>
+                            <select id="hrEditStatus" class="form-select" required>
+                                <option value="نشط">نشط</option>
+                                <option value="إجازة">إجازة</option>
+                                <option value="متقاعد">متقاعد</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الهاتف</label>
+                            <input id="hrEditPhone" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">الجنسية</label>
+                            <input id="hrEditNationality" class="form-control">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">تاريخ انتهاء الإقامة</label>
+                            <input id="hrEditResidencyExpiry" type="date" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveHREditBtn">حفظ التغييرات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast-container">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -7227,11 +7447,61 @@
         }
 
         function setupInvoiceEvents() {
-            const addBtn = document.querySelector('[data-bs-target="#invoiceAddModal"]');
-            if (addBtn) {
-                addBtn.addEventListener('click', function() {
-                    const form = document.getElementById('invoiceAddForm');
-                    if (form) form.reset();
+            // Save Invoice Button Handler
+            const saveInvoiceBtn = document.getElementById('saveInvoiceBtn');
+            if (saveInvoiceBtn) {
+                saveInvoiceBtn.onclick = function() {
+                    const invoice = {
+                        id: document.getElementById('invoiceNumber').value,
+                        clientName: document.getElementById('invoiceClientName').value,
+                        date: document.getElementById('invoiceDate').value,
+                        amount: document.getElementById('invoiceAmount').value,
+                        status: document.getElementById('invoiceStatus').value,
+                        notes: document.getElementById('invoiceNotes').value
+                    };
+                    
+                    if (!invoice.id || !invoice.clientName || !invoice.date || !invoice.amount) {
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                        return;
+                    }
+                    
+                    financialTransactions.push(invoice);
+                    const invoicesData = JSON.stringify(financialTransactions);
+                    const ls_invoices = LS_KEYS.invoices;
+                    localStorage.setItem(ls_invoices, invoicesData);
+                    showToast('تم حفظ الفاتورة بنجاح');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('invoiceAddModal'));
+                    if (modal) modal.hide();
+                    document.getElementById('invoiceAddForm').reset();
+                    
+                    // Reload invoices
+                    loadInvoices();
+                };
+            }
+            
+            // Invoice table action buttons
+            const invoicesTable = document.getElementById('invoicesTableBody');
+            if (invoicesTable) {
+                invoicesTable.querySelectorAll('button').forEach((btn, index) => {
+                    const row = btn.closest('tr');
+                    const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+                    
+                    if (btn.title === 'عرض') {
+                        btn.onclick = () => showToast('عرض الفاتورة رقم ' + (rowIndex + 1));
+                    } else if (btn.title === 'تحرير') {
+                        btn.onclick = () => showToast('تعديل الفاتورة رقم ' + (rowIndex + 1));
+                    } else if (btn.title === 'حذف') {
+                        btn.onclick = () => {
+                            if (confirm('هل تريد حذف هذه الفاتورة؟')) {
+                                financialTransactions.splice(rowIndex, 1);
+                                localStorage.setItem(LS_KEYS.invoices, JSON.stringify(financialTransactions));
+                                showToast('تم حذف الفاتورة بنجاح');
+                                loadInvoices();
+                            }
+                        };
+                    }
                 });
             }
         }
@@ -7363,22 +7633,203 @@
         }
 
         function setupHREvents() {
-            const performanceBtn = document.querySelector('[data-bs-target="#performanceModal"]');
-            const trainingBtn = document.querySelector('[data-bs-target="#trainingModal"]');
-            
-            if (performanceBtn) {
-                performanceBtn.addEventListener('click', function() {
-                    const form = document.getElementById('performanceForm');
-                    if (form) form.reset();
+            // Initialize Performance Modal employees list
+            const performanceModal = document.getElementById('performanceModal');
+            if (performanceModal) {
+                performanceModal.addEventListener('show.bs.modal', function() {
+                    const employeeSelect = document.getElementById('performanceEmployeeName');
+                    if (employeeSelect) {
+                        employeeSelect.innerHTML = '<option value="">اختر موظف</option>';
+                        employees.forEach(e => {
+                            const option = document.createElement('option');
+                            option.value = e.name;
+                            option.textContent = e.name;
+                            employeeSelect.appendChild(option);
+                        });
+                    }
+                    document.getElementById('performanceForm').reset();
                 });
             }
             
-            if (trainingBtn) {
-                trainingBtn.addEventListener('click', function() {
-                    const form = document.getElementById('trainingForm');
-                    if (form) form.reset();
+            // Save Performance Button Handler
+            const savePerformanceBtn = document.getElementById('savePerformanceBtn');
+            if (savePerformanceBtn) {
+                savePerformanceBtn.onclick = function() {
+                    const employeeName = document.getElementById('performanceEmployeeName').value;
+                    const date = document.getElementById('performanceDate').value;
+                    const rating = document.getElementById('performanceRating').value;
+                    const level = document.getElementById('performanceLevel').value;
+                    const notes = document.getElementById('performanceNotes').value;
+                    
+                    if (!employeeName || !date || !rating || !notes) {
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                        return;
+                    }
+                    
+                    logSecurityActivity('تقييم أداء الموظف', 'performance_evaluation', 'success', `تقييم ${employeeName}: ${rating}/10`);
+                    showToast('تم حفظ تقييم الأداء بنجاح');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('performanceModal'));
+                    if (modal) modal.hide();
+                    document.getElementById('performanceForm').reset();
+                };
+            }
+            
+            // Save Training Button Handler
+            const saveTrainingBtn = document.getElementById('saveTrainingBtn');
+            if (saveTrainingBtn) {
+                saveTrainingBtn.onclick = function() {
+                    const trainingName = document.getElementById('trainingName').value;
+                    const trainer = document.getElementById('trainingTrainer').value;
+                    const startDate = document.getElementById('trainingStartDate').value;
+                    const endDate = document.getElementById('trainingEndDate').value;
+                    const hours = document.getElementById('trainingHours').value;
+                    
+                    if (!trainingName || !trainer || !startDate || !endDate || !hours) {
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                        return;
+                    }
+                    
+                    logSecurityActivity('إضافة برنامج تدريبي', 'training_program', 'success', `برنامج: ${trainingName}`);
+                    showToast('تم حفظ البرنامج التدريبي بنجاح');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('trainingModal'));
+                    if (modal) modal.hide();
+                    document.getElementById('trainingForm').reset();
+                };
+            }
+            
+            // Save HR Edit Button Handler
+            const saveHREditBtn = document.getElementById('saveHREditBtn');
+            if (saveHREditBtn) {
+                saveHREditBtn.onclick = function() {
+                    const employeeIndex = parseInt(document.getElementById('hrEditEmployeeIndex').value);
+                    const name = document.getElementById('hrEditName').value;
+                    const job = document.getElementById('hrEditJob').value;
+                    const salary = document.getElementById('hrEditSalary').value;
+                    const status = document.getElementById('hrEditStatus').value;
+                    const phone = document.getElementById('hrEditPhone').value;
+                    const nationality = document.getElementById('hrEditNationality').value;
+                    const residencyExpiry = document.getElementById('hrEditResidencyExpiry').value;
+                    
+                    if (!name || !job || !salary) {
+                        showToast('يرجى ملء الحقول المطلوبة', 'error');
+                        return;
+                    }
+                    
+                    if (employeeIndex >= 0 && employeeIndex < employees.length) {
+                        employees[employeeIndex].name = name;
+                        employees[employeeIndex].job = job;
+                        employees[employeeIndex].salary = salary;
+                        employees[employeeIndex].status = status;
+                        employees[employeeIndex].phone = phone;
+                        employees[employeeIndex].nationality = nationality;
+                        employees[employeeIndex].residencyExpiry = residencyExpiry;
+                        
+                        localStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
+                        logSecurityActivity('تعديل بيانات الموظف', 'employee_update', 'success', `تعديل: ${name}`);
+                        showToast('تم تحديث بيانات الموظف بنجاح');
+                        
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('hrEditModal'));
+                        if (modal) modal.hide();
+                        loadHR();
+                    }
+                };
+            }
+            
+            // HR table action buttons
+            const hrTable = document.getElementById('hrEmployeesTableBody');
+            if (hrTable) {
+                hrTable.querySelectorAll('tr').forEach((row, rowIndex) => {
+                    const buttons = row.querySelectorAll('button');
+                    
+                    if (buttons.length >= 2) {
+                        // File button
+                        buttons[0].onclick = function(e) {
+                            e.preventDefault();
+                            const employee = employees[rowIndex];
+                            if (employee) {
+                                showEmployeeFile(rowIndex, employee);
+                            }
+                        };
+                        
+                        // Edit button
+                        buttons[1].onclick = function(e) {
+                            e.preventDefault();
+                            const employee = employees[rowIndex];
+                            if (employee) {
+                                document.getElementById('hrEditEmployeeIndex').value = rowIndex;
+                                document.getElementById('hrEditName').value = employee.name || '';
+                                document.getElementById('hrEditJob').value = employee.job || '';
+                                document.getElementById('hrEditSalary').value = employee.salary || '';
+                                document.getElementById('hrEditStatus').value = employee.status || 'نشط';
+                                document.getElementById('hrEditPhone').value = employee.phone || '';
+                                document.getElementById('hrEditNationality').value = employee.nationality || '';
+                                document.getElementById('hrEditResidencyExpiry').value = employee.residencyExpiry || '';
+                                
+                                const modal = new bootstrap.Modal(document.getElementById('hrEditModal'));
+                                modal.show();
+                            }
+                        };
+                    }
                 });
             }
+        }
+
+        function showEmployeeFile(index, employee) {
+            const fileBody = document.getElementById('hrFileModalBody');
+            if (fileBody) {
+                fileBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>الاسم</h6>
+                            <p class="text-muted">${employee.name || 'النغريغ النص'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>الوظيفة</h6>
+                            <p class="text-muted">${employee.job || 'غير محدد'}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>رقم الهوية</h6>
+                            <p class="text-muted">${employee.idNumber || 'غير محدد'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>الجنسية</h6>
+                            <p class="text-muted">${employee.nationality || 'غير محدد'}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>الراتب</h6>
+                            <p class="text-muted">${(parseFloat(employee.salary) || 0).toLocaleString()} ر.ق</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>تاريخ التوظيف</h6>
+                            <p class="text-muted">${employee.hireDate || 'غير محدد'}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>الحالة</h6>
+                            <p class="text-muted">${employee.status || 'نشط'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>تاريخ انتهاء الإقامة</h6>
+                            <p class="text-muted">${employee.residencyExpiry || 'غير محدد'}</p>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <small>آخر تحديث: ${new Date().toLocaleDateString('ar-SA')} ${new Date().toLocaleTimeString('ar-SA')}</small>
+                    </div>
+                `;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('hrFileModal'));
+            modal.show();
         }
 
         function updateEmployeeStats() {
