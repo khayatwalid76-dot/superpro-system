@@ -5495,11 +5495,15 @@
         function setupClientEvents() {
             const clientModal = document.getElementById('clientModal');
             const saveBtn = document.getElementById('saveClientBtn');
+            let isEditMode = false;
+            let editIndex = -1;
             
             clientModal.addEventListener('show.bs.modal', function (e) {
                 document.getElementById('clientForm').reset();
                 document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
                 saveBtn.textContent = 'حفظ العميل';
+                isEditMode = false;
+                editIndex = -1;
                 
                 saveBtn.onclick = null;
                 saveBtn.onclick = function () {
@@ -5510,45 +5514,67 @@
                     const area = document.getElementById('clientArea').value;
 
                     if (!name) {
-                        alert('يرجى إدخال اسم العميل');
+                        showToast('يرجى إدخال اسم العميل', 'error');
                         return;
                     }
 
-                    const clientData = {
-                        name,
-                        phone: phone || '',
-                        email: email || '',
-                        service: service || 'تنظيف',
-                        area: area || '',
-                        joinDate: new Date().toISOString().split('T')[0]
-                    };
+                    if (isEditMode && editIndex >= 0) {
+                        // تعديل
+                        clients[editIndex] = {
+                            ...clients[editIndex],
+                            name,
+                            phone: phone || '',
+                            email: email || '',
+                            service: service || 'تنظيف',
+                            area: area || ''
+                        };
+                        showToast('تم تحديث بيانات العميل بنجاح');
+                    } else {
+                        // إضافة جديد
+                        const clientData = {
+                            name,
+                            phone: phone || '',
+                            email: email || '',
+                            service: service || 'تنظيف',
+                            area: area || '',
+                            joinDate: new Date().toISOString().split('T')[0]
+                        };
+                        clients.push(clientData);
+                        showToast('تم إضافة العميل بنجاح');
+                    }
 
-                    clients.push(clientData);
                     saveData();
-
                     const modal = bootstrap.Modal.getInstance(document.getElementById('clientModal'));
                     modal.hide();
 
                     document.getElementById('clientForm').reset();
                     document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
                     saveBtn.textContent = 'حفظ العميل';
+                    isEditMode = false;
                     
                     renderClientsTable();
-                    showToast('تم إضافة العميل بنجاح');
-                    logActivity('إضافة عميل', `${clientData.name} • ${clientData.phone || ''} • ${clientData.area || ''}`);
+                    logActivity('إضافة/تحديث عميل', name);
                 };
             });
 
-            document.getElementById('client-search').addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#clients-table-body tr');
+            const searchInput = document.getElementById('client-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function (e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('#clients-table-body tr');
 
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
                 });
-            });
-        }
+            }
+            
+            // وضع علم التعديل عند استدعاء editClient
+            window.setClientEditMode = function(index) {
+                isEditMode = true;
+                editIndex = index;
+            };
 
         function editClient(index) {
             const client = clients[index];
@@ -5564,40 +5590,11 @@
             const saveBtn = document.getElementById('saveClientBtn');
             saveBtn.textContent = 'تحديث البيانات';
 
+            // تعيين علم التعديل
+            window.setClientEditMode(index);
+            
             const modal = new bootstrap.Modal(document.getElementById('clientModal'));
             modal.show();
-
-            saveBtn.onclick = function () {
-                const name = document.getElementById('clientName').value;
-                const phone = document.getElementById('clientPhone').value;
-                const email = document.getElementById('clientEmail').value;
-                const service = document.getElementById('clientService').value;
-                const area = document.getElementById('clientArea').value;
-
-                if (!name) {
-                    alert('يرجى إدخال اسم العميل');
-                    return;
-                }
-
-                clients[index] = {
-                    ...clients[index],
-                    name,
-                    phone: phone || '',
-                    email: email || '',
-                    service: service || 'تنظيف',
-                    area: area || ''
-                };
-
-                saveData();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('clientModal'));
-                modal.hide();
-
-                document.getElementById('clientForm').reset();
-                document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
-                saveBtn.textContent = 'حفظ العميل';
-
-                renderClientsTable();
-                showToast('تم تحديث بيانات العميل بنجاح');
 
                 setupClientEvents();
             };
@@ -6649,10 +6646,59 @@
         }
         
         function generateReport(type) {
-            showToast(`جاري إنشاء تقرير ${type}...`, 'info');
-            setTimeout(() => {
-                showToast(`تم إنشاء التقرير بنجاح`, 'success');
-            }, 1500);
+            const section = document.getElementById('analytics');
+            if (!section) return;
+            
+            let reportContent = '';
+            
+            if (type === 'monthly') {
+                const totalRev = dailyIncome.reduce((s,i) => s + (parseFloat(i.amount) || 0), 0);
+                const totalExp = dailyExpenses.reduce((s,e) => s + (parseFloat(e.amount) || 0), 0);
+                reportContent = `
+                    <div class="alert alert-info">
+                        <h5>📊 التقرير الشهري</h5>
+                        <p>إجمالي الإيرادات: <strong>${totalRev.toLocaleString()} ر.ق</strong></p>
+                        <p>إجمالي المصروفات: <strong>${totalExp.toLocaleString()} ر.ق</strong></p>
+                        <p>صافي الربح: <strong>${(totalRev - totalExp).toLocaleString()} ر.ق</strong></p>
+                    </div>
+                `;
+            } else if (type === 'financial') {
+                const totalTrans = financialTransactions.length;
+                const paidAmount = financialTransactions.filter(t => t.status === 'مدفوع').reduce((s,t) => s + (parseFloat(t.amount) || 0), 0);
+                reportContent = `
+                    <div class="alert alert-warning">
+                        <h5>💰 التقرير المالي</h5>
+                        <p>عدد العمليات: <strong>${totalTrans}</strong></p>
+                        <p>المبالغ المدفوعة: <strong>${paidAmount.toLocaleString()} ر.ق</strong></p>
+                        <p>تاريخ التقرير: <strong>${new Date().toLocaleDateString('ar-SA')}</strong></p>
+                    </div>
+                `;
+            } else if (type === 'employees') {
+                const totalEmp = employees.length;
+                const activeEmp = employees.filter(e => e.status === 'نشط').length;
+                const totalSalaries = employees.reduce((s,e) => s + (parseFloat(e.salary) || 0), 0);
+                reportContent = `
+                    <div class="alert alert-success">
+                        <h5>👥 تقرير الموظفين</h5>
+                        <p>إجمالي الموظفين: <strong>${totalEmp}</strong></p>
+                        <p>الموظفين النشطين: <strong>${activeEmp}</strong></p>
+                        <p>مجموع الرواتب: <strong>${totalSalaries.toLocaleString()} ر.ق</strong></p>
+                    </div>
+                `;
+            }
+            
+            showToast(`تم إنشاء تقرير ${type} بنجاح`, 'success');
+            
+            const reportDiv = document.getElementById('reportOutput') || document.createElement('div');
+            reportDiv.id = 'reportOutput';
+            reportDiv.innerHTML = reportContent;
+            
+            if (!document.getElementById('reportOutput')) {
+                const analyticsCard = section.querySelector('.card');
+                if (analyticsCard) {
+                    analyticsCard.appendChild(reportDiv);
+                }
+            }
         }
 
         function loadNotifications() {
@@ -7180,13 +7226,135 @@
         }
         
         function searchByCategory(category) {
-            alert(`البحث حسب الفئة: ${category}`);
+            const input = document.getElementById('advancedSearchInput');
+            if (!input || !input.value.trim()) {
+                showToast('يرجى إدخال كلمة البحث أولاً', 'warning');
+                return;
+            }
+            
+            const query = input.value.toLowerCase().trim();
+            const results = {
+                employees: [],
+                clients: [],
+                contracts: [],
+                finance: [],
+                attendance: [],
+                services: []
+            };
+            
+            // تطبيق الفلترة حسب الفئة المحددة
+            if (category === 'all' || category === 'employees') {
+                results.employees = employees.filter(emp => 
+                    (emp.name || '').toLowerCase().includes(query) ||
+                    (emp.job || '').toLowerCase().includes(query)
+                );
+            }
+            if (category === 'all' || category === 'clients') {
+                results.clients = clients.filter(client => 
+                    (client.name || '').toLowerCase().includes(query)
+                );
+            }
+            if (category === 'all' || category === 'contracts') {
+                results.contracts = contracts.filter(contract => 
+                    (contract.contractNumber || '').toLowerCase().includes(query)
+                );
+            }
+            if (category === 'all' || category === 'finance') {
+                results.finance = financialTransactions.filter(trans => 
+                    (trans.clientName || '').toLowerCase().includes(query)
+                );
+            }
+            if (category === 'all' || category === 'attendance') {
+                results.attendance = attendance.filter(att => 
+                    (att.employee || '').toLowerCase().includes(query)
+                );
+            }
+            if (category === 'all' || category === 'services') {
+                results.services = services.filter(svc => 
+                    (svc.name || '').toLowerCase().includes(query)
+                );
+            }
+            
+            displaySearchResults(results);
+            showToast(`نتائج البحث حسب فئة: ${category}`, 'success');
         }
         
         function quickSearch(searchTerm) {
-            document.getElementById('advancedSearchInput').value = searchTerm;
-            performAdvancedSearch(searchTerm);
-            showToast(`البحث عن: ${searchTerm}`, 'info');
+            const input = document.getElementById('advancedSearchInput');
+            if (!input) return;
+            
+            input.value = searchTerm;
+            
+            let results = {};
+            
+            if (searchTerm === 'موظفين نشطين') {
+                results = {
+                    employees: employees.filter(e => e.status === 'نشط'),
+                    clients: [],
+                    contracts: [],
+                    finance: [],
+                    attendance: [],
+                    services: []
+                };
+            } else if (searchTerm === 'عملاء جدد') {
+                results = {
+                    employees: [],
+                    clients: clients.slice(-5),
+                    contracts: [],
+                    finance: [],
+                    attendance: [],
+                    services: []
+                };
+            } else if (searchTerm === 'عقود معلقة') {
+                results = {
+                    employees: [],
+                    clients: [],
+                    contracts: contracts.filter(c => c.status === 'معلق'),
+                    finance: [],
+                    attendance: [],
+                    services: []
+                };
+            } else if (searchTerm === 'فواتير غير مدفوعة') {
+                results = {
+                    employees: [],
+                    clients: [],
+                    contracts: [],
+                    finance: financialTransactions.filter(t => t.status === 'معلق'),
+                    attendance: [],
+                    services: []
+                };
+            } else if (searchTerm === 'موظفين في إجازة') {
+                results = {
+                    employees: employees.filter(e => e.status === 'إجازة'),
+                    clients: [],
+                    contracts: [],
+                    finance: [],
+                    attendance: [],
+                    services: []
+                };
+            } else if (searchTerm === 'إقامات متضررة') {
+                results = {
+                    employees: employees.filter(e => {
+                        if (!e.residencyExpiry) return false;
+                        const expiryDate = new Date(e.residencyExpiry);
+                        const today = new Date();
+                        const daysLeft = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+                        return daysLeft > 0 && daysLeft <= 30;
+                    }),
+                    clients: [],
+                    contracts: [],
+                    finance: [],
+                    attendance: [],
+                    services: []
+                };
+            } else {
+                performAdvancedSearch(searchTerm);
+                showToast(`البحث عن: ${searchTerm}`, 'info');
+                return;
+            }
+            
+            displaySearchResults(results);
+            showToast(`البحث السريع: ${searchTerm}`, 'success');
         }
 
         // ===== نظام الأمان المحسّن =====
@@ -7936,6 +8104,8 @@
         function setupEmployeeEvents() {
             const employeeModal = document.getElementById('employeeModal');
             const saveBtn = document.getElementById('saveEmployeeBtn');
+            let isEditMode = false;
+            let editIndex = -1;
             
             // استخدام معالج البحث آني للموظفين
             const searchInput = document.getElementById('employee-search');
@@ -8002,15 +8172,12 @@
             // استخدام معالج modal Bootstrap للتعامل مع إضافة/تحرير الموظفين
             if (employeeModal) {
                 employeeModal.addEventListener('show.bs.modal', function (e) {
-                    const button = e.relatedTarget;
-                    const isNew = !button || button.classList.contains('btn-primary');
-                    
                     document.getElementById('employeeForm').reset();
+                    isEditMode = false;
+                    editIndex = -1;
                     
-                    if (isNew) {
-                        document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                        saveBtn.textContent = 'حفظ الموظف';
-                    }
+                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                    saveBtn.textContent = 'حفظ الموظف';
                 });
             }
 
@@ -8023,25 +8190,45 @@
                     const salary = document.getElementById('employeeSalary').value;
 
                     if (!name || !nationality || !job || !salary) {
-                        alert('يرجى ملء جميع الحقول المطلوبة');
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
                         return;
                     }
 
-                    const employeeData = {
-                        name: name,
-                        idNumber: document.getElementById('employeeIdNumber').value,
-                        hireDate: document.getElementById('employeeHireDate').value,
-                        nationality: nationality,
-                        job: job,
-                        salary: parseFloat(salary),
-                        phone: document.getElementById('employeePhone').value,
-                        status: document.getElementById('employeeStatus').value,
-                        residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                        gender: document.getElementById('employeeGender').value,
-                        joinDate: new Date().toISOString().split('T')[0]
-                    };
+                    if (isEditMode && editIndex >= 0) {
+                        // تعديل
+                        employees[editIndex] = {
+                            ...employees[editIndex],
+                            name: document.getElementById('employeeName').value,
+                            idNumber: document.getElementById('employeeIdNumber').value,
+                            hireDate: document.getElementById('employeeHireDate').value,
+                            nationality: document.getElementById('employeeNationality').value,
+                            job: document.getElementById('employeeJob').value,
+                            salary: document.getElementById('employeeSalary').value,
+                            phone: document.getElementById('employeePhone').value,
+                            status: document.getElementById('employeeStatus').value,
+                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
+                            gender: document.getElementById('employeeGender').value
+                        };
+                        showToast('تم تحديث بيانات الموظف بنجاح');
+                    } else {
+                        // إضافة جديد
+                        const employeeData = {
+                            name: name,
+                            idNumber: document.getElementById('employeeIdNumber').value,
+                            hireDate: document.getElementById('employeeHireDate').value,
+                            nationality: nationality,
+                            job: job,
+                            salary: parseFloat(salary),
+                            phone: document.getElementById('employeePhone').value,
+                            status: document.getElementById('employeeStatus').value,
+                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
+                            gender: document.getElementById('employeeGender').value,
+                            joinDate: new Date().toISOString().split('T')[0]
+                        };
+                        employees.push(employeeData);
+                        showToast('تم إضافة الموظف بنجاح');
+                    }
 
-                    employees.push(employeeData);
                     saveData();
 
                     const modalInstance = bootstrap.Modal.getInstance(employeeModal);
@@ -8050,14 +8237,21 @@
                     document.getElementById('employeeForm').reset();
                     document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
                     saveBtn.textContent = 'حفظ الموظف';
+                    isEditMode = false;
+                    editIndex = -1;
                     
                     updateEmployeeStats();
                     renderEmployeesTable();
                     setupEmployeeEvents();
-                    showToast('تم إضافة الموظف بنجاح');
-                    logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
+                    logActivity('إدارة الموظفين', `${name}`);
                 };
             }
+            
+            // وضع علم التعديل عند استدعاء editEmployee
+            window.setEmployeeEditMode = function(index) {
+                isEditMode = true;
+                editIndex = index;
+            };
         }
 
         function renderEmployeesCards() {
@@ -8135,48 +8329,11 @@
             const saveBtn = document.getElementById('saveEmployeeBtn');
             saveBtn.textContent = 'تحديث البيانات';
 
+            // تعيين علم التعديل
+            window.setEmployeeEditMode(index);
+
             const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
             modal.show();
-
-            saveBtn.onclick = function () {
-                const name = document.getElementById('employeeName').value;
-                const nationality = document.getElementById('employeeNationality').value;
-                const job = document.getElementById('employeeJob').value;
-                const salary = document.getElementById('employeeSalary').value;
-
-                if (!name || !nationality || !job || !salary) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
-                    return;
-                }
-
-                employees[index] = {
-                    name: document.getElementById('employeeName').value,
-                    idNumber: document.getElementById('employeeIdNumber').value,
-                    hireDate: document.getElementById('employeeHireDate').value,
-                    nationality: document.getElementById('employeeNationality').value,
-                    job: document.getElementById('employeeJob').value,
-                    salary: document.getElementById('employeeSalary').value,
-                    phone: document.getElementById('employeePhone').value,
-                    status: document.getElementById('employeeStatus').value,
-                    residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                    gender: document.getElementById('employeeGender').value,
-                    joinDate: employee.joinDate || new Date().toISOString().split('T')[0]
-                };
-
-                saveData();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
-                modal.hide();
-
-                document.getElementById('employeeForm').reset();
-                document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                saveBtn.textContent = 'حفظ الموظف';
-
-                updateEmployeeStats();
-                renderEmployeesTable();
-                showToast('تم تحديث بيانات الموظف بنجاح');
-
-                setupEmployeeEvents();
-            };
         }
 
         function deleteEmployee(index) {
@@ -8352,14 +8509,19 @@
         function setupServiceEvents() {
             const serviceModal = document.getElementById('serviceModal');
             const saveBtn = document.getElementById('saveServiceBtn');
+            let isEditMode = false;
+            let editIndex = -1;
             
             serviceModal.addEventListener('show.bs.modal', function (e) {
                 document.getElementById('serviceForm').reset();
+                isEditMode = false;
+                editIndex = -1;
                 document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
                 saveBtn.textContent = 'حفظ الخدمة';
-                
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
+            });
+            
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 const name = document.getElementById('serviceName').value;
                 const type = document.getElementById('serviceType').value;
                 const price = document.getElementById('servicePrice').value;
@@ -8367,30 +8529,56 @@
                 const description = document.getElementById('serviceDescription').value;
 
                 if (!name || !price) {
-                    alert('يرجى ملء الحقول المطلوبة');
+                    showToast('يرجى ملء الحقول المطلوبة', 'error');
                     return;
                 }
 
-                const serviceData = {
-                    name,
-                    type,
-                    price: parseFloat(price),
-                    duration: parseFloat(duration) || 1,
-                    description,
-                    createdAt: new Date().toISOString()
-                };
-
-                services.push(serviceData);
+                if (isEditMode && editIndex >= 0) {
+                    // تعديل
+                    services[editIndex] = {
+                        ...services[editIndex],
+                        name,
+                        type,
+                        price: parseFloat(price),
+                        duration: parseFloat(duration) || 1,
+                        description,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث الخدمة بنجاح');
+                } else {
+                    // إضافة جديد
+                    const serviceData = {
+                        name,
+                        type,
+                        price: parseFloat(price),
+                        duration: parseFloat(duration) || 1,
+                        description,
+                        createdAt: new Date().toISOString()
+                    };
+                    services.push(serviceData);
+                    showToast('تم إضافة الخدمة بنجاح');
+                }
+                
                 saveData();
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
                 modal.hide();
 
                 document.getElementById('serviceForm').reset();
+                document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
+                saveBtn.textContent = 'حفظ الخدمة';
+                isEditMode = false;
+                editIndex = -1;
+
                 renderServicesTable();
-                showToast('تم إضافة الخدمة بنجاح');
+                setupServiceEvents();
             };
-            });
+            
+            // وضع علم التعديل
+            window.setServiceEditMode = function(index) {
+                isEditMode = true;
+                editIndex = index;
+            };
         }
 
         function editService(index) {
@@ -8407,44 +8595,11 @@
             const saveBtn = document.getElementById('saveServiceBtn');
             saveBtn.textContent = 'تحديث الخدمة';
 
+            // تعيين علم التعديل
+            window.setServiceEditMode(index);
+
             const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
             modal.show();
-
-            saveBtn.onclick = function () {
-                const name = document.getElementById('serviceName').value;
-                const type = document.getElementById('serviceType').value;
-                const price = document.getElementById('servicePrice').value;
-                const duration = document.getElementById('serviceDuration').value;
-                const description = document.getElementById('serviceDescription').value;
-
-                if (!name || !price) {
-                    alert('يرجى ملء الحقول المطلوبة');
-                    return;
-                }
-
-                services[index] = {
-                    ...services[index],
-                    name,
-                    type,
-                    price: parseFloat(price),
-                    duration: parseFloat(duration) || 1,
-                    description,
-                    updatedAt: new Date().toISOString()
-                };
-
-                saveData();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
-                modal.hide();
-
-                document.getElementById('serviceForm').reset();
-                document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
-                saveBtn.textContent = 'حفظ الخدمة';
-
-                renderServicesTable();
-                showToast('تم تحديث الخدمة بنجاح');
-
-                setupServiceEvents();
-            };
         }
 
         function deleteService(index) {
