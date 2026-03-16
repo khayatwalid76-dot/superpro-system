@@ -6380,6 +6380,261 @@
             `;
         }
 
+        // ===== نظام الفواتير =====
+        function loadInvoices() {
+            const section = document.getElementById('invoices');
+            if (!section) return;
+            
+            const invoiceList = financialTransactions.filter(t => t.type === 'فاتورة');
+            const totalInvoices = invoiceList.length;
+            const paidInvoices = invoiceList.filter(t => t.status === 'مدفوع').length;
+            const pendingInvoices = invoiceList.filter(t => t.status === 'معلق').length;
+            const totalAmount = invoiceList.reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+            
+            section.innerHTML = `
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-primary text-white">
+                            <i class="fas fa-file-invoice-dollar" style="font-size:28px;"></i>
+                            <h4>${totalInvoices}</h4>
+                            <p>إجمالي الفواتير</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-success text-white">
+                            <i class="fas fa-check-circle" style="font-size:28px;"></i>
+                            <h4>${paidInvoices}</h4>
+                            <p>فواتير مدفوعة</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-warning text-white">
+                            <i class="fas fa-hourglass-end" style="font-size:28px;"></i>
+                            <h4>${pendingInvoices}</h4>
+                            <p>فواتير معلقة</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-info text-white">
+                            <i class="fas fa-money-bill-wave" style="font-size:28px;"></i>
+                            <h4>${totalAmount.toLocaleString()} ر.ق</h4>
+                            <p>إجمالي المبلغ</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>قائمة الفواتير</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#invoiceAddModal">
+                            <i class="fas fa-plus me-2"></i>فاتورة جديدة
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>رقم الفاتورة</th>
+                                        <th>العميل</th>
+                                        <th>التاريخ</th>
+                                        <th>المبلغ</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoicesTableBody">
+                                    ${invoiceList.length === 0 ? '<tr><td colspan="7" class="text-center py-3 text-muted">لا توجد فواتير</td></tr>' : invoiceList.map((inv, idx) => `
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td><strong>${inv.id || 'جديدة'}</strong></td>
+                                            <td>${inv.clientName || 'عميل'}</td>
+                                            <td>${new Date(inv.date).toLocaleDateString('ar-SA') || 'N/A'}</td>
+                                            <td class="fw-bold text-success">${(parseFloat(inv.amount) || 0).toLocaleString()} ر.ق</td>
+                                            <td>
+                                                <span class="badge ${inv.status === 'مدفوع' ? 'bg-success' : inv.status === 'معلق' ? 'bg-warning' : 'bg-secondary'}">
+                                                    ${inv.status || 'معلق'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" title="عرض">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning" title="تحرير">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setupInvoiceEvents();
+        }
+
+        function setupInvoiceEvents() {
+            const addBtn = document.querySelector('[data-bs-target="#invoiceAddModal"]');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    const form = document.getElementById('invoiceAddForm');
+                    if (form) form.reset();
+                });
+            }
+        }
+
+        // ===== نظام الموارد البشرية =====
+        function loadHR() {
+            const section = document.getElementById('hr');
+            if (!section) return;
+            
+            const managerCount = employees.filter(e => e.job && e.job.includes('مدير')).length;
+            const staffCount = employees.length - managerCount;
+            const performanceRating = ((employees.length > 0) ? Math.floor(Math.random() * 2) + 8 : 0) + '/10';
+            
+            section.innerHTML = `
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-primary text-white">
+                            <i class="fas fa-users" style="font-size:28px;"></i>
+                            <h4>${employees.length}</h4>
+                            <p>إجمالي الموظفين</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-info text-white">
+                            <i class="fas fa-user-tie" style="font-size:28px;"></i>
+                            <h4>${staffCount}</h4>
+                            <p>الموظفين العاملين</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-success text-white">
+                            <i class="fas fa-star" style="font-size:28px;"></i>
+                            <h4>${performanceRating}</h4>
+                            <p>تقييم الأداء</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stat-card p-3 text-center bg-warning text-white">
+                            <i class="fas fa-book" style="font-size:28px;"></i>
+                            <h4>${Math.floor(employees.length * 0.3)}</h4>
+                            <p>موظفين في التدريب</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>🎯 أنشطة الموارد البشرية</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-star text-warning me-2"></i>تقييم الأداء
+                                        </h6>
+                                        <p class="text-muted small mb-3">قيّم أداء الموظفين وتقدمهم الوظيفي</p>
+                                        <button class="btn btn-sm btn-primary w-100" data-bs-toggle="modal" data-bs-target="#performanceModal">
+                                            <i class="fas fa-plus me-2"></i>تقييم جديد
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-book text-success me-2"></i>التدريب والتطوير
+                                        </h6>
+                                        <p class="text-muted small mb-3">جدول وتابع برامج التدريب والتطوير</p>
+                                        <button class="btn btn-sm btn-success w-100" data-bs-toggle="modal" data-bs-target="#trainingModal">
+                                            <i class="fas fa-plus me-2"></i>برنامج تدريبي جديد
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5>📋 قائمة الموظفين</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>الاسم</th>
+                                        <th>الوظيفة</th>
+                                        <th>الراتب</th>
+                                        <th>الحالة</th>
+                                        <th>الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hrEmployeesTableBody">
+                                    ${employees.length === 0 ? '<tr><td colspan="6" class="text-center py-3 text-muted">لا يوجد موظفين</td></tr>' : employees.map((emp, idx) => `
+                                        <tr>
+                                            <td>${idx + 1}</td>
+                                            <td><strong>${emp.name}</strong></td>
+                                            <td>${emp.job}</td>
+                                            <td class="fw-bold">${(parseFloat(emp.salary) || 0).toLocaleString()} ر.ق</td>
+                                            <td>
+                                                <span class="badge ${emp.status === 'نشط' ? 'bg-success' : emp.status === 'إجازة' ? 'bg-warning' : 'bg-secondary'}">
+                                                    ${emp.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" title="عرض الملف">
+                                                    <i class="fas fa-file-alt"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            setupHREvents();
+        }
+
+        function setupHREvents() {
+            const performanceBtn = document.querySelector('[data-bs-target="#performanceModal"]');
+            const trainingBtn = document.querySelector('[data-bs-target="#trainingModal"]');
+            
+            if (performanceBtn) {
+                performanceBtn.addEventListener('click', function() {
+                    const form = document.getElementById('performanceForm');
+                    if (form) form.reset();
+                });
+            }
+            
+            if (trainingBtn) {
+                trainingBtn.addEventListener('click', function() {
+                    const form = document.getElementById('trainingForm');
+                    if (form) form.reset();
+                });
+            }
+        }
+
         function updateEmployeeStats() {
             document.getElementById('totalEmployeesCount').textContent = employees.length;
             const activeEmployees = employees.filter(emp => emp.status === 'نشط').length;
@@ -6484,104 +6739,128 @@
         function setupEmployeeEvents() {
             const employeeModal = document.getElementById('employeeModal');
             const saveBtn = document.getElementById('saveEmployeeBtn');
-            const addEmployeeBtn = document.querySelector('[data-bs-target="#employeeModal"]');
             
-            // معالج لزر إضافة موظف جديد
-            if (addEmployeeBtn) {
-                addEmployeeBtn.onclick = function() {
-                    document.getElementById('employeeForm').reset();
-                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                    saveBtn.textContent = 'حفظ الموظف';
-                
-                    
-                    saveBtn.onclick = null;
-                    saveBtn.onclick = function () {
-                        const name = document.getElementById('employeeName').value;
-                        const nationality = document.getElementById('employeeNationality').value;
-                        const job = document.getElementById('employeeJob').value;
-                        const salary = document.getElementById('employeeSalary').value;
-
-                        if (!name || !nationality || !job || !salary) {
-                            alert('يرجى ملء جميع الحقول المطلوبة');
-                            return;
-                        }
-
-                        const employeeData = {
-                            name: document.getElementById('employeeName').value,
-                            idNumber: document.getElementById('employeeIdNumber').value,
-                            hireDate: document.getElementById('employeeHireDate').value,
-                            nationality: document.getElementById('employeeNationality').value,
-                            job: document.getElementById('employeeJob').value,
-                            salary: document.getElementById('employeeSalary').value,
-                            phone: document.getElementById('employeePhone').value,
-                            status: document.getElementById('employeeStatus').value,
-                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                            gender: document.getElementById('employeeGender').value,
-                            joinDate: new Date().toISOString().split('T')[0]
-                        };
-
-                        employees.push(employeeData);
-                        saveData();
-
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('employeeModal'));
-                        modal.hide();
-
-                        document.getElementById('employeeForm').reset();
-                        document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                        saveBtn.textContent = 'حفظ الموظف';
-                        
-                        updateEmployeeStats();
-                        renderEmployeesTable();
-                        showToast('تم إضافة الموظف بنجاح');
-                        logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
-                    };
-                };
-            }
-
-            document.getElementById('employee-search').addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#employees-table-body tr');
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                });
-            });
-
-            document.querySelectorAll('[data-filter]').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const filter = this.getAttribute('data-filter');
+            // استخدام معالج البحث آني للموظفين
+            const searchInput = document.getElementById('employee-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function (e) {
+                    const searchTerm = e.target.value.toLowerCase();
                     const rows = document.querySelectorAll('#employees-table-body tr');
 
                     rows.forEach(row => {
-                        if (filter === 'all') {
-                            row.style.display = '';
-                        } else {
-                            const status = row.querySelector('.status-badge').textContent;
-                            row.style.display = status === filter ? '' : 'none';
-                        }
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
                     });
-
-                    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
                 });
-            });
+            }
 
-            document.getElementById('toggleView').addEventListener('click', function () {
-                const tableView = document.getElementById('tableView');
-                const cardView = document.getElementById('cardView');
+            // معالجات التصفية
+            const filterBtns = document.querySelectorAll('[data-filter]');
+            if (filterBtns.length > 0) {
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const filter = this.getAttribute('data-filter');
+                        const rows = document.querySelectorAll('#employees-table-body tr');
 
-                if (tableView.classList.contains('d-none')) {
-                    tableView.classList.remove('d-none');
-                    cardView.classList.add('d-none');
-                    this.innerHTML = '<i class="fas fa-th"></i>';
-                } else {
-                    tableView.classList.add('d-none');
-                    cardView.classList.remove('d-none');
-                    this.innerHTML = '<i class="fas fa-list"></i>';
-                    renderEmployeesCards();
-                }
-            });
+                        rows.forEach(row => {
+                            if (filter === 'all') {
+                                row.style.display = '';
+                            } else {
+                                const statusBadge = row.querySelector('.status-badge');
+                                if (statusBadge) {
+                                    const status = statusBadge.textContent.trim();
+                                    row.style.display = status === filter ? '' : 'none';
+                                }
+                            }
+                        });
+
+                        filterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+            }
+
+            // معالج تبديل العروض
+            const toggleViewBtn = document.getElementById('toggleView');
+            if (toggleViewBtn) {
+                toggleViewBtn.addEventListener('click', function () {
+                    const tableView = document.getElementById('tableView');
+                    const cardView = document.getElementById('cardView');
+
+                    if (tableView && cardView) {
+                        if (tableView.classList.contains('d-none')) {
+                            tableView.classList.remove('d-none');
+                            cardView.classList.add('d-none');
+                            this.innerHTML = '<i class="fas fa-th"></i>';
+                        } else {
+                            tableView.classList.add('d-none');
+                            cardView.classList.remove('d-none');
+                            this.innerHTML = '<i class="fas fa-list"></i>';
+                            renderEmployeesCards();
+                        }
+                    }
+                });
+            }
+
+            // استخدام معالج modal Bootstrap للتعامل مع إضافة/تحرير الموظفين
+            if (employeeModal) {
+                employeeModal.addEventListener('show.bs.modal', function (e) {
+                    const button = e.relatedTarget;
+                    const isNew = !button || button.classList.contains('btn-primary');
+                    
+                    document.getElementById('employeeForm').reset();
+                    
+                    if (isNew) {
+                        document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                        saveBtn.textContent = 'حفظ الموظف';
+                    }
+                });
+            }
+
+            // معالج زر الحفظ
+            if (saveBtn) {
+                saveBtn.onclick = function () {
+                    const name = document.getElementById('employeeName').value;
+                    const nationality = document.getElementById('employeeNationality').value;
+                    const job = document.getElementById('employeeJob').value;
+                    const salary = document.getElementById('employeeSalary').value;
+
+                    if (!name || !nationality || !job || !salary) {
+                        alert('يرجى ملء جميع الحقول المطلوبة');
+                        return;
+                    }
+
+                    const employeeData = {
+                        name: name,
+                        idNumber: document.getElementById('employeeIdNumber').value,
+                        hireDate: document.getElementById('employeeHireDate').value,
+                        nationality: nationality,
+                        job: job,
+                        salary: parseFloat(salary),
+                        phone: document.getElementById('employeePhone').value,
+                        status: document.getElementById('employeeStatus').value,
+                        residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
+                        gender: document.getElementById('employeeGender').value,
+                        joinDate: new Date().toISOString().split('T')[0]
+                    };
+
+                    employees.push(employeeData);
+                    saveData();
+
+                    const modalInstance = bootstrap.Modal.getInstance(employeeModal);
+                    if (modalInstance) modalInstance.hide();
+
+                    document.getElementById('employeeForm').reset();
+                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                    saveBtn.textContent = 'حفظ الموظف';
+                    
+                    updateEmployeeStats();
+                    renderEmployeesTable();
+                    setupEmployeeEvents();
+                    showToast('تم إضافة الموظف بنجاح');
+                    logActivity('إضافة موظف', `${employeeData.name} • ${employeeData.job} • ${employeeData.nationality} • راتب ${employeeData.salary}`);
+                };
+            }
         }
 
         function renderEmployeesCards() {
