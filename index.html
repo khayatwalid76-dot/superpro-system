@@ -10701,6 +10701,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         setupAllModalEvents();
         console.log("setupAllModalEvents finished");
+        
+        // اتصال فوري بدوال الإعداد لضمان جاهزية المعالجات قبل أي تفاعل من المستخدم
+        setupEmployeeEvents();
+        setupClientEvents();
+        setupContractEvents();
+        setupServiceEvents();
+        setupDailyWorkEvents();
+        setupDailyIncomeEvents();
+        setupDailyExpensesEvents();
+        console.log("Core event handlers initialized");
 
         initGlobalSearch();
         console.log("initGlobalSearch finished");
