@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, user-scalable=yes" />
 
@@ -965,11 +968,13 @@
 
     <script>
         // Cache-busting build id (update on deploy)
-        const BUILD_ID = 'b1c3799';
+        const BUILD_ID = '87554f0';
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
                 try {
+                    // If an old SW was registered at the origin root, it can keep serving stale HTML
+                    // (especially when migrating from /sw.js to subpath sw.js on GitHub Pages).
                     const regs = await navigator.serviceWorker.getRegistrations();
                     await Promise.all(regs.map(async (r) => {
                         const url = (r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || '');
@@ -980,22 +985,22 @@
                 } catch (e) {}
 
                 try {
+                    // Use a fully-qualified URL + build query to avoid cached SW script.
                     const swUrl = new URL('sw.js', location.href);
                     const registration = await navigator.serviceWorker.register(`${swUrl.href}?v=${BUILD_ID}`);
                     console.log('✅ Service Worker registered:', registration);
 
-                        // تحقق من وجود تحديثات
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // عرض إشعار بوجود تحديث
-                                    if (confirm('🔄 يتوفر تحديث جديد! هل تريد تحديث الصفحة؟')) {
-                                        window.location.reload();
-                                    }
+                    // تحقق من وجود تحديثات
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                if (confirm('🔄 يتوفر تحديث جديد! هل تريد تحديث الصفحة؟')) {
+                                    window.location.reload();
                                 }
-                            });
+                            }
                         });
+                    });
                 } catch (error) {
                     console.log('❌ Service Worker registration failed:', error);
                 }
@@ -1027,6 +1032,8 @@
             });
         });
     </script>
+    <!-- Design Enhancements CSS -->
+    <link rel="stylesheet" href="design-enhancements.css">
 </head>
 
 <body>
@@ -4107,12 +4114,25 @@
                 sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
                 sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
                 sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
+                // Keep a unified session snapshot (used on next refresh)
+                sessionStorage.setItem('superpro_data', JSON.stringify(data));
 
                 console.log('✅ Data saved to sessionStorage');
                 
                 // Also save to localStorage for persistence
                 localStorage.setItem('superpro_data', JSON.stringify(data));
                 console.log('✅ Data backed up to localStorage');
+                
+                // Compatibility: also persist under DataManager key
+                try {
+                    localStorage.setItem('superproDB', JSON.stringify({
+                        ...data,
+                        // DataManager naming compatibility
+                        income: data.dailyIncome,
+                        expenses: data.dailyExpenses,
+                        notifications: data.events
+                    }));
+                } catch (e) {}
 
                 // التخزين السحابي
                 if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
@@ -9890,11 +9910,24 @@
         async function initializeDefaultData() {
             console.log('🚀 تهيئة البيانات...');
 
+            const hasAnySavedData = (d) => {
+                try {
+                    if (!d || typeof d !== 'object') return false;
+                    const arrKeys = ['employees','clients','contracts','attendance','dailyWork','dailyIncome','dailyExpenses','income','expenses','services','tasks','events','notifications','financialTransactions','salaryAdvances'];
+                    if (arrKeys.some(k => Array.isArray(d[k]) && d[k].length > 0)) return true;
+                    if (d.settings && typeof d.settings === 'object' && Object.keys(d.settings).length > 0) return true;
+                    // If it has any known key at all, treat as data (prevents false negatives)
+                    return Object.keys(d).some(k => arrKeys.includes(k) || k === 'settings');
+                } catch (e) {
+                    return false;
+                }
+            };
+
             const tryFirebase = () => new Promise((resolve) => {
                 if (typeof firebaseDb === 'undefined' || !firebaseDb || !firebaseDb.ref) return resolve(null);
                 firebaseDb.ref(FB_PATH).once('value', (snap) => {
                     const d = snap.val();
-                    if (d && (d.employees?.length || d.clients?.length)) {
+                    if (hasAnySavedData(d)) {
                         console.log('☁️ تحميل من السحابة');
                         applyData(d);
                         showNotification('تم تحميل البيانات من السحابة', 'success');
@@ -9908,7 +9941,7 @@
                 if (saved) {
                     try {
                         const d = JSON.parse(saved);
-                        if (d && (d.employees?.length || d.clients?.length)) {
+                        if (hasAnySavedData(d)) {
                             console.log('💾 تحميل من التخزين المحلي');
                             applyData(d);
                             showNotification('تم تحميل البيانات المحفوظة', 'success');
@@ -9916,6 +9949,44 @@
                         }
                     } catch (e) {}
                 }
+                return false;
+            };
+
+            const tryLocalStorage = () => {
+                const saved = localStorage.getItem('superpro_data');
+                if (saved) {
+                    try {
+                        const d = JSON.parse(saved);
+                        if (hasAnySavedData(d)) {
+                            console.log('💾 تحميل من localStorage');
+                            applyData(d);
+                            showNotification('تم تحميل البيانات المحفوظة', 'success');
+                            return true;
+                        }
+                    } catch (e) {}
+                }
+                return false;
+            };
+
+            const trySuperproDB = () => {
+                const saved = localStorage.getItem('superproDB');
+                if (!saved) return false;
+                try {
+                    const raw = JSON.parse(saved);
+                    if (hasAnySavedData(raw)) {
+                        // Map DataManager schema -> UI schema
+                        const mapped = {
+                            ...raw,
+                            dailyIncome: raw.dailyIncome || raw.income || [],
+                            dailyExpenses: raw.dailyExpenses || raw.expenses || [],
+                            events: raw.events || raw.notifications || []
+                        };
+                        console.log('💾 تحميل من superproDB');
+                        applyData(mapped);
+                        showNotification('تم تحميل البيانات المحفوظة', 'success');
+                        return true;
+                    }
+                } catch (e) {}
                 return false;
             };
 
@@ -10058,6 +10129,8 @@
             await tryFirebase().then((fromCloud) => {
                 if (fromCloud) return;
                 if (trySessionStorage()) return;
+                if (tryLocalStorage()) return;
+                if (trySuperproDB()) return;
                 return loadFromFile();
             });
         }
@@ -10312,8 +10385,6 @@
             setTimeout(() => {
                 setupNavigation();
                 setupAllModalEvents();
-                // إعادة تطبيق الصلاحيات بعد إعادة بناء الواجهة/الأزرار
-                applyRolePermissions();
             }, 150);
         }
 
@@ -10348,31 +10419,6 @@
 
             const readOnly = role === 'viewer';
             const canDelete = role === 'admin';
-
-            // إعادة تفعيل العناصر قبل تطبيق القيود (حتى لا تبقى "طافئة" بعد تسجيل الدخول)
-            document.querySelectorAll('button[disabled], a.btn.disabled, button.disabled, a.btn[style*=\"pointer-events: none\"], button[style*=\"pointer-events: none\"]').forEach(el => {
-                if (el.closest('#authOverlay')) return;
-                // لا نعبث بعناصر Bootstrap الافتراضية (مثل إغلاق المودال) أو أي عناصر مقصودة disabled في HTML
-                el.removeAttribute('disabled');
-                el.classList.remove('disabled');
-                if (el.style) {
-                    el.style.pointerEvents = '';
-                    el.style.opacity = '';
-                }
-            });
-
-            // إذا كان المستخدم ليس Viewer: تأكد أن أزرار الإضافة/الإجراءات مفعلة فوراً
-            if (!readOnly) {
-                document.querySelectorAll('button, a.btn').forEach(el => {
-                    if (el.closest('#authOverlay')) return;
-                    el.removeAttribute('disabled');
-                    el.classList.remove('disabled');
-                    if (el.style) {
-                        el.style.pointerEvents = '';
-                        el.style.opacity = '';
-                    }
-                });
-            }
 
             // viewer: تعطيل أزرار الإضافة/الحفظ/الحذف/التعديل
             if (readOnly) {
@@ -11033,14 +11079,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("setupAllModalEvents finished");
         
         // اتصال فوري بدوال الإعداد لضمان جاهزية المعالجات قبل أي تفاعل من المستخدم
-        setupEmployeeEvents();
-        setupClientEvents();
-        setupContractEvents();
-        setupServiceEvents();
-        setupDailyWorkEvents();
-        setupDailyIncomeEvents();
-        setupDailyExpensesEvents();
-        setupFinanceEvents();
+        const safeInit = (label, fn) => {
+            try { fn(); }
+            catch (e) {
+                console.error(`Init error in ${label}:`, e);
+                showNotification(`تم تجاوز خطأ في تهيئة ${label}: ${e.message}`, 'warning');
+            }
+        };
+        safeInit('employees', setupEmployeeEvents);
+        safeInit('clients', setupClientEvents);
+        safeInit('contracts', setupContractEvents);
+        safeInit('services', setupServiceEvents);
+        safeInit('dailyWork', setupDailyWorkEvents);
+        safeInit('dailyIncome', setupDailyIncomeEvents);
+        safeInit('dailyExpenses', setupDailyExpensesEvents);
+        safeInit('finance', setupFinanceEvents);
         console.log("Core event handlers initialized");
 
         initGlobalSearch();
@@ -11129,6 +11182,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("Starting initializeDefaultData...");
         await initializeDefaultData();
         console.log("initializeDefaultData finished");
+
+        // تأكيد تحديث كل الواجهات بعد تحميل البيانات (حتى لو لم تُستدعَ applyData لأي سبب)
+        try {
+            if (typeof updateAllUI === 'function') updateAllUI();
+            if (typeof updateAllStats === 'function') updateAllStats();
+            if (typeof fillEmployeeSelects === 'function') fillEmployeeSelects();
+            if (typeof fillClientSelects === 'function') fillClientSelects();
+        } catch (e) {
+            console.warn('Post-data UI refresh skipped:', e);
+        }
         
         // تحميل لوحة التحكم بعد البيانات
         loadDashboard();
@@ -11172,15 +11235,6 @@ window.addEventListener('load', function() {
                 btn.style.pointerEvents = 'auto';
             }
         });
-
-        // Ensure "check" action buttons (✓) are clickable
-        document.querySelectorAll('[onclick*="markContractAsPaid"], [onclick*="markDailyWorkAsPaid"], [onclick*="markIncomeAsPaid"], [onclick*="completeTask"]').forEach(btn => {
-            btn.style.cursor = 'pointer';
-            btn.style.pointerEvents = 'auto';
-            btn.removeAttribute('disabled');
-            btn.classList.remove('disabled');
-            if (btn.style) btn.style.opacity = '';
-        });
         
         // Ensure modals have handlers
         ['contractModal', 'employeeModal', 'clientModal', 'dailyWorkModal', 'dailyIncomeModal', 'dailyExpenseModal', 'serviceModal', 'financeModal'].forEach(modalId => {
@@ -11197,6 +11251,8 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+    <!-- Design Enhancements JS -->
+    <script src="design-enhancements.js"></script>
 </body>
 
 </html>
