@@ -86,6 +86,10 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
     </noscript>
     <style>
+        /* Fix: Ensure modules are hidden on load to prevent floating */
+        .module-container { display: none !important; }
+        .module-container.active-module { display: block !important; }
+
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
@@ -1034,6 +1038,15 @@
     </script>
     <!-- Design Enhancements CSS -->
     <link rel="stylesheet" href="design-enhancements.css">
+
+<script>
+// Prevent flash of unstyled/floating modules on load
+(function(){
+    var style = document.createElement('style');
+    style.textContent = '.module-container{display:none!important}.module-container.active-module{display:block!important}';
+    document.head.appendChild(style);
+})();
+</script>
 </head>
 
 <body>
@@ -1260,6 +1273,13 @@
                 <a class="nav-link" href="#" data-module="dailyExpenses">
                     <i class="fas fa-receipt"></i>
                     <span class="me-2">المصروفات اليومية</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-module="monthlyExpenses">
+                    <i class="fas fa-calendar-check"></i>
+                    <span class="me-2">المصاريف الشهرية</span>
                 </a>
             </li>
 
@@ -2298,6 +2318,117 @@
                                     <td colspan="9" class="text-center text-muted py-3">
                                         <i class="fas fa-receipt fa-2x mb-2"></i>
                                         <p>لا توجد سجلات للمصروفات اليومية</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- MONTHLY EXPENSES -->
+        <div id="monthlyExpenses" class="module-container" style="display:none">
+            <h2 class="section-title"><i class="fas fa-calendar-check me-2"></i>المصاريف الشهرية</h2>
+
+            <!-- Alert bar for upcoming payments -->
+            <div id="monthlyExpensesAlerts" class="mb-3"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-danger text-white">
+                        <i class="fas fa-money-bill-wave" style="font-size:28px;"></i>
+                        <h2 id="totalMonthlyExpenses">0 ر.ق</h2>
+                        <p>إجمالي المصاريف الشهرية</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-success text-white">
+                        <i class="fas fa-check-circle" style="font-size:28px;"></i>
+                        <h2 id="paidMonthlyExpenses">0 ر.ق</h2>
+                        <p>تم الدفع</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-warning text-white">
+                        <i class="fas fa-clock" style="font-size:28px;"></i>
+                        <h2 id="pendingMonthlyExpenses">0 ر.ق</h2>
+                        <p>في الانتظار</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card p-3 text-center bg-info text-white">
+                        <i class="fas fa-exclamation-triangle" style="font-size:28px;"></i>
+                        <h2 id="overdueMonthlyExpenses">0 ر.ق</h2>
+                        <p>متأخرة</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="search-box position-relative">
+                                <input class="form-control" id="monthlyExpenses-search"
+                                    placeholder="ابحث في المصاريف الشهرية...">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <select class="form-select" id="monthlyExpensesMonthFilter">
+                                <option value="">كل الأشهر</option>
+                                <option value="01">يناير</option>
+                                <option value="02">فبراير</option>
+                                <option value="03">مارس</option>
+                                <option value="04">أبريل</option>
+                                <option value="05">مايو</option>
+                                <option value="06">يونيو</option>
+                                <option value="07">يوليو</option>
+                                <option value="08">أغسطس</option>
+                                <option value="09">سبتمبر</option>
+                                <option value="10">أكتوبر</option>
+                                <option value="11">نوفمبر</option>
+                                <option value="12">ديسمبر</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 text-start">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#monthlyExpenseModal">
+                                <i class="fas fa-plus me-2"></i>إضافة مصروف شهري
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>سجلات المصاريف الشهرية المتكررة</span>
+                    <span class="badge bg-danger" id="monthlyExpensesTableCount">0 سجل</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="monthlyExpenses-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>اسم المصروف</th>
+                                    <th>الفئة</th>
+                                    <th>المبلغ</th>
+                                    <th>تاريخ الاستحقاق</th>
+                                    <th>الحالة</th>
+                                    <th>التكرار</th>
+                                    <th>ملاحظات</th>
+                                    <th width="120">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthlyExpenses-table-body">
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-3">
+                                        <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                                        <p>لا توجد مصاريف شهرية مسجلة</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -3933,6 +4064,140 @@
         </div>
     </div>
 
+
+    <!-- Monthly Expense Modal -->
+    <div class="modal fade" id="monthlyExpenseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-calendar-check me-2"></i>إضافة مصروف شهري</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="monthlyExpenseForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">اسم المصروف *</label>
+                                <input type="text" class="form-control" id="monthlyExpenseName" required
+                                    placeholder="مثال: إيجار المكتب">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">الفئة *</label>
+                                <select class="form-select" id="monthlyExpenseCategory" required>
+                                    <option value="">اختر الفئة</option>
+                                    <option value="إيجار">إيجار</option>
+                                    <option value="رواتب">رواتب</option>
+                                    <option value="كهرباء">كهرباء</option>
+                                    <option value="ماء">ماء</option>
+                                    <option value="إنترنت">إنترنت</option>
+                                    <option value="هاتف">هاتف</option>
+                                    <option value="تأمين">تأمين</option>
+                                    <option value="صيانة">صيانة</option>
+                                    <option value="اشتراكات">اشتراكات</option>
+                                    <option value="مواد تنظيف">مواد تنظيف</option>
+                                    <option value="بنزين">بنزين</option>
+                                    <option value="قروض">قروض</option>
+                                    <option value="ضرائب">ضرائب</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المبلغ (ر.ق) *</label>
+                                <input type="number" class="form-control" id="monthlyExpenseAmount" step="0.01" required
+                                    placeholder="0.00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">يوم الاستحقاق من كل شهر *</label>
+                                <select class="form-select" id="monthlyExpenseDueDay" required>
+                                    <option value="">اختر اليوم</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">الحالة</label>
+                                <select class="form-select" id="monthlyExpenseStatus">
+                                    <option value="نشط">نشط</option>
+                                    <option value="متوقف">متوقف مؤقتاً</option>
+                                    <option value="ملغي">ملغي</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">تنبيه قبل (أيام)</label>
+                                <select class="form-select" id="monthlyExpenseAlertDays">
+                                    <option value="3">3 أيام</option>
+                                    <option value="5" selected>5 أيام</option>
+                                    <option value="7">7 أيام</option>
+                                    <option value="10">10 أيام</option>
+                                    <option value="15">15 يوم</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">المستفيد / الجهة</label>
+                                <input type="text" class="form-control" id="monthlyExpensePayee"
+                                    placeholder="اسم الجهة المستفيدة">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">طريقة الدفع</label>
+                                <select class="form-select" id="monthlyExpensePayMethod">
+                                    <option value="نقدي">نقدي</option>
+                                    <option value="تحويل بنكي">تحويل بنكي</option>
+                                    <option value="شيك">شيك</option>
+                                    <option value="بطاقة ائتمان">بطاقة ائتمان</option>
+                                    <option value="خصم تلقائي">خصم تلقائي</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">ملاحظات</label>
+                                <textarea class="form-control" id="monthlyExpenseNotes" rows="2"
+                                    placeholder="ملاحظات إضافية..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-primary" id="saveMonthlyExpenseBtn">
+                        <i class="fas fa-save me-1"></i>حفظ المصروف الشهري
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Expense Payment Modal -->
+    <div class="modal fade" id="monthlyExpensePaymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>تسجيل دفعة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="monthlyExpensePaymentForm">
+                        <div class="mb-3">
+                            <label class="form-label">تاريخ الدفع *</label>
+                            <input type="date" class="form-control" id="paymentDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">المبلغ المدفوع (ر.ق) *</label>
+                            <input type="number" class="form-control" id="paymentAmount" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ملاحظات</label>
+                            <textarea class="form-control" id="paymentNotes" rows="2"></textarea>
+                        </div>
+                        <input type="hidden" id="paymentExpenseIndex">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-success" id="confirmPaymentBtn">
+                        <i class="fas fa-check me-1"></i>تأكيد الدفع
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast-container">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -4038,6 +4303,7 @@
         let tasks = [];
         let events = [];
         let salaryAdvances = [];
+        let monthlyExpenses = [];
 
         // نظام التخزين
         const LS_KEYS = {
@@ -4054,6 +4320,7 @@
             dailyExpenses: 'superpro_dailyExpenses',
             financialTransactions: 'superpro_financialTransactions',
             salaryAdvances: 'superpro_salaryAdvances',
+            monthlyExpenses: 'superpro_monthlyExpenses',
             authUser: 'superpro_auth_user',
             activityLog: 'superpro_activity_log'
         };
@@ -4099,7 +4366,7 @@
                 const data = {
                     employees, clients, attendance, contracts, services, settings,
                     tasks, events, dailyWork, dailyIncome, dailyExpenses,
-                    financialTransactions, salaryAdvances
+                    financialTransactions, salaryAdvances, monthlyExpenses
                 };
                 sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
                 sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(clients));
@@ -4114,6 +4381,7 @@
                 sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
                 sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
                 sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
+                sessionStorage.setItem(LS_KEYS.monthlyExpenses, JSON.stringify(monthlyExpenses));
                 // Keep a unified session snapshot (used on next refresh)
                 sessionStorage.setItem('superpro_data', JSON.stringify(data));
 
@@ -4139,7 +4407,7 @@
                     firebaseDb.ref(FB_PATH).set(data).catch(() => {});
                 }
 
-                if (document.getElementById('dashboard') && document.getElementById('dashboard').style.display !== 'none') {
+                if (document.getElementById('dashboard') && document.getElementById('dashboard').classList.contains('active-module')) {
                     loadDashboard();
                 }
                 updateAllStats();
@@ -4259,7 +4527,7 @@
                     data: {
                         employees, clients, attendance, contracts, services, settings,
                         tasks, events, dailyWork, dailyIncome, dailyExpenses,
-                        financialTransactions, salaryAdvances
+                        financialTransactions, salaryAdvances, monthlyExpenses
                     },
                     timestamp: new Date().toISOString(),
                     version: '2.5.1',
@@ -6522,6 +6790,336 @@
             }
         }
 
+
+        // ============= المصاريف الشهرية =============
+        let monthlyExpenseEditIndex = -1;
+
+        function loadMonthlyExpenses() {
+            renderMonthlyExpenses(monthlyExpenses);
+            updateMonthlyExpensesStats();
+            checkMonthlyExpenseAlerts();
+        }
+
+        function updateMonthlyExpensesStats() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const activeExpenses = monthlyExpenses.filter(e => e.status === 'نشط');
+            const total = activeExpenses.reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+
+            // Check payments for current month
+            let paidTotal = 0;
+            let pendingTotal = 0;
+            let overdueTotal = 0;
+
+            activeExpenses.forEach(exp => {
+                const dueDay = parseInt(exp.dueDay) || 1;
+                const dueDate = new Date(currentYear, currentMonth, dueDay);
+                const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                const payments = (exp.payments || []).filter(p => p.month === monthKey);
+                const paidAmount = payments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+
+                if (paidAmount >= parseFloat(exp.amount)) {
+                    paidTotal += parseFloat(exp.amount);
+                } else if (now > dueDate) {
+                    overdueTotal += parseFloat(exp.amount) - paidAmount;
+                } else {
+                    pendingTotal += parseFloat(exp.amount) - paidAmount;
+                }
+            });
+
+            const fmt = (v) => v.toLocaleString('ar-QA') + ' ر.ق';
+            const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = fmt(val); };
+            el('totalMonthlyExpenses', total);
+            el('paidMonthlyExpenses', paidTotal);
+            el('pendingMonthlyExpenses', pendingTotal);
+            el('overdueMonthlyExpenses', overdueTotal);
+
+            const countEl = document.getElementById('monthlyExpensesTableCount');
+            if (countEl) countEl.textContent = monthlyExpenses.length + ' سجل';
+        }
+
+        function checkMonthlyExpenseAlerts() {
+            const alertsDiv = document.getElementById('monthlyExpensesAlerts');
+            if (!alertsDiv) return;
+            alertsDiv.innerHTML = '';
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const todayDay = now.getDate();
+            const alerts = [];
+
+            monthlyExpenses.forEach((exp, idx) => {
+                if (exp.status !== 'نشط') return;
+                const dueDay = parseInt(exp.dueDay) || 1;
+                const alertDays = parseInt(exp.alertDays) || 5;
+                const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+                const payments = (exp.payments || []).filter(p => p.month === monthKey);
+                const paidAmount = payments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+                const isPaid = paidAmount >= parseFloat(exp.amount);
+
+                if (isPaid) return;
+
+                const daysUntilDue = dueDay - todayDay;
+
+                if (daysUntilDue < 0) {
+                    alerts.push(`<div class="alert alert-danger d-flex align-items-center mb-2" role="alert">
+                        <i class="fas fa-exclamation-circle me-2 fa-lg"></i>
+                        <div><strong>متأخر!</strong> مصروف "<strong>${exp.name}</strong>" (${parseFloat(exp.amount).toLocaleString('ar-QA')} ر.ق) كان مستحقاً يوم ${dueDay} من هذا الشهر.
+                        <button class="btn btn-sm btn-success ms-2" onclick="openPaymentModal(${idx})"><i class="fas fa-check me-1"></i>سجّل الدفع</button></div>
+                    </div>`);
+                } else if (daysUntilDue <= alertDays) {
+                    alerts.push(`<div class="alert alert-warning d-flex align-items-center mb-2" role="alert">
+                        <i class="fas fa-bell me-2 fa-lg"></i>
+                        <div><strong>تنبيه!</strong> مصروف "<strong>${exp.name}</strong>" (${parseFloat(exp.amount).toLocaleString('ar-QA')} ر.ق) مستحق خلال <strong>${daysUntilDue}</strong> ${daysUntilDue === 1 ? 'يوم' : 'أيام'} (يوم ${dueDay}).
+                        <button class="btn btn-sm btn-success ms-2" onclick="openPaymentModal(${idx})"><i class="fas fa-check me-1"></i>سجّل الدفع</button></div>
+                    </div>`);
+                }
+            });
+
+            if (alerts.length > 0) {
+                alertsDiv.innerHTML = alerts.join('');
+            }
+        }
+
+        function renderMonthlyExpenses(list) {
+            const tbody = document.getElementById('monthlyExpenses-table-body');
+            if (!tbody) return;
+
+            const filterMonth = document.getElementById('monthlyExpensesMonthFilter')?.value;
+            let filtered = list || monthlyExpenses;
+            if (filterMonth) {
+                const now = new Date();
+                const yr = now.getFullYear();
+                filtered = filtered.filter(e => {
+                    // Show if active during that month
+                    return true; // Monthly expenses are recurring, show all
+                });
+            }
+
+            if (!filtered.length) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-3">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i><p>لا توجد مصاريف شهرية مسجلة</p>
+                </td></tr>`;
+                return;
+            }
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            const todayDay = now.getDate();
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+            tbody.innerHTML = filtered.map((exp, i) => {
+                const realIdx = monthlyExpenses.indexOf(exp);
+                const dueDay = parseInt(exp.dueDay) || 1;
+                const payments = (exp.payments || []).filter(p => p.month === monthKey);
+                const paidAmount = payments.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+                const isPaid = paidAmount >= parseFloat(exp.amount);
+                const isOverdue = !isPaid && todayDay > dueDay;
+                const isNearDue = !isPaid && !isOverdue && (dueDay - todayDay) <= (parseInt(exp.alertDays) || 5);
+
+                let statusBadge = '';
+                if (exp.status === 'ملغي') {
+                    statusBadge = '<span class="badge bg-dark">ملغي</span>';
+                } else if (exp.status === 'متوقف') {
+                    statusBadge = '<span class="badge bg-secondary">متوقف</span>';
+                } else if (isPaid) {
+                    statusBadge = '<span class="badge bg-success"><i class="fas fa-check me-1"></i>مدفوع</span>';
+                } else if (isOverdue) {
+                    statusBadge = '<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>متأخر</span>';
+                } else if (isNearDue) {
+                    statusBadge = '<span class="badge bg-warning text-dark"><i class="fas fa-bell me-1"></i>قريب</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-info">نشط</span>';
+                }
+
+                const rowClass = isOverdue ? 'table-danger' : isNearDue ? 'table-warning' : isPaid ? 'table-success' : '';
+
+                return `<tr class="${rowClass}">
+                    <td>${i + 1}</td>
+                    <td><strong>${exp.name || ''}</strong>${exp.payee ? '<br><small class="text-muted">' + exp.payee + '</small>' : ''}</td>
+                    <td><span class="badge bg-primary">${exp.category || ''}</span></td>
+                    <td><strong>${parseFloat(exp.amount || 0).toLocaleString('ar-QA')} ر.ق</strong></td>
+                    <td>يوم <strong>${dueDay}</strong> من كل شهر</td>
+                    <td>${statusBadge}</td>
+                    <td>${exp.payMethod || 'نقدي'}</td>
+                    <td>${exp.notes || '-'}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            ${!isPaid && exp.status === 'نشط' ? `<button type="button" class="btn btn-outline-success" onclick="openPaymentModal(${realIdx})" title="تسجيل دفعة"><i class="fas fa-check"></i></button>` : ''}
+                            <button type="button" class="btn btn-outline-warning" onclick="editMonthlyExpense(${realIdx})" title="تعديل"><i class="fas fa-edit"></i></button>
+                            <button type="button" class="btn btn-outline-danger" onclick="deleteMonthlyExpense(${realIdx})" title="حذف"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openPaymentModal(index) {
+            const exp = monthlyExpenses[index];
+            if (!exp) return;
+            const now = new Date();
+            document.getElementById('paymentDate').value = now.toISOString().split('T')[0];
+            document.getElementById('paymentAmount').value = exp.amount;
+            document.getElementById('paymentNotes').value = '';
+            document.getElementById('paymentExpenseIndex').value = index;
+            new bootstrap.Modal(document.getElementById('monthlyExpensePaymentModal')).show();
+        }
+
+        function editMonthlyExpense(index) {
+            const exp = monthlyExpenses[index];
+            if (!exp) return;
+            monthlyExpenseEditIndex = index;
+            document.getElementById('monthlyExpenseName').value = exp.name || '';
+            document.getElementById('monthlyExpenseCategory').value = exp.category || '';
+            document.getElementById('monthlyExpenseAmount').value = exp.amount || '';
+            document.getElementById('monthlyExpenseDueDay').value = exp.dueDay || '';
+            document.getElementById('monthlyExpenseStatus').value = exp.status || 'نشط';
+            document.getElementById('monthlyExpenseAlertDays').value = exp.alertDays || '5';
+            document.getElementById('monthlyExpensePayee').value = exp.payee || '';
+            document.getElementById('monthlyExpensePayMethod').value = exp.payMethod || 'نقدي';
+            document.getElementById('monthlyExpenseNotes').value = exp.notes || '';
+            document.querySelector('#monthlyExpenseModal .modal-title').innerHTML = '<i class="fas fa-edit me-2"></i>تعديل المصروف الشهري';
+            document.getElementById('saveMonthlyExpenseBtn').innerHTML = '<i class="fas fa-save me-1"></i>تحديث المصروف';
+            new bootstrap.Modal(document.getElementById('monthlyExpenseModal')).show();
+        }
+
+        function deleteMonthlyExpense(index) {
+            if (confirm('هل أنت متأكد من حذف هذا المصروف الشهري؟')) {
+                monthlyExpenses.splice(index, 1);
+                saveData();
+                loadMonthlyExpenses();
+                showToast('تم حذف المصروف الشهري', 'success');
+            }
+        }
+
+        function setupMonthlyExpensesEvents() {
+            const modal = document.getElementById('monthlyExpenseModal');
+            const saveBtn = document.getElementById('saveMonthlyExpenseBtn');
+            if (!modal || modal._meSetupDone) return;
+            modal._meSetupDone = true;
+
+            // Populate due day dropdown
+            const dueDaySelect = document.getElementById('monthlyExpenseDueDay');
+            if (dueDaySelect && dueDaySelect.options.length <= 1) {
+                for (let d = 1; d <= 28; d++) {
+                    const opt = document.createElement('option');
+                    opt.value = d;
+                    opt.textContent = 'يوم ' + d;
+                    dueDaySelect.appendChild(opt);
+                }
+            }
+
+            // Set current month in filter
+            const monthFilter = document.getElementById('monthlyExpensesMonthFilter');
+            if (monthFilter) {
+                const cm = String(new Date().getMonth() + 1).padStart(2, '0');
+                monthFilter.value = cm;
+                monthFilter.addEventListener('change', () => renderMonthlyExpenses(monthlyExpenses));
+            }
+
+            modal.addEventListener('show.bs.modal', function () {
+                if (monthlyExpenseEditIndex < 0) {
+                    document.getElementById('monthlyExpenseForm').reset();
+                    document.querySelector('#monthlyExpenseModal .modal-title').innerHTML = '<i class="fas fa-calendar-check me-2"></i>إضافة مصروف شهري';
+                    saveBtn.innerHTML = '<i class="fas fa-save me-1"></i>حفظ المصروف الشهري';
+                }
+            });
+
+            modal.addEventListener('hidden.bs.modal', function () {
+                monthlyExpenseEditIndex = -1;
+            });
+
+            saveBtn.onclick = function () {
+                const name = document.getElementById('monthlyExpenseName').value.trim();
+                const category = document.getElementById('monthlyExpenseCategory').value;
+                const amount = document.getElementById('monthlyExpenseAmount').value;
+                const dueDay = document.getElementById('monthlyExpenseDueDay').value;
+                const status = document.getElementById('monthlyExpenseStatus').value;
+                const alertDays = document.getElementById('monthlyExpenseAlertDays').value;
+                const payee = document.getElementById('monthlyExpensePayee').value.trim();
+                const payMethod = document.getElementById('monthlyExpensePayMethod').value;
+                const notes = document.getElementById('monthlyExpenseNotes').value.trim();
+
+                if (!name || !category || !amount || !dueDay) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+
+                const expData = {
+                    id: Date.now(), name, category,
+                    amount: parseFloat(amount), dueDay: parseInt(dueDay),
+                    status, alertDays: parseInt(alertDays),
+                    payee, payMethod, notes,
+                    payments: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                if (monthlyExpenseEditIndex >= 0) {
+                    expData.payments = monthlyExpenses[monthlyExpenseEditIndex].payments || [];
+                    expData.id = monthlyExpenses[monthlyExpenseEditIndex].id || expData.id;
+                    monthlyExpenses[monthlyExpenseEditIndex] = { ...monthlyExpenses[monthlyExpenseEditIndex], ...expData, updatedAt: new Date().toISOString() };
+                    showToast('تم تحديث المصروف الشهري بنجاح');
+                } else {
+                    monthlyExpenses.push(expData);
+                    showToast('تم إضافة المصروف الشهري بنجاح');
+                }
+
+                saveData();
+                bootstrap.Modal.getInstance(modal)?.hide();
+                document.getElementById('monthlyExpenseForm').reset();
+                monthlyExpenseEditIndex = -1;
+                loadMonthlyExpenses();
+            };
+
+            // Payment modal
+            const confirmPayBtn = document.getElementById('confirmPaymentBtn');
+            if (confirmPayBtn) {
+                confirmPayBtn.onclick = function () {
+                    const idx = parseInt(document.getElementById('paymentExpenseIndex').value);
+                    const date = document.getElementById('paymentDate').value;
+                    const amount = document.getElementById('paymentAmount').value;
+                    const pNotes = document.getElementById('paymentNotes').value;
+
+                    if (!date || !amount || isNaN(idx)) {
+                        showToast('يرجى ملء البيانات المطلوبة', 'error');
+                        return;
+                    }
+
+                    const now = new Date();
+                    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+                    if (!monthlyExpenses[idx].payments) monthlyExpenses[idx].payments = [];
+                    monthlyExpenses[idx].payments.push({
+                        date, amount: parseFloat(amount),
+                        month: monthKey, notes: pNotes,
+                        recordedAt: new Date().toISOString()
+                    });
+
+                    saveData();
+                    bootstrap.Modal.getInstance(document.getElementById('monthlyExpensePaymentModal'))?.hide();
+                    loadMonthlyExpenses();
+                    showToast('تم تسجيل الدفعة بنجاح ✅');
+                };
+            }
+
+            // Search
+            const searchInput = document.getElementById('monthlyExpenses-search');
+            if (searchInput && !searchInput._searchSetup) {
+                searchInput._searchSetup = true;
+                searchInput.addEventListener('input', function (e) {
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#monthlyExpenses-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+
         // ===== نظام التنقل بين الأقسام =====
         function setupNavigation() {
             console.log('🔗 Setting up navigation...');
@@ -6550,13 +7148,14 @@
 
                     // إخفاء جميع الوحدات
                     document.querySelectorAll('.module-container').forEach(module => {
-                        module.style.display = 'none';
+                        module.style.display = '';
+                        module.classList.remove('active-module');
                     });
 
                     // إظهار الوحدة المطلوبة
                     const targetModule = document.getElementById(moduleId);
                     if (targetModule) {
-                        targetModule.style.display = 'block';
+                        targetModule.classList.add('active-module');
                         console.log(`✅ Showing module: ${moduleId}`);
                         
                         // تحميل بيانات الوحدة
@@ -6672,6 +7271,10 @@
                 case 'hr':
                     console.log('👥 تحميل الموارد البشرية');
                     loadHR();
+                    break;
+                case 'monthlyExpenses':
+                    console.log('📅 تحميل المصاريف الشهرية');
+                    loadMonthlyExpenses();
                     break;
                 default:
                     console.log(`⏭️  لا يوجد محمل للصفحة: ${page}`);
@@ -9913,7 +10516,7 @@
             const hasAnySavedData = (d) => {
                 try {
                     if (!d || typeof d !== 'object') return false;
-                    const arrKeys = ['employees','clients','contracts','attendance','dailyWork','dailyIncome','dailyExpenses','income','expenses','services','tasks','events','notifications','financialTransactions','salaryAdvances'];
+                    const arrKeys = ['employees','clients','contracts','attendance','dailyWork','dailyIncome','dailyExpenses','income','expenses','services','tasks','events','notifications','financialTransactions','salaryAdvances','monthlyExpenses'];
                     if (arrKeys.some(k => Array.isArray(d[k]) && d[k].length > 0)) return true;
                     if (d.settings && typeof d.settings === 'object' && Object.keys(d.settings).length > 0) return true;
                     // If it has any known key at all, treat as data (prevents false negatives)
@@ -10207,6 +10810,7 @@
             window.attendance = data.attendance || [];
             window.tasks = data.tasks || [];
             window.events = data.events || [];
+            window.monthlyExpenses = data.monthlyExpenses || [];
 
             // تحديث المتغيرات المحلية
             employees = window.employees;
@@ -10219,6 +10823,7 @@
             attendance = window.attendance;
             tasks = window.tasks;
             events = window.events;
+            monthlyExpenses = window.monthlyExpenses || [];
 
             const d = data;
             sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(d.employees || []));
@@ -11011,6 +11616,10 @@
                     const hay = `${exp.date || ''} ${exp.type || ''} ${exp.employee || ''} ${exp.amount || ''}`.toLowerCase();
                     if (hay.includes(query)) push('مصروف', 'dailyExpenses', `${exp.type} - ${exp.amount} ر.ق`, exp.date || '');
                 });
+                (monthlyExpenses || []).forEach(me => {
+                    const hay = `${me.name || ''} ${me.category || ''} ${me.payee || ''} ${me.amount || ''}`.toLowerCase();
+                    if (hay.includes(query)) push('مصروف شهري', 'monthlyExpenses', `${me.name} - ${me.amount} ر.ق`, me.category || '');
+                });
 
                 return res.slice(0, 12);
             };
@@ -11093,6 +11702,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         safeInit('dailyWork', setupDailyWorkEvents);
         safeInit('dailyIncome', setupDailyIncomeEvents);
         safeInit('dailyExpenses', setupDailyExpensesEvents);
+        safeInit('monthlyExpenses', setupMonthlyExpensesEvents);
         safeInit('finance', setupFinanceEvents);
         console.log("Core event handlers initialized");
 
