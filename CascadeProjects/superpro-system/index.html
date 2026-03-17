@@ -4094,6 +4094,8 @@
                 sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
                 sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
                 sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
+                // Keep a unified session snapshot (used on next refresh)
+                sessionStorage.setItem('superpro_data', JSON.stringify(data));
 
                 console.log('✅ Data saved to sessionStorage');
                 
@@ -9902,6 +9904,22 @@
                 return false;
             };
 
+            const tryLocalStorage = () => {
+                const saved = localStorage.getItem('superpro_data');
+                if (saved) {
+                    try {
+                        const d = JSON.parse(saved);
+                        if (d && (d.employees?.length || d.clients?.length)) {
+                            console.log('💾 تحميل من localStorage');
+                            applyData(d);
+                            showNotification('تم تحميل البيانات المحفوظة', 'success');
+                            return true;
+                        }
+                    } catch (e) {}
+                }
+                return false;
+            };
+
             const loadFromFile = async () => {
                 try {
                     const response = await fetch('user-data-full.json');
@@ -10041,6 +10059,7 @@
             await tryFirebase().then((fromCloud) => {
                 if (fromCloud) return;
                 if (trySessionStorage()) return;
+                if (tryLocalStorage()) return;
                 return loadFromFile();
             });
         }
