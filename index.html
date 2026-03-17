@@ -170,12 +170,13 @@
         }
 
         .navbar {
-            background: linear-gradient(90deg, var(--primary), var(--dark));
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+            background: linear-gradient(90deg, #1a2535, #2c3e50, #1e3a5f);
+            box-shadow: 0 3px 16px rgba(0, 0, 0, .18);
+            backdrop-filter: blur(10px);
         }
 
         .sidebar {
-            background: linear-gradient(180deg, var(--primary), var(--dark));
+            background: linear-gradient(180deg, #1a2535 0%, #2c3e50 40%, #1e3a5f 100%);
             color: #fff;
             position: fixed;
             top: 0;
@@ -186,72 +187,102 @@
             overflow: auto;
             transition: all 0.3s;
             z-index: 1000;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
         }
 
         .sidebar .nav-link {
-            color: rgba(255, 255, 255, .95);
-            padding: 12px 18px;
-            border-radius: 8px;
-            margin: 6px 10px;
+            color: rgba(255, 255, 255, .88);
+            padding: 11px 18px;
+            border-radius: 10px;
+            margin: 3px 10px;
             display: flex;
             align-items: center;
-            transition: all 0.3s;
+            transition: all 0.25s;
+            font-size: 0.92rem;
+        }
+
+        .sidebar .nav-link i {
+            width: 22px;
+            text-align: center;
+            margin-left: 10px;
+            opacity: 0.85;
         }
 
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
-            background: rgba(52, 152, 219, .12);
-            transform: translateX(-4px);
+            background: rgba(52, 152, 219, .22);
+            color: #fff;
+            transform: translateX(-3px);
+            box-shadow: inset 3px 0 0 #3498db;
+        }
+
+        .sidebar .nav-link.active {
+            background: rgba(52, 152, 219, .3);
+            font-weight: 600;
         }
 
         .sidebar .section-title {
-            color: rgba(255, 255, 255, .85);
-            padding: 10px 18px;
-            margin-top: 10px;
+            color: rgba(255, 255, 255, .55);
+            padding: 8px 18px 4px;
+            margin-top: 8px;
             font-weight: 700;
-            font-size: 0.95rem;
-            opacity: .95;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
 
         .main-content {
             margin-right: 280px;
-            padding: 28px;
-            padding-top: 90px;
+            padding: 24px 28px;
+            padding-top: 85px;
             transition: all 0.3s;
+            background: #f4f7fb;
+            min-height: 100vh;
         }
 
         .card {
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .06);
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .07);
             border: none;
             margin-bottom: 20px;
-            transition: all 0.3s;
+            transition: box-shadow 0.25s, transform 0.25s;
+            background: #fff;
+        }
+
+        .card:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,0.11);
         }
 
         .card-header {
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, #2c3e50, #3498db);
             color: #fff;
-            border-radius: 12px 12px 0 0;
-            padding: 15px 20px;
+            border-radius: 14px 14px 0 0 !important;
+            padding: 13px 20px;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .section-title {
-            border-right: 5px solid var(--secondary);
-            padding-right: 18px;
-            margin: 20px 0;
-            font-weight: 700;
-            font-size: 1.6rem;
-            color: var(--primary);
+            border-right: 4px solid #3498db;
+            padding-right: 14px;
+            margin: 0 0 20px 0;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #2c3e50;
         }
 
         .stat-card {
-            transition: transform 0.3s;
+            transition: transform 0.25s, box-shadow 0.25s;
+            border-radius: 14px !important;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, .1);
+        .stat-card-enhanced {
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .stat-card:hover, .stat-card-enhanced:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, .15) !important;
         }
 
         .search-box {
@@ -743,22 +774,86 @@
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
+            border-radius: 10px;
         }
 
         .table thead th {
             position: sticky;
             top: 0;
             z-index: 1;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, #1a2535, #2c3e50);
+            font-size: 0.83rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .table tbody tr {
+            transition: background 0.15s;
         }
 
         .table tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(52, 152, 219, 0.08);
         }
 
         .dark-mode .table tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+
+        /* ===== تحسينات الأزرار والحقول ===== */
+        .btn {
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: 0.87rem;
+            transition: all 0.22s;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.13); }
+        .btn:active { transform: translateY(0); }
+
+        .form-control, .form-select {
+            border-radius: 9px;
+            border: 1.5px solid #d8e1ec;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
+        }
+
+        .badge {
+            border-radius: 8px;
+            font-size: 0.78rem;
+            padding: 4px 10px;
+            font-weight: 600;
+        }
+
+        /* ===== تحسين Modals ===== */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+        }
+        .modal-header {
+            border-radius: 16px 16px 0 0;
+        }
+        .modal-footer {
+            border-radius: 0 0 16px 16px;
+            background: #f8f9fb;
+        }
+
+        /* ===== تأثير تحميل البطاقات ===== */
+        @keyframes fadeInUp {
+            from { opacity:0; transform: translateY(18px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        .module-container { animation: fadeInUp 0.35s ease; }
+
+        /* ===== شريط التمرير المخصص ===== */
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #f1f3f7; }
+        ::-webkit-scrollbar-thumb { background: #b0bec5; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3498db; }
 
         /* تحسينات الوصولية */
         .sr-only {
@@ -828,6 +923,18 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <!-- دالة مبكرة لإظهار/إخفاء كلمة المرور -->
+    <script>
+        function togglePwdVis(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            const isHidden = inp.type === 'password';
+            inp.type = isHidden ? 'text' : 'password';
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+        }
+    </script>
 
     <script>
         // إعدادات Firebase (آمنة)
@@ -916,35 +1023,46 @@
 
     <!-- ===== تسجيل الدخول المحلي (بداية) ===== -->
     <div id="authOverlay" class="auth-overlay" style="display:none">
-        <div class="auth-card">
-            <div class="text-center mb-3">
-                <div class="fw-bold" style="font-size:22px">SUPER_PRO SYSTEM</div>
-                <div class="text-muted" style="font-size:13px">تسجيل دخول محلي</div>
+        <div class="auth-card" style="border-radius:20px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.25);max-width:380px;width:100%;">
+            <!-- رأس البطاقة -->
+            <div style="background:linear-gradient(135deg,#1a2535,#2c3e50,#1e3a5f);padding:28px 24px 20px;text-align:center;color:white;">
+                <div style="width:60px;height:60px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <i class="fas fa-star" style="font-size:26px;color:#f39c12;"></i>
+                </div>
+                <div style="font-size:1.4rem;font-weight:800;letter-spacing:0.05em;">SUPER PRO</div>
+                <div style="font-size:0.82rem;opacity:0.75;margin-top:4px;">نظام إدارة الشركة المتكامل</div>
             </div>
-            <div class="mb-3">
-                <label class="form-label">الصلاحية</label>
-                <select class="form-select" id="authRole">
-                    <option value="admin">مدير</option>
-                    <option value="supervisor">مشرف</option>
-                    <option value="viewer">عرض فقط</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">اسم المستخدم</label>
-                <input class="form-control" id="authUsername" autocomplete="username" value="admin">
-            </div>
-            <div class="mb-3">
-                <label class="form-label">كلمة المرور</label>
-                <input type="password" class="form-control" id="authPassword" autocomplete="current-password" value="1234">
-            </div>
-            <div class="d-grid gap-2">
-                <button class="btn btn-primary" id="authLoginBtn">
-                    <i class="fas fa-sign-in-alt me-2"></i>دخول
-                </button>
-                <div class="alert alert-danger py-2 mb-0" id="authError" style="display:none;font-size:13px"></div>
-            </div>
-            <div class="mt-3 text-muted" style="font-size:12px">
-                تجريبي: <span class="fw-bold">admin/1234</span> - <span class="fw-bold">supervisor/1234</span> - <span class="fw-bold">viewer/1234</span>
+            <!-- نموذج الدخول -->
+            <div style="padding:24px;background:white;">
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="font-size:0.85rem;color:#555;">🔑 الصلاحية</label>
+                    <select class="form-select" id="authRole" style="border-radius:10px;">
+                        <option value="admin">🔴 مدير النظام</option>
+                        <option value="supervisor">🟡 مشرف</option>
+                        <option value="viewer">🟢 عرض فقط</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="font-size:0.85rem;color:#555;">👤 اسم المستخدم</label>
+                    <input class="form-control" id="authUsername" autocomplete="username" value="admin" style="border-radius:10px;">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold" style="font-size:0.85rem;color:#555;">🔒 كلمة المرور</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="authPassword" autocomplete="current-password" value="1234" style="border-radius:10px 0 0 10px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('authPassword',this)" style="border-radius:0 10px 10px 0;"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="authLoginBtn" style="border-radius:10px;padding:10px;font-size:1rem;">
+                        <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+                    </button>
+                    <div class="alert alert-danger py-2 mb-0" id="authError" style="display:none;font-size:13px;border-radius:10px;"></div>
+                </div>
+                <div class="mt-3 p-2 rounded" style="background:#f8f9fb;font-size:0.78rem;color:#888;text-align:center;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    تجريبي: <strong>admin/1234</strong> · <strong>supervisor/1234</strong> · <strong>viewer/1234</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -1228,46 +1346,61 @@
         </div>
         <!-- DASHBOARD -->
         <div id="dashboard" class="module-container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">لوحة التحكم</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="section-title mb-1" style="font-size:1.6rem;font-weight:800;">🏠 لوحة التحكم</h2>
+                    <small class="text-muted" id="dashboardDateTime" style="font-size:0.85rem;"></small>
+                </div>
                 <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm" onclick="createAndDownloadBackup()" title="نسخة احتياطية سريعة">
+                        <i class="fas fa-download"></i> نسخة احتياطية
+                    </button>
                     <button class="btn btn-outline-primary btn-sm" id="refreshDashboard">
                         <i class="fas fa-sync-alt"></i> تحديث
                     </button>
                 </div>
             </div>
 
+            <!-- بطاقات الإحصائيات المحسّنة -->
             <div class="row g-3">
                 <div class="col-md-3">
-                    <div class="card stat-card p-3 text-center">
-                        <i class="fas fa-users" style="font-size:28px;color:#3498db"></i>
-                        <h2 id="statEmployees">0</h2>
-                        <p>إجمالي الموظفين</p>
-                        <small class="text-muted"><span id="statNewEmployees">0</span> موظف جديد</small>
+                    <div class="card stat-card-enhanced p-3 text-center" style="background:linear-gradient(135deg,#2c3e50,#3498db);border-radius:14px;color:white;box-shadow:0 4px 18px rgba(52,152,219,0.3);border:none;">
+                        <div class="stat-icon-wrap" style="background:rgba(255,255,255,0.15);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                            <i class="fas fa-users" style="font-size:26px;"></i>
+                        </div>
+                        <h2 id="statEmployees" style="font-size:2rem;font-weight:700;margin:0;">0</h2>
+                        <p style="margin:4px 0 0;font-size:0.9rem;opacity:0.9;">إجمالي الموظفين</p>
+                        <small style="opacity:0.75;font-size:0.78rem;"><span id="statNewEmployees">0</span> موظف جديد هذا الشهر</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card stat-card p-3 text-center">
-                        <i class="fas fa-user-tie" style="font-size:28px;color:#3498db"></i>
-                        <h2 id="statClients">0</h2>
-                        <p>إجمالي العملاء</p>
-                        <small class="text-muted"><span id="statNewClients">0</span> عميل جديد</small>
+                    <div class="card stat-card-enhanced p-3 text-center" style="background:linear-gradient(135deg,#1a6b3c,#27ae60);border-radius:14px;color:white;box-shadow:0 4px 18px rgba(39,174,96,0.3);border:none;">
+                        <div class="stat-icon-wrap" style="background:rgba(255,255,255,0.15);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                            <i class="fas fa-user-tie" style="font-size:26px;"></i>
+                        </div>
+                        <h2 id="statClients" style="font-size:2rem;font-weight:700;margin:0;">0</h2>
+                        <p style="margin:4px 0 0;font-size:0.9rem;opacity:0.9;">إجمالي العملاء</p>
+                        <small style="opacity:0.75;font-size:0.78rem;"><span id="statNewClients">0</span> عميل جديد هذا الشهر</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card stat-card p-3 text-center">
-                        <i class="fas fa-file-contract" style="font-size:28px;color:#3498db"></i>
-                        <h2 id="statContracts">0</h2>
-                        <p>عدد العقود</p>
-                        <small class="text-muted"><span id="statActiveContracts">0</span> عقد نشط</small>
+                    <div class="card stat-card-enhanced p-3 text-center" style="background:linear-gradient(135deg,#7d3c98,#9b59b6);border-radius:14px;color:white;box-shadow:0 4px 18px rgba(155,89,182,0.3);border:none;">
+                        <div class="stat-icon-wrap" style="background:rgba(255,255,255,0.15);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                            <i class="fas fa-file-contract" style="font-size:26px;"></i>
+                        </div>
+                        <h2 id="statContracts" style="font-size:2rem;font-weight:700;margin:0;">0</h2>
+                        <p style="margin:4px 0 0;font-size:0.9rem;opacity:0.9;">عدد العقود</p>
+                        <small style="opacity:0.75;font-size:0.78rem;"><span id="statActiveContracts">0</span> عقد نشط</small>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card stat-card p-3 text-center">
-                        <i class="fas fa-money-bill-wave" style="font-size:28px;color:#3498db"></i>
-                        <h2 id="statBalance">0 ر.ق</h2>
-                        <p>الرصيد الصافي</p>
-                        <small class="text-muted" id="balanceTrend">→ مستقر</small>
+                    <div class="card stat-card-enhanced p-3 text-center" style="background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:14px;color:white;box-shadow:0 4px 18px rgba(231,76,60,0.3);border:none;">
+                        <div class="stat-icon-wrap" style="background:rgba(255,255,255,0.15);width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+                            <i class="fas fa-money-bill-wave" style="font-size:26px;"></i>
+                        </div>
+                        <h2 id="statBalance" style="font-size:1.6rem;font-weight:700;margin:0;">0 ر.ق</h2>
+                        <p style="margin:4px 0 0;font-size:0.9rem;opacity:0.9;">الرصيد الصافي</p>
+                        <small style="opacity:0.75;font-size:0.78rem;" id="balanceTrend">→ مستقر</small>
                     </div>
                 </div>
             </div>
@@ -3794,6 +3927,72 @@
     </div>
     </div>
 
+    <!-- ===== Secure Backup Modal ===== -->
+    <div class="modal fade" id="secureBackupModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background:linear-gradient(135deg,#1a6b3c,#27ae60);color:white;">
+                    <h5 class="modal-title"><i class="fas fa-database me-2"></i>نظام النسخ الاحتياطي الآمن</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- إنشاء نسخة جديدة -->
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <i class="fas fa-save me-2"></i>إنشاء نسخة احتياطية
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted small">سيتم حفظ جميع بيانات النظام في ملف JSON محلي يمكن استخدامه للاسترجاع لاحقاً.</p>
+                                    <button class="btn btn-success w-100 mb-2" onclick="createAndDownloadBackup()">
+                                        <i class="fas fa-download me-2"></i>تحميل نسخة احتياطية كاملة
+                                    </button>
+                                    <button class="btn btn-outline-success w-100" onclick="createSecureBackupWithEncryption()">
+                                        <i class="fas fa-hdd me-2"></i>حفظ في الذاكرة المحلية
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- استرجاع نسخة -->
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-white">
+                                    <i class="fas fa-upload me-2"></i>استرجاع نسخة احتياطية
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-muted small">اختر ملف النسخة الاحتياطية (.json) لاسترجاع بياناتك السابقة.</p>
+                                    <input type="file" id="backupRestoreFile" accept=".json" class="form-control mb-2">
+                                    <button class="btn btn-warning w-100" onclick="restoreFromBackupFile()">
+                                        <i class="fas fa-undo me-2"></i>استرجاع البيانات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- النسخ المحفوظة -->
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-history me-2"></i>النسخ الاحتياطية المحفوظة محلياً</span>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="clearAllLocalBackups()">
+                                        <i class="fas fa-trash me-1"></i>مسح الكل
+                                    </button>
+                                </div>
+                                <div class="card-body p-2" id="savedBackupsList">
+                                    <div class="text-center text-muted py-3">جارٍ التحميل...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <small class="text-muted me-auto"><i class="fas fa-info-circle me-1"></i>يُنصح بعمل نسخة احتياطية دورية لحماية بياناتك</small>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -4710,93 +4909,71 @@
         function setupContractEvents() {
             const contractModal = document.getElementById('contractModal');
             const saveBtnElement = document.getElementById('saveContractBtn');
-            
+            if (!contractModal || contractModal._contractSetupDone) return;
+            contractModal._contractSetupDone = true;
+
             contractModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
                 if (!window.editState.contract.isEditMode) {
                     document.getElementById('contractForm').reset();
                     document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
                     saveBtnElement.textContent = 'حفظ العقد';
                 }
-                
-                saveBtnElement.onclick = null;
-                saveBtnElement.onclick = function () {
-                    const number = document.getElementById('contractNumber').value;
-                    const client = document.getElementById('contractClient').value;
-                    const employee = document.getElementById('contractEmployee').value;
-                    const type = document.getElementById('contractType').value;
-                    const startTime = document.getElementById('contractStartTime').value;
-                    const endTime = document.getElementById('contractEndTime').value;
-                    const amount = document.getElementById('contractAmount').value;
-                    const paidAmount = document.getElementById('contractPaidAmount').value;
-                    const startDate = document.getElementById('contractStartDate').value;
-                    const endDate = document.getElementById('contractEndDate').value;
-                    const paymentStatus = document.getElementById('contractPaymentStatus').value;
-                    const status = document.getElementById('contractStatus').value;
-                    const notes = document.getElementById('contractNotes').value;
-
-                    const workDays = [];
-                    document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => {
-                        workDays.push(cb.value);
-                    });
-
-                    if (!number || !client || !employee || !amount || !startDate || !endDate) {
-                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
-                        return;
-                    }
-
-                    const contractData = {
-                        number,
-                        client,
-                        employee,
-                        type,
-                        workDays,
-                        startTime,
-                        endTime,
-                        amount: parseFloat(amount),
-                        paidAmount: parseFloat(paidAmount) || 0,
-                        startDate,
-                        endDate,
-                        paymentStatus,
-                        status,
-                        notes,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    // التحقق من وضع التعديل
-                    if (window.editState.contract.isEditMode && window.editState.contract.editIndex >= 0) {
-                        // تعديل
-                        contracts[window.editState.contract.editIndex] = {
-                            ...contracts[window.editState.contract.editIndex],
-                            ...contractData,
-                            updatedAt: new Date().toISOString()
-                        };
-                        showToast('تم تحديث العقد بنجاح');
-                    } else {
-                        // إضافة
-                        contracts.push(contractData);
-                        showToast('تم إضافة العقد بنجاح');
-                    }
-
-                    saveData();
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
-                    modal.hide();
-
-                    document.getElementById('contractForm').reset();
-                    document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
-                    saveBtnElement.textContent = 'حفظ العقد';
-                    window.editState.contract.isEditMode = false;
-                    window.editState.contract.editIndex = -1;
-                    
-                    updateContractStats();
-                    updateContractsTable();
-                    logActivity('إدارة العقود', `${contractData.client} • ${contractData.employee}`);
-                };
             });
 
-            // إضافة معالجات الفلترة
+            saveBtnElement.onclick = null;
+            saveBtnElement.onclick = function () {
+                const number = document.getElementById('contractNumber').value;
+                const client = document.getElementById('contractClient').value;
+                const employee = document.getElementById('contractEmployee').value;
+                const type = document.getElementById('contractType').value;
+                const startTime = document.getElementById('contractStartTime').value;
+                const endTime = document.getElementById('contractEndTime').value;
+                const amount = document.getElementById('contractAmount').value;
+                const paidAmount = document.getElementById('contractPaidAmount').value;
+                const startDate = document.getElementById('contractStartDate').value;
+                const endDate = document.getElementById('contractEndDate').value;
+                const paymentStatus = document.getElementById('contractPaymentStatus').value;
+                const status = document.getElementById('contractStatus').value;
+                const notes = document.getElementById('contractNotes').value;
+                const workDays = [];
+                document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => workDays.push(cb.value));
+
+                if (!number || !client || !employee || !amount || !startDate || !endDate) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+
+                const contractData = { number, client, employee, type, workDays, startTime, endTime,
+                    amount: parseFloat(amount), paidAmount: parseFloat(paidAmount) || 0,
+                    startDate, endDate, paymentStatus, status, notes, createdAt: new Date().toISOString() };
+
+                if (window.editState.contract.isEditMode && window.editState.contract.editIndex >= 0) {
+                    contracts[window.editState.contract.editIndex] = {
+                        ...contracts[window.editState.contract.editIndex], ...contractData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث العقد بنجاح');
+                } else {
+                    contracts.push(contractData);
+                    showToast('تم إضافة العقد بنجاح');
+                }
+
+                saveData();
+                bootstrap.Modal.getInstance(contractModal)?.hide();
+                document.getElementById('contractForm').reset();
+                document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
+                saveBtnElement.textContent = 'حفظ العقد';
+                window.editState.contract.isEditMode = false;
+                window.editState.contract.editIndex = -1;
+                updateContractStats();
+                updateContractsTable();
+                logActivity('إدارة العقود', `${contractData.client} • ${contractData.employee}`);
+            };
+
+            // فلاتر العقود - مرة واحدة فقط
             document.querySelectorAll('#contracts [data-filter]').forEach(btn => {
+                if (btn._filterSetup) return;
+                btn._filterSetup = true;
                 btn.addEventListener('click', function () {
                     document.querySelectorAll('#contracts [data-filter]').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
@@ -4804,37 +4981,37 @@
                 });
             });
 
-            document.getElementById('contract-search').addEventListener('input', updateContractsTable);
+            const contractSearch = document.getElementById('contract-search');
+            if (contractSearch && !contractSearch._searchSetup) {
+                contractSearch._searchSetup = true;
+                contractSearch.addEventListener('input', updateContractsTable);
+            }
 
-            // معالجات فلترة التاريخ
-            document.getElementById('applyContractFilter').addEventListener('click', function () {
-                const fromDate = document.getElementById('contractFromDate').value;
-                const toDate = document.getElementById('contractToDate').value;
-                const month = document.getElementById('contractMonth').value;
+            const applyBtn = document.getElementById('applyContractFilter');
+            if (applyBtn && !applyBtn._filterSetup) {
+                applyBtn._filterSetup = true;
+                applyBtn.addEventListener('click', function () {
+                    const fromDate = document.getElementById('contractFromDate').value;
+                    const toDate = document.getElementById('contractToDate').value;
+                    const month = document.getElementById('contractMonth').value;
+                    let filtered = contracts;
+                    if (fromDate) filtered = filtered.filter(c => c.startDate >= fromDate);
+                    if (toDate) filtered = filtered.filter(c => c.startDate <= toDate);
+                    if (month) filtered = filtered.filter(c => c.endDate.startsWith(month));
+                    renderFilteredContracts(filtered);
+                });
+            }
 
-                let filteredContracts = contracts;
-
-                if (fromDate) {
-                    filteredContracts = filteredContracts.filter(contract => contract.startDate >= fromDate);
-                }
-
-                if (toDate) {
-                    filteredContracts = filteredContracts.filter(contract => contract.startDate <= toDate);
-                }
-
-                if (month) {
-                    filteredContracts = filteredContracts.filter(contract => contract.endDate.startsWith(month));
-                }
-
-                renderFilteredContracts(filteredContracts);
-            });
-
-            document.getElementById('resetContractFilter').addEventListener('click', function () {
-                document.getElementById('contractFromDate').value = '';
-                document.getElementById('contractToDate').value = '';
-                document.getElementById('contractMonth').value = '';
-                updateContractsTable();
-            });
+            const resetBtn = document.getElementById('resetContractFilter');
+            if (resetBtn && !resetBtn._filterSetup) {
+                resetBtn._filterSetup = true;
+                resetBtn.addEventListener('click', function () {
+                    document.getElementById('contractFromDate').value = '';
+                    document.getElementById('contractToDate').value = '';
+                    document.getElementById('contractMonth').value = '';
+                    updateContractsTable();
+                });
+            }
         }
         
         // Edit contract handler
@@ -5026,54 +5203,50 @@
         function setupFinanceEvents() {
             const financeModal = document.getElementById('financeModal');
             const saveBtn = document.getElementById('saveFinanceBtn');
-            
+            if (!financeModal || financeModal._finSetupDone) return;
+            financeModal._finSetupDone = true;
+
             financeModal.addEventListener('show.bs.modal', function (e) {
                 document.getElementById('financeForm').reset();
                 document.querySelector('#financeModal .modal-title').textContent = 'إضافة معاملة مالية جديدة';
                 saveBtn.textContent = 'حفظ المعاملة';
-                
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
-                    const date = document.getElementById('financeTransactionDate').value;
-                    const type = document.getElementById('financeTransactionType').value;
-                    const description = document.getElementById('financeTransactionDescription').value;
-                    const amount = document.getElementById('financeTransactionAmount').value;
-                    const status = document.getElementById('financeTransactionStatus').value;
-
-                    if (!date || !description || !amount) {
-                        alert('يرجى ملء جميع الحقول المطلوبة');
-                        return;
-                    }
-
-                    const transactionData = {
-                        date,
-                        type,
-                        description,
-                        amount: parseFloat(amount),
-                        status,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    financialTransactions.push(transactionData);
-                    saveData();
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('financeModal'));
-                    modal.hide();
-
-                    document.getElementById('financeForm').reset();
-                    filterFinanceByDate();
-                    showToast('تم إضافة المعاملة المالية بنجاح');
-                };
             });
 
-            document.getElementById('applyFinanceFilter').onclick = filterFinanceByDate;
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
+                const date = document.getElementById('financeTransactionDate').value;
+                const type = document.getElementById('financeTransactionType').value;
+                const description = document.getElementById('financeTransactionDescription').value;
+                const amount = document.getElementById('financeTransactionAmount').value;
+                const status = document.getElementById('financeTransactionStatus').value;
 
-            document.getElementById('resetFinanceFilter').onclick = function () {
-                document.getElementById('financeFromDate').value = '';
-                document.getElementById('financeToDate').value = '';
-                document.getElementById('financeMonth').value = '';
+                if (!date || !description || !amount) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+
+                financialTransactions.push({ date, type, description,
+                    amount: parseFloat(amount), status, createdAt: new Date().toISOString() });
+                saveData();
+                bootstrap.Modal.getInstance(financeModal)?.hide();
+                document.getElementById('financeForm').reset();
                 filterFinanceByDate();
+                showToast('تم إضافة المعاملة المالية بنجاح');
             };
+
+            const applyBtn = document.getElementById('applyFinanceFilter');
+            if (applyBtn && !applyBtn._finFilter) { applyBtn._finFilter = true; applyBtn.onclick = filterFinanceByDate; }
+
+            const resetBtn = document.getElementById('resetFinanceFilter');
+            if (resetBtn && !resetBtn._finReset) {
+                resetBtn._finReset = true;
+                resetBtn.onclick = function () {
+                    document.getElementById('financeFromDate').value = '';
+                    document.getElementById('financeToDate').value = '';
+                    document.getElementById('financeMonth').value = '';
+                    filterFinanceByDate();
+                };
+            }
         }
 
         function deleteFinancialTransaction(index) {
@@ -5294,6 +5467,9 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-warning" onclick="editDailyIncome(${dailyIncome.indexOf(income)})" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button type="button" class="btn btn-outline-success" onclick="markIncomeAsPaid(${dailyIncome.indexOf(income)})">
                                 <i class="fas fa-check"></i>
                             </button>
@@ -5388,6 +5564,9 @@
                     <td>${expense.notes || 'لا يوجد'}</td>
                     <td>
                         <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-warning" onclick="editDailyExpense(${dailyExpenses.indexOf(expense)})" title="تعديل">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button type="button" class="btn btn-outline-secondary" onclick="printExpenseReceipt(${expense.id})" aria-label="طباعة إيصال">
                                 <i class="fas fa-print"></i>
                             </button>
@@ -5458,76 +5637,63 @@
         function setupClientEvents() {
             const clientModal = document.getElementById('clientModal');
             const saveBtn = document.getElementById('saveClientBtn');
-            
-            clientModal.addEventListener('show.bs.modal', function (e) {
+            if (!clientModal || !saveBtn || clientModal._clientSetupDone) return;
+            clientModal._clientSetupDone = true;
+
+            // ← show.bs.modal يعيد تعيين الفورم فقط عند الإضافة، لا يمس isEditMode
+            clientModal.addEventListener('show.bs.modal', function () {
+                if (!window.editState.client.isEditMode) {
+                    document.getElementById('clientForm').reset();
+                    document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
+                    saveBtn.textContent = 'حفظ العميل';
+                }
+            });
+
+            // ← onclick خارج show.bs.modal تماماً، يُسجَّل مرة واحدة فقط
+            saveBtn.onclick = function () {
+                const name = document.getElementById('clientName').value.trim();
+                const phone = document.getElementById('clientPhone').value;
+                const email = document.getElementById('clientEmail').value;
+                const service = document.getElementById('clientService').value;
+                const area = document.getElementById('clientArea').value;
+
+                if (!name) { showToast('يرجى إدخال اسم العميل', 'error'); return; }
+
+                if (window.editState.client.isEditMode && window.editState.client.editIndex >= 0) {
+                    clients[window.editState.client.editIndex] = {
+                        ...clients[window.editState.client.editIndex],
+                        name, phone: phone || '', email: email || '',
+                        service: service || 'تنظيف', area: area || '',
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('✅ تم تحديث بيانات العميل بنجاح');
+                } else {
+                    clients.push({
+                        name, phone: phone || '', email: email || '',
+                        service: service || 'تنظيف', area: area || '',
+                        joinDate: new Date().toISOString().split('T')[0]
+                    });
+                    showToast('✅ تم إضافة العميل بنجاح');
+                }
+
+                saveData();
+                bootstrap.Modal.getInstance(clientModal)?.hide();
                 document.getElementById('clientForm').reset();
                 document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
                 saveBtn.textContent = 'حفظ العميل';
                 window.editState.client.isEditMode = false;
                 window.editState.client.editIndex = -1;
-                
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
-                    const name = document.getElementById('clientName').value;
-                    const phone = document.getElementById('clientPhone').value;
-                    const email = document.getElementById('clientEmail').value;
-                    const service = document.getElementById('clientService').value;
-                    const area = document.getElementById('clientArea').value;
-
-                    if (!name) {
-                        showToast('يرجى إدخال اسم العميل', 'error');
-                        return;
-                    }
-
-                    if (window.editState.client.isEditMode && window.editState.client.editIndex >= 0) {
-                        // تعديل
-                        clients[window.editState.client.editIndex] = {
-                            ...clients[window.editState.client.editIndex],
-                            name,
-                            phone: phone || '',
-                            email: email || '',
-                            service: service || 'تنظيف',
-                            area: area || ''
-                        };
-                        showToast('تم تحديث بيانات العميل بنجاح');
-                    } else {
-                        // إضافة جديد
-                        const clientData = {
-                            name,
-                            phone: phone || '',
-                            email: email || '',
-                            service: service || 'تنظيف',
-                            area: area || '',
-                            joinDate: new Date().toISOString().split('T')[0]
-                        };
-                        clients.push(clientData);
-                        showToast('تم إضافة العميل بنجاح');
-                    }
-
-                    saveData();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('clientModal'));
-                    modal.hide();
-
-                    document.getElementById('clientForm').reset();
-                    document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
-                    saveBtn.textContent = 'حفظ العميل';
-                    window.editState.client.isEditMode = false;
-                    window.editState.client.editIndex = -1;
-                    
-                    renderClientsTable();
-                    logActivity('إضافة/تحديث عميل', name);
-                };
-            });
+                renderClientsTable();
+                logActivity('إضافة/تحديث عميل', name);
+            };
 
             const searchInput = document.getElementById('client-search');
-            if (searchInput) {
+            if (searchInput && !searchInput._searchSetup) {
+                searchInput._searchSetup = true;
                 searchInput.addEventListener('input', function (e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const rows = document.querySelectorAll('#clients-table-body tr');
-
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#clients-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
                     });
                 });
             }
@@ -5553,8 +5719,6 @@
             
             const modal = new bootstrap.Modal(document.getElementById('clientModal'));
             modal.show();
-
-            setupClientEvents();
         }
 
         function deleteClient(index) {
@@ -5573,27 +5737,109 @@
             const today = new Date().toISOString().split('T')[0];
             const dailyWorkModal = document.getElementById('dailyWorkModal');
             const saveBtn = document.getElementById('saveDailyWorkBtn');
-            
-            // معالج فتح الـ modal
+            if (!dailyWorkModal || dailyWorkModal._dwSetupDone) return;
+            dailyWorkModal._dwSetupDone = true;
+
             dailyWorkModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
                 if (!window.editState.dailyWork.isEditMode) {
                     document.getElementById('dailyWorkForm').reset();
                     document.getElementById('dailyWorkDate').value = today;
-                    document.getElementById('dailyWorkDateFilter').value = today;
+                    if (document.getElementById('dailyWorkDateFilter'))
+                        document.getElementById('dailyWorkDateFilter').value = today;
                     document.getElementById('dailyWorkShift').value = 'صباحية';
                     document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي جديد';
                     saveBtn.textContent = 'حفظ العمل';
                 }
-                
                 fillClientSelects();
                 fillMultiSelectWorkers();
                 fillDriversSelect();
-                
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
+            });
+
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
                 let clientName = '';
                 const clientSelect = document.getElementById('dailyWorkClient');
+                const clientManualInput = document.getElementById('dailyWorkClientManual');
+                if (!clientSelect.classList.contains('d-none')) {
+                    clientName = clientSelect.value;
+                } else {
+                    clientName = clientManualInput.value;
+                }
+
+                const date = document.getElementById('dailyWorkDate').value;
+                const clientNumber = document.getElementById('dailyWorkClientNumber').value;
+                const area = document.getElementById('dailyWorkArea').value;
+                const selectedWorkers = getSelectedWorkers();
+                const totalHours = document.getElementById('dailyWorkTotalHours').value;
+                const shift = document.getElementById('dailyWorkShift').value;
+                const driver = document.getElementById('dailyWorkDriver').value;
+                const amount = document.getElementById('dailyWorkAmount').value;
+                const paymentStatus = document.getElementById('dailyWorkPaymentStatus').value;
+                const paymentMethod = document.getElementById('dailyWorkPaymentMethod').value;
+                const notes = document.getElementById('dailyWorkNotes').value;
+
+                if (!date || !clientName || !area || !amount || !paymentStatus || !paymentMethod) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+                if (selectedWorkers.length === 0) {
+                    showToast('يرجى اختيار موظف واحد على الأقل', 'error');
+                    return;
+                }
+                if (paymentStatus === 'غير مدفوع' && !confirm('حالة الدفع غير مدفوع. هل تريد المتابعة؟')) return;
+
+                let existingClient = clients.find(c => c.name === clientName);
+                if (!existingClient) {
+                    clients.push({ name: clientName, phone: clientNumber, email: '', service: 'تنظيف',
+                        area, joinDate: new Date().toISOString().split('T')[0], lastWorkDate: date });
+                    saveData(); fillClientSelects();
+                    showToast('تم إضافة العميل الجديد تلقائياً إلى قائمة العملاء');
+                } else {
+                    existingClient.phone = clientNumber || existingClient.phone;
+                    existingClient.area = area || existingClient.area;
+                    existingClient.lastWorkDate = date;
+                    saveData(); fillClientSelects();
+                }
+
+                const dailyWorkData = { id: Date.now(), date, client: clientName, clientNumber, area,
+                    workers: selectedWorkers, worker: selectedWorkers[0], totalHours: parseFloat(totalHours),
+                    shift, driver, amount: parseFloat(amount), paymentStatus, paymentMethod, notes,
+                    createdAt: new Date().toISOString() };
+
+                if (window.editState.dailyWork.isEditMode && window.editState.dailyWork.editIndex >= 0) {
+                    dailyWork[window.editState.dailyWork.editIndex] = {
+                        ...dailyWork[window.editState.dailyWork.editIndex],
+                        ...dailyWorkData, updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث العمل اليومي بنجاح');
+                } else {
+                    dailyWork.push(dailyWorkData);
+                    showToast(`تم إضافة العمل اليومي بنجاح لـ ${selectedWorkers.length} موظف`);
+                }
+
+                saveData();
+
+                if (paymentStatus === 'مدفوع') {
+                    dailyIncome.push({ id: Date.now(), date, type: 'عمل يومي', source: clientName,
+                        description: `عمل يومي في منطقة ${area} (${shift})`, amount: parseFloat(amount),
+                        paymentMethod, status: 'مدفوع', employee: selectedWorkers.join(', '),
+                        createdAt: new Date().toISOString() });
+                    saveData();
+                }
+
+                bootstrap.Modal.getInstance(dailyWorkModal)?.hide();
+                document.getElementById('dailyWorkForm').reset();
+                document.getElementById('dailyWorkDate').value = today;
+                document.getElementById('dailyWorkShift').value = 'صباحية';
+                document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي جديد';
+                saveBtn.textContent = 'حفظ العمل';
+                window.editState.dailyWork.isEditMode = false;
+                window.editState.dailyWork.editIndex = -1;
+                fillMultiSelectWorkers(); fillDriversSelect(); fillClientSelects();
+                updateDailyWorkStats(); filterDailyWorkByDate();
+                if (paymentStatus === 'غير مدفوع')
+                    setTimeout(() => showToast('تنبيه: حالة الدفع غير مدفوع. يرجى متابعة تحصيل المبلغ', 'warning'), 1000);
+            };
                 const clientManualInput = document.getElementById('dailyWorkClientManual');
 
                 if (!clientSelect.classList.contains('d-none')) {
@@ -5721,59 +5967,59 @@
                 updateDailyWorkStats();
                 filterDailyWorkByDate();
 
-                if (paymentStatus === 'غير مدفوع') {
-                    setTimeout(() => {
-                        showToast('تنبيه: حالة الدفع غير مدفوع. يرجى متابعة تحصيل المبلغ', 'warning');
-                    }, 1000);
-                }
-                };
-            });
-
-            document.getElementById('toggleClientInput').addEventListener('click', function () {
-                const clientSelect = document.getElementById('dailyWorkClient');
-                const clientManualInput = document.getElementById('dailyWorkClientManual');
-
-                if (clientSelect.classList.contains('d-none')) {
-                    clientSelect.classList.remove('d-none');
-                    clientManualInput.classList.add('d-none');
-                    this.innerHTML = '<i class="fas fa-edit"></i>';
-                    this.title = 'تبديل إلى الإدخال اليدوي';
-                } else {
-                    clientSelect.classList.add('d-none');
-                    clientManualInput.classList.remove('d-none');
-                    this.innerHTML = '<i class="fas fa-list"></i>';
-                    this.title = 'تبديل إلى الاختيار من القائمة';
-                }
-            });
-
-            document.getElementById('dailyWorkClient').addEventListener('change', function () {
-                if (this.value) {
-                    const selectedClient = clients.find(c => c.name === this.value);
-                    if (selectedClient) {
-                        document.getElementById('dailyWorkClientNumber').value = selectedClient.phone || '';
-                        document.getElementById('dailyWorkArea').value = selectedClient.area || '';
+            const toggleClientBtn = document.getElementById('toggleClientInput');
+            if (toggleClientBtn && !toggleClientBtn._toggleSetup) {
+                toggleClientBtn._toggleSetup = true;
+                toggleClientBtn.addEventListener('click', function () {
+                    const clientSelect = document.getElementById('dailyWorkClient');
+                    const clientManualInput = document.getElementById('dailyWorkClientManual');
+                    if (clientSelect.classList.contains('d-none')) {
+                        clientSelect.classList.remove('d-none');
+                        clientManualInput.classList.add('d-none');
+                        this.innerHTML = '<i class="fas fa-edit"></i>';
+                        this.title = 'تبديل إلى الإدخال اليدوي';
+                    } else {
+                        clientSelect.classList.add('d-none');
+                        clientManualInput.classList.remove('d-none');
+                        this.innerHTML = '<i class="fas fa-list"></i>';
+                        this.title = 'تبديل إلى الاختيار من القائمة';
                     }
-                }
-            });
-
-            document.getElementById('dailyWorkPaymentStatus').addEventListener('change', function () {
-                const alertDiv = document.getElementById('paymentAlert');
-                if (this.value === 'غير مدفوع') {
-                    alertDiv.classList.remove('d-none');
-                } else {
-                    alertDiv.classList.add('d-none');
-                }
-            });
-
-            document.getElementById('dailyWork-search').addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#dailyWork-table-body tr');
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
                 });
-            });
+            }
+
+            const dwClientSelect = document.getElementById('dailyWorkClient');
+            if (dwClientSelect && !dwClientSelect._changeSetup) {
+                dwClientSelect._changeSetup = true;
+                dwClientSelect.addEventListener('change', function () {
+                    if (this.value) {
+                        const selectedClient = clients.find(c => c.name === this.value);
+                        if (selectedClient) {
+                            document.getElementById('dailyWorkClientNumber').value = selectedClient.phone || '';
+                            document.getElementById('dailyWorkArea').value = selectedClient.area || '';
+                        }
+                    }
+                });
+            }
+
+            const payStatusEl = document.getElementById('dailyWorkPaymentStatus');
+            if (payStatusEl && !payStatusEl._statusSetup) {
+                payStatusEl._statusSetup = true;
+                payStatusEl.addEventListener('change', function () {
+                    const alertDiv = document.getElementById('paymentAlert');
+                    if (alertDiv) alertDiv.classList.toggle('d-none', this.value !== 'غير مدفوع');
+                });
+            }
+
+            const dwSearch = document.getElementById('dailyWork-search');
+            if (dwSearch && !dwSearch._searchSetup) {
+                dwSearch._searchSetup = true;
+                dwSearch.addEventListener('input', function (e) {
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#dailyWork-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
+                    });
+                });
+            }
         }
 
         // ===== وظائف مساعدة =====
@@ -5985,21 +6231,22 @@
             const today = new Date().toISOString().split('T')[0];
             const dailyIncomeModal = document.getElementById('dailyIncomeModal');
             const saveBtn = document.getElementById('saveDailyIncomeBtn');
-            
+            if (!dailyIncomeModal || dailyIncomeModal._diSetupDone) return;
+            dailyIncomeModal._diSetupDone = true;
+
             dailyIncomeModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
                 if (!window.editState.dailyIncome.isEditMode) {
                     document.getElementById('dailyIncomeForm').reset();
                     document.getElementById('dailyIncomeDate').value = today;
-                    document.getElementById('dailyIncomeDateFilter').value = today;
+                    if (document.getElementById('dailyIncomeDateFilter'))
+                        document.getElementById('dailyIncomeDateFilter').value = today;
                     document.querySelector('#dailyIncomeModal .modal-title').textContent = 'إضافة مدخول يومي جديد';
                     saveBtn.textContent = 'حفظ المدخول';
                 }
-                
                 fillDailyIncomeEmployeeSelect();
-                
-                saveBtn.onclick = null;
-            
+            });
+
+            saveBtn.onclick = null;
             saveBtn.onclick = function () {
                 const date = document.getElementById('dailyIncomeDate').value;
                 const type = document.getElementById('dailyIncomeType').value;
@@ -6015,60 +6262,43 @@
                     return;
                 }
 
-                const incomeData = {
-                    id: Date.now(),
-                    date,
-                    type,
-                    source: source || 'مدفوعات متنوعة',
-                    description: description || `مدخول ${type}`,
-                    amount: parseFloat(amount),
-                    paymentMethod,
-                    status,
-                    employee: employee || null,
-                    createdAt: new Date().toISOString()
-                };
+                const incomeData = { id: Date.now(), date, type, source: source || 'مدفوعات متنوعة',
+                    description: description || `مدخول ${type}`, amount: parseFloat(amount),
+                    paymentMethod, status, employee: employee || null, createdAt: new Date().toISOString() };
 
-                // التحقق من وضع التعديل
                 if (window.editState.dailyIncome.isEditMode && window.editState.dailyIncome.editIndex >= 0) {
-                    // تعديل
                     dailyIncome[window.editState.dailyIncome.editIndex] = {
                         ...dailyIncome[window.editState.dailyIncome.editIndex],
-                        ...incomeData,
-                        updatedAt: new Date().toISOString()
+                        ...incomeData, updatedAt: new Date().toISOString()
                     };
                     showToast('تم تحديث المدخول بنجاح');
                 } else {
-                    // إضافة
                     dailyIncome.push(incomeData);
                     showToast('تم إضافة المدخول بنجاح');
                 }
 
                 saveData();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('dailyIncomeModal'));
-                modal.hide();
-
+                bootstrap.Modal.getInstance(dailyIncomeModal)?.hide();
                 document.getElementById('dailyIncomeForm').reset();
                 document.getElementById('dailyIncomeDate').value = today;
                 document.querySelector('#dailyIncomeModal .modal-title').textContent = 'إضافة مدخول يومي جديد';
                 saveBtn.textContent = 'حفظ المدخول';
                 window.editState.dailyIncome.isEditMode = false;
                 window.editState.dailyIncome.editIndex = -1;
-
                 updateDailyIncomeStats();
                 filterDailyIncomeByDate();
-                };
-            });
+            };
 
-            document.getElementById('dailyIncome-search').addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#dailyIncome-table-body tr');
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+            const diSearch = document.getElementById('dailyIncome-search');
+            if (diSearch && !diSearch._searchSetup) {
+                diSearch._searchSetup = true;
+                diSearch.addEventListener('input', function (e) {
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#dailyIncome-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
+                    });
                 });
-            });
+            }
         }
 
         function fillDailyIncomeEmployeeSelect() {
@@ -6097,6 +6327,25 @@
             }
         }
 
+        function editDailyIncome(index) {
+            const income = dailyIncome[index];
+            if (!income) return;
+            window.editState.dailyIncome.isEditMode = true;
+            window.editState.dailyIncome.editIndex = index;
+            document.getElementById('dailyIncomeDate').value = income.date || '';
+            document.getElementById('dailyIncomeType').value = income.type || '';
+            document.getElementById('dailyIncomeSource').value = income.source || '';
+            document.getElementById('dailyIncomeAmount').value = income.amount || '';
+            document.getElementById('dailyIncomePaymentMethod').value = income.paymentMethod || '';
+            document.getElementById('dailyIncomeStatus').value = income.status || 'مدفوع';
+            document.getElementById('dailyIncomeDescription').value = income.description || '';
+            fillDailyIncomeEmployeeSelect();
+            if (income.employee) document.getElementById('dailyIncomeEmployee').value = income.employee;
+            document.querySelector('#dailyIncomeModal .modal-title').textContent = 'تعديل المدخول';
+            document.getElementById('saveDailyIncomeBtn').textContent = 'تحديث المدخول';
+            new bootstrap.Modal(document.getElementById('dailyIncomeModal')).show();
+        }
+
         function deleteDailyIncome(index) {
             if (confirm('هل أنت متأكد من حذف سجل المدخول هذا؟')) {
                 const inc = dailyIncome[index];
@@ -6114,13 +6363,13 @@
             const today = new Date().toISOString().split('T')[0];
             const dailyExpenseModal = document.getElementById('dailyExpenseModal');
             const saveBtn = document.getElementById('saveDailyExpenseBtn');
-            
+            if (!dailyExpenseModal || dailyExpenseModal._deSetupDone) return;
+            dailyExpenseModal._deSetupDone = true;
+
             function fillEmployeeExpenseSelect() {
                 const select = document.getElementById('dailyExpenseEmployee');
                 if (!select) return;
-
                 select.innerHTML = '<option value="">اختر الموظف</option>';
-
                 employees.forEach(emp => {
                     const option = document.createElement('option');
                     option.value = emp.name;
@@ -6130,90 +6379,100 @@
             }
 
             dailyExpenseModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
                 if (!window.editState.dailyExpense.isEditMode) {
                     document.getElementById('dailyExpenseForm').reset();
                     document.getElementById('dailyExpenseDate').value = today;
-                    document.getElementById('dailyExpensesDateFilter').value = today;
+                    if (document.getElementById('dailyExpensesDateFilter'))
+                        document.getElementById('dailyExpensesDateFilter').value = today;
                     document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
                     saveBtn.textContent = 'حفظ المصروف';
                 }
-                
                 fillEmployeeExpenseSelect();
-                
-                saveBtn.onclick = null;
-                saveBtn.onclick = function () {
-                    const date = document.getElementById('dailyExpenseDate').value;
-                    const type = document.getElementById('dailyExpenseType').value;
-                    const employee = document.getElementById('dailyExpenseEmployee').value;
-                    const description = document.getElementById('dailyExpenseDescription').value;
-                    const amount = document.getElementById('dailyExpenseAmount').value;
-                    const paymentMethod = document.getElementById('dailyExpensePaymentMethod').value;
-                    const notes = document.getElementById('dailyExpenseNotes').value;
-
-                    if (!date || !type || !amount || !paymentMethod) {
-                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
-                        return;
-                    }
-
-                    if (type === 'تسبقة عن راتب' && !employee) {
-                        showToast('يرجى اختيار الموظف لتسجيل التسبقة', 'error');
-                        return;
-                    }
-
-                    const expenseData = {
-                        id: Date.now(),
-                        date,
-                        type,
-                        employee: employee || null,
-                        description: description || `مصروف ${type}`,
-                        amount: parseFloat(amount),
-                        paymentMethod,
-                        notes,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    // التحقق من وضع التعديل
-                    if (window.editState.dailyExpense.isEditMode && window.editState.dailyExpense.editIndex >= 0) {
-                        // تعديل
-                        dailyExpenses[window.editState.dailyExpense.editIndex] = {
-                            ...dailyExpenses[window.editState.dailyExpense.editIndex],
-                            ...expenseData,
-                            updatedAt: new Date().toISOString()
-                        };
-                        showToast('تم تحديث المصروف بنجاح');
-                    } else {
-                        // إضافة
-                        dailyExpenses.push(expenseData);
-                        showToast('تم إضافة المصروف بنجاح');
-                    }
-
-                    saveData();
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('dailyExpenseModal'));
-                    modal.hide();
-
-                    document.getElementById('dailyExpenseForm').reset();
-                    document.getElementById('dailyExpenseDate').value = today;
-                    document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
-                    saveBtn.textContent = 'حفظ المصروف';
-                    window.editState.dailyExpense.isEditMode = false;
-                    window.editState.dailyExpense.editIndex = -1;
-
-                    updateDailyExpensesStats();
-                    filterDailyExpensesByDate();
-                    };
-                });
-
-            document.getElementById('dailyExpenses-search').addEventListener('input', function (e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = document.querySelectorAll('#dailyExpenses-table-body tr');
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                });
             });
+
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
+                const date = document.getElementById('dailyExpenseDate').value;
+                const type = document.getElementById('dailyExpenseType').value;
+                const employee = document.getElementById('dailyExpenseEmployee').value;
+                const description = document.getElementById('dailyExpenseDescription').value;
+                const amount = document.getElementById('dailyExpenseAmount').value;
+                const paymentMethod = document.getElementById('dailyExpensePaymentMethod').value;
+                const notes = document.getElementById('dailyExpenseNotes').value;
+
+                if (!date || !type || !amount || !paymentMethod) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+                if (type === 'تسبقة عن راتب' && !employee) {
+                    showToast('يرجى اختيار الموظف لتسجيل التسبقة', 'error');
+                    return;
+                }
+
+                const expenseData = { id: Date.now(), date, type, employee: employee || null,
+                    description: description || `مصروف ${type}`, amount: parseFloat(amount),
+                    paymentMethod, notes, createdAt: new Date().toISOString() };
+
+                if (window.editState.dailyExpense.isEditMode && window.editState.dailyExpense.editIndex >= 0) {
+                    dailyExpenses[window.editState.dailyExpense.editIndex] = {
+                        ...dailyExpenses[window.editState.dailyExpense.editIndex],
+                        ...expenseData, updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث المصروف بنجاح');
+                } else {
+                    dailyExpenses.push(expenseData);
+                    showToast('تم إضافة المصروف بنجاح');
+                }
+
+                saveData();
+                bootstrap.Modal.getInstance(dailyExpenseModal)?.hide();
+                document.getElementById('dailyExpenseForm').reset();
+                document.getElementById('dailyExpenseDate').value = today;
+                document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
+                saveBtn.textContent = 'حفظ المصروف';
+                window.editState.dailyExpense.isEditMode = false;
+                window.editState.dailyExpense.editIndex = -1;
+                updateDailyExpensesStats();
+                filterDailyExpensesByDate();
+            };
+
+            const deSearch = document.getElementById('dailyExpenses-search');
+            if (deSearch && !deSearch._searchSetup) {
+                deSearch._searchSetup = true;
+                deSearch.addEventListener('input', function (e) {
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#dailyExpenses-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
+                    });
+                });
+            }
+        }
+
+        function editDailyExpense(index) {
+            const expense = dailyExpenses[index];
+            if (!expense) return;
+            window.editState.dailyExpense.isEditMode = true;
+            window.editState.dailyExpense.editIndex = index;
+            document.getElementById('dailyExpenseDate').value = expense.date || '';
+            document.getElementById('dailyExpenseType').value = expense.type || '';
+            document.getElementById('dailyExpenseAmount').value = expense.amount || '';
+            document.getElementById('dailyExpensePaymentMethod').value = expense.paymentMethod || '';
+            document.getElementById('dailyExpenseDescription').value = expense.description || '';
+            document.getElementById('dailyExpenseNotes').value = expense.notes || '';
+            // تعبئة قائمة الموظفين ثم تحديد الموظف
+            const sel = document.getElementById('dailyExpenseEmployee');
+            if (sel) {
+                sel.innerHTML = '<option value="">اختر الموظف</option>';
+                employees.forEach(emp => {
+                    const o = document.createElement('option');
+                    o.value = emp.name; o.textContent = `${emp.name} - ${emp.job}`;
+                    sel.appendChild(o);
+                });
+                if (expense.employee) sel.value = expense.employee;
+            }
+            document.querySelector('#dailyExpenseModal .modal-title').textContent = 'تعديل المصروف';
+            document.getElementById('saveDailyExpenseBtn').textContent = 'تحديث المصروف';
+            new bootstrap.Modal(document.getElementById('dailyExpenseModal')).show();
         }
 
         function deleteDailyExpense(index) {
@@ -7450,8 +7709,10 @@
         }
 
         function viewActiveSessions() {
-            const sessionCount = parseInt(sessionStorage.getItem('loginAttempts') || '0');
-            alert(`لديك ${sessionCount} جلسات نشطة حالياً\n\nيمكنك إنهاء الجلسات من هنا.`);
+            const currentUser = getCurrentUser();
+            const loginTime = currentUser?.loggedAt ? new Date(currentUser.loggedAt).toLocaleString('ar-SA') : 'غير معروف';
+            const msg = `الجلسة الحالية:\n• المستخدم: ${currentUser?.displayName || currentUser?.username}\n• وقت الدخول: ${loginTime}\n• الصلاحية: ${currentUser?.role}\n\nلإنهاء الجلسة، اضغط على تسجيل الخروج.`;
+            alert(msg);
         }
 
         function logoutSecurely() {
@@ -8064,54 +8325,106 @@
         function setupEmployeeEvents() {
             const employeeModal = document.getElementById('employeeModal');
             const saveBtn = document.getElementById('saveEmployeeBtn');
-            
-            // استخدام معالج البحث آني للموظفين
+            if (!employeeModal || employeeModal._empSetupDone) {
+                // إعادة ربط أزرار البحث والتصفية فقط دون تسجيل modal مرة ثانية
+                _setupEmployeeSearchAndFilters();
+                return;
+            }
+            employeeModal._empSetupDone = true;
+
+            employeeModal.addEventListener('show.bs.modal', function (e) {
+                if (!window.editState.employee.isEditMode) {
+                    document.getElementById('employeeForm').reset();
+                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                    saveBtn.textContent = 'حفظ الموظف';
+                }
+            });
+
+            saveBtn.onclick = null;
+            saveBtn.onclick = function () {
+                const name = document.getElementById('employeeName').value;
+                const nationality = document.getElementById('employeeNationality').value;
+                const job = document.getElementById('employeeJob').value;
+                const salary = document.getElementById('employeeSalary').value;
+
+                if (!name || !nationality || !job || !salary) {
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                    return;
+                }
+
+                const empData = {
+                    name,
+                    idNumber: document.getElementById('employeeIdNumber').value,
+                    hireDate: document.getElementById('employeeHireDate').value,
+                    nationality,
+                    job,
+                    salary: parseFloat(salary),
+                    phone: document.getElementById('employeePhone').value,
+                    status: document.getElementById('employeeStatus').value,
+                    residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
+                    gender: document.getElementById('employeeGender').value
+                };
+
+                if (window.editState.employee.isEditMode && window.editState.employee.editIndex >= 0) {
+                    employees[window.editState.employee.editIndex] = {
+                        ...employees[window.editState.employee.editIndex], ...empData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث بيانات الموظف بنجاح');
+                } else {
+                    employees.push({ ...empData, joinDate: new Date().toISOString().split('T')[0] });
+                    showToast('تم إضافة الموظف بنجاح');
+                }
+
+                saveData();
+                bootstrap.Modal.getInstance(employeeModal)?.hide();
+                document.getElementById('employeeForm').reset();
+                document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+                saveBtn.textContent = 'حفظ الموظف';
+                window.editState.employee.isEditMode = false;
+                window.editState.employee.editIndex = -1;
+                updateEmployeeStats();
+                renderEmployeesTable();
+                logActivity('إدارة الموظفين', name);
+            };
+
+            _setupEmployeeSearchAndFilters();
+        }
+
+        function _setupEmployeeSearchAndFilters() {
             const searchInput = document.getElementById('employee-search');
-            if (searchInput) {
+            if (searchInput && !searchInput._searchSetup) {
+                searchInput._searchSetup = true;
                 searchInput.addEventListener('input', function (e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const rows = document.querySelectorAll('#employees-table-body tr');
-
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    const t = e.target.value.toLowerCase();
+                    document.querySelectorAll('#employees-table-body tr').forEach(row => {
+                        row.style.display = row.textContent.toLowerCase().includes(t) ? '' : 'none';
                     });
                 });
             }
 
-            // معالجات التصفية
             const filterBtns = document.querySelectorAll('[data-filter]');
-            if (filterBtns.length > 0) {
-                filterBtns.forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        const filter = this.getAttribute('data-filter');
-                        const rows = document.querySelectorAll('#employees-table-body tr');
-
-                        rows.forEach(row => {
-                            if (filter === 'all') {
-                                row.style.display = '';
-                            } else {
-                                const statusBadge = row.querySelector('.status-badge');
-                                if (statusBadge) {
-                                    const status = statusBadge.textContent.trim();
-                                    row.style.display = status === filter ? '' : 'none';
-                                }
-                            }
-                        });
-
-                        filterBtns.forEach(b => b.classList.remove('active'));
-                        this.classList.add('active');
+            filterBtns.forEach(btn => {
+                if (btn._filterSetup) return;
+                btn._filterSetup = true;
+                btn.addEventListener('click', function () {
+                    const filter = this.getAttribute('data-filter');
+                    document.querySelectorAll('#employees-table-body tr').forEach(row => {
+                        if (filter === 'all') { row.style.display = ''; return; }
+                        const badge = row.querySelector('.status-badge');
+                        row.style.display = (badge && badge.textContent.trim() === filter) ? '' : 'none';
                     });
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
                 });
-            }
+            });
 
-            // معالج تبديل العروض
             const toggleViewBtn = document.getElementById('toggleView');
-            if (toggleViewBtn) {
+            if (toggleViewBtn && !toggleViewBtn._viewSetup) {
+                toggleViewBtn._viewSetup = true;
                 toggleViewBtn.addEventListener('click', function () {
                     const tableView = document.getElementById('tableView');
                     const cardView = document.getElementById('cardView');
-
                     if (tableView && cardView) {
                         if (tableView.classList.contains('d-none')) {
                             tableView.classList.remove('d-none');
@@ -8125,84 +8438,6 @@
                         }
                     }
                 });
-            }
-
-            // استخدام معالج modal Bootstrap للتعامل مع إضافة/تحرير الموظفين
-            if (employeeModal) {
-                employeeModal.addEventListener('show.bs.modal', function (e) {
-                    document.getElementById('employeeForm').reset();
-                    window.editState.employee.isEditMode = false;
-                    window.editState.employee.editIndex = -1;
-                    
-                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                    saveBtn.textContent = 'حفظ الموظف';
-                });
-            }
-
-            // معالج زر الحفظ
-            if (saveBtn) {
-                saveBtn.onclick = function () {
-                    const name = document.getElementById('employeeName').value;
-                    const nationality = document.getElementById('employeeNationality').value;
-                    const job = document.getElementById('employeeJob').value;
-                    const salary = document.getElementById('employeeSalary').value;
-
-                    if (!name || !nationality || !job || !salary) {
-                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
-                        return;
-                    }
-
-                    if (window.editState.employee.isEditMode && window.editState.employee.editIndex >= 0) {
-                        // تعديل
-                        employees[window.editState.employee.editIndex] = {
-                            ...employees[window.editState.employee.editIndex],
-                            name: document.getElementById('employeeName').value,
-                            idNumber: document.getElementById('employeeIdNumber').value,
-                            hireDate: document.getElementById('employeeHireDate').value,
-                            nationality: document.getElementById('employeeNationality').value,
-                            job: document.getElementById('employeeJob').value,
-                            salary: document.getElementById('employeeSalary').value,
-                            phone: document.getElementById('employeePhone').value,
-                            status: document.getElementById('employeeStatus').value,
-                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                            gender: document.getElementById('employeeGender').value
-                        };
-                        showToast('تم تحديث بيانات الموظف بنجاح');
-                    } else {
-                        // إضافة جديد
-                        const employeeData = {
-                            name: name,
-                            idNumber: document.getElementById('employeeIdNumber').value,
-                            hireDate: document.getElementById('employeeHireDate').value,
-                            nationality: nationality,
-                            job: job,
-                            salary: parseFloat(salary),
-                            phone: document.getElementById('employeePhone').value,
-                            status: document.getElementById('employeeStatus').value,
-                            residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-                            gender: document.getElementById('employeeGender').value,
-                            joinDate: new Date().toISOString().split('T')[0]
-                        };
-                        employees.push(employeeData);
-                        showToast('تم إضافة الموظف بنجاح');
-                    }
-
-                    saveData();
-
-                    const modalInstance = bootstrap.Modal.getInstance(employeeModal);
-                    if (modalInstance) modalInstance.hide();
-
-                    document.getElementById('employeeForm').reset();
-                    document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-                    saveBtn.textContent = 'حفظ الموظف';
-                    window.editState.employee.isEditMode = false;
-                    window.editState.employee.editIndex = -1;
-                    
-                    updateEmployeeStats();
-                    renderEmployeesTable();
-                    setupEmployeeEvents();
-                    logActivity('إدارة الموظفين', `${name}`);
-                };
             }
         }
 
@@ -8306,20 +8541,20 @@
             const today = new Date().toISOString().split('T')[0];
             const attModal = document.getElementById('attModal');
             const saveBtn = document.getElementById('saveAttendanceBtn');
-            
-            if (attModal) {
-                attModal.addEventListener('show.bs.modal', function (e) {
+
+            if (attModal && !attModal._attSetupDone) {
+                attModal._attSetupDone = true;
+
+                attModal.addEventListener('show.bs.modal', function () {
                     document.getElementById('attForm').reset();
                     document.getElementById('attDate').value = today;
-                    
                     fillAttendanceEmployeeSelect();
-                    
-                    if (document.querySelector('#attModal .modal-title')) {
+                    if (document.querySelector('#attModal .modal-title'))
                         document.querySelector('#attModal .modal-title').textContent = 'تسجيل الحضور';
-                    }
-                    saveBtn.textContent = 'حفظ الحضور';
-                    
-                    saveBtn.onclick = null;
+                    if (saveBtn) saveBtn.textContent = 'حفظ الحضور';
+                });
+
+                if (saveBtn) {
                     saveBtn.onclick = function () {
                         const employee = document.getElementById('attEmployeeSelect').value;
                         const date = document.getElementById('attDate').value;
@@ -8327,27 +8562,20 @@
                         const hours = document.getElementById('attTotalHours').value;
 
                         if (!employee || !date) {
-                            alert('يرجى ملء الحقول المطلوبة');
+                            showToast('يرجى ملء الحقول المطلوبة', 'error');
                             return;
                         }
 
-                        const attendanceData = {
-                            employee,
-                            date,
-                            status,
+                        attendance.push({ employee, date, status,
                             hours: parseFloat(hours) || 0,
-                            source: 'يدوي',
-                            timestamp: new Date().toISOString()
-                        };
-
-                        attendance.push(attendanceData);
+                            source: 'يدوي', timestamp: new Date().toISOString() });
                         saveData();
-
-                        showToast('تم تسجيل الحضور بنجاح');
+                        showToast('✅ تم تسجيل الحضور بنجاح');
+                        bootstrap.Modal.getInstance(attModal)?.hide();
                         loadAttendanceTable();
-                        };
-                    });
+                    };
                 }
+            }
 
             loadAttendanceTable();
         }
@@ -8462,9 +8690,10 @@
         function setupServiceEvents() {
             const serviceModal = document.getElementById('serviceModal');
             const saveBtn = document.getElementById('saveServiceBtn');
+            if (!serviceModal || serviceModal._svcSetupDone) return;
+            serviceModal._svcSetupDone = true;
             
             serviceModal.addEventListener('show.bs.modal', function (e) {
-                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
                 if (!window.editState.service.isEditMode) {
                     document.getElementById('serviceForm').reset();
                     document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
@@ -8486,8 +8715,7 @@
                 }
 
                 const serviceData = {
-                    name,
-                    type,
+                    name, type,
                     price: parseFloat(price),
                     duration: parseFloat(duration) || 1,
                     description,
@@ -8495,32 +8723,25 @@
                 };
 
                 if (window.editState.service.isEditMode && window.editState.service.editIndex >= 0) {
-                    // تعديل
                     services[window.editState.service.editIndex] = {
                         ...services[window.editState.service.editIndex],
-                        ...serviceData,
-                        updatedAt: new Date().toISOString()
+                        ...serviceData, updatedAt: new Date().toISOString()
                     };
                     showToast('تم تحديث الخدمة بنجاح');
                 } else {
-                    // إضافة جديد
                     services.push(serviceData);
                     showToast('تم إضافة الخدمة بنجاح');
                 }
                 
                 saveData();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
-                modal.hide();
-
+                bootstrap.Modal.getInstance(serviceModal)?.hide();
                 document.getElementById('serviceForm').reset();
                 document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
                 saveBtn.textContent = 'حفظ الخدمة';
                 window.editState.service.isEditMode = false;
                 window.editState.service.editIndex = -1;
-
                 renderServicesTable();
-                setupServiceEvents();
+                logActivity('إدارة الخدمات', name);
             };
         }
 
@@ -8600,48 +8821,34 @@
         function setupTaskEvents() {
             const taskModal = document.getElementById('taskModal');
             const saveBtn = document.getElementById('saveTaskBtn');
-            
-            if (taskModal && saveBtn) {
-                taskModal.addEventListener('show.bs.modal', function (e) {
+
+            if (taskModal && saveBtn && !taskModal._taskSetupDone) {
+                taskModal._taskSetupDone = true;
+
+                taskModal.addEventListener('show.bs.modal', function () {
                     document.getElementById('taskForm').reset();
                     document.querySelector('#taskModal .modal-title').textContent = 'إضافة مهمة جديدة';
                     saveBtn.textContent = 'حفظ المهمة';
-                    
-                    saveBtn.onclick = null;
-                    saveBtn.onclick = function () {
-                        const title = document.getElementById('taskTitle').value;
-                        const assignee = document.getElementById('taskAssignee').value;
-                        const priority = document.getElementById('taskPriority').value;
-                        const dueDate = document.getElementById('taskDueDate').value;
-                        const description = document.getElementById('taskDescription').value;
-
-                        if (!title) {
-                            alert('يرجى إدخال عنوان المهمة');
-                            return;
-                        }
-
-                        const taskData = {
-                            id: Date.now(),
-                            title,
-                            assignee: assignee || '',
-                            priority,
-                            dueDate: dueDate || '',
-                            description: description || '',
-                            status: 'todo',
-                            createdAt: new Date().toISOString()
-                        };
-
-                        tasks.push(taskData);
-                        saveData();
-
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('taskModal'));
-                        modal.hide();
-
-                        document.getElementById('taskForm').reset();
-                        renderTasksBoard();
-                        showToast('تم إضافة المهمة بنجاح');
-                    };
                 });
+
+                saveBtn.onclick = function () {
+                    const title = document.getElementById('taskTitle').value.trim();
+                    const assignee = document.getElementById('taskAssignee').value;
+                    const priority = document.getElementById('taskPriority').value;
+                    const dueDate = document.getElementById('taskDueDate').value;
+                    const description = document.getElementById('taskDescription').value;
+
+                    if (!title) { showToast('يرجى إدخال عنوان المهمة', 'error'); return; }
+
+                    tasks.push({ id: Date.now(), title, assignee: assignee || '',
+                        priority, dueDate: dueDate || '', description: description || '',
+                        status: 'todo', createdAt: new Date().toISOString() });
+                    saveData();
+                    bootstrap.Modal.getInstance(taskModal)?.hide();
+                    document.getElementById('taskForm').reset();
+                    renderTasksBoard();
+                    showToast('✅ تم إضافة المهمة بنجاح');
+                };
             }
 
             fillTaskAssigneeSelect();
@@ -10052,11 +10259,24 @@
         }
 
         // ===== تسجيل الدخول المحلي + الصلاحيات =====
-        const LOCAL_USERS = [
+        const DEFAULT_USERS = [
             { username: 'admin', password: '1234', role: 'admin', displayName: 'المدير' },
             { username: 'supervisor', password: '1234', role: 'supervisor', displayName: 'مشرف' },
             { username: 'viewer', password: '1234', role: 'viewer', displayName: 'عرض فقط' }
         ];
+
+        function getLocalUsers() {
+            try {
+                const stored = localStorage.getItem('superpro_users');
+                return stored ? JSON.parse(stored) : DEFAULT_USERS;
+            } catch { return DEFAULT_USERS; }
+        }
+
+        function saveLocalUsers(users) {
+            localStorage.setItem('superpro_users', JSON.stringify(users));
+        }
+
+        const LOCAL_USERS = getLocalUsers();
 
         function getCurrentUser() {
             try {
@@ -10069,6 +10289,7 @@
 
         function setCurrentUser(user) {
             sessionStorage.setItem(LS_KEYS.authUser, JSON.stringify(user));
+            sessionStorage.setItem('lastLoginTime', new Date().toLocaleString('ar-SA'));
             updateAuthUi();
             applyRolePermissions();
             setTimeout(() => {
@@ -10088,7 +10309,15 @@
             const label = document.getElementById('authUserLabel');
             const meta = document.getElementById('authUserMeta');
             if (label) label.textContent = u?.displayName || u?.username || 'مستخدم';
-            if (meta) meta.textContent = u ? `المستخدم: ${u.username} • الصلاحية: ${u.role}` : 'غير مسجل دخول';
+            if (meta) {
+                const roleColors = { admin: '#dc3545', supervisor: '#f39c12', viewer: '#28a745' };
+                const roleNames  = { admin: '🔴 مدير', supervisor: '🟡 مشرف', viewer: '🟢 عرض فقط' };
+                const color = u ? (roleColors[u.role] || '#6c757d') : '#6c757d';
+                const roleName = u ? (roleNames[u.role] || u.role) : '';
+                meta.innerHTML = u
+                    ? `<span style="color:${color};font-weight:700;">${roleName}</span> · ${u.username}`
+                    : 'غير مسجل دخول';
+            }
         }
 
         function applyRolePermissions() {
@@ -10161,7 +10390,8 @@
             const doLogin = () => {
                 const username = (userInput?.value || '').trim();
                 const password = (passInput?.value || '').trim();
-                const u = LOCAL_USERS.find(x => x.username === username && x.password === password);
+                const freshUsers = getLocalUsers();
+                const u = freshUsers.find(x => x.username === username && x.password === password);
                 if (!u) {
                     if (err) {
                         err.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
@@ -10251,30 +10481,39 @@
                 modal.innerHTML = `
                     <div class="modal-dialog modal-sm">
                         <div class="modal-content">
-                            <div class="modal-header bg-primary text-white">
-                                <h5 class="modal-title">تغيير كلمة المرور</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <div class="modal-header" style="background:linear-gradient(135deg,#2c3e50,#3498db);color:white;">
+                                <h5 class="modal-title"><i class="fas fa-key me-2"></i>تغيير كلمة المرور</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="changePasswordForm" class="row g-3">
+                                <form id="changePasswordForm" class="row g-3" onsubmit="return false;">
                                     <div class="col-md-12">
-                                        <label class="form-label">كلمة المرور الحالية</label>
-                                        <input type="password" id="currentPassword" class="form-control" required>
+                                        <label class="form-label fw-bold">كلمة المرور الحالية</label>
+                                        <div class="input-group">
+                                            <input type="password" id="currentPassword" class="form-control" required placeholder="أدخل كلمة المرور الحالية">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('currentPassword',this)"><i class="fas fa-eye"></i></button>
+                                        </div>
                                     </div>
                                     <div class="col-md-12">
-                                        <label class="form-label">كلمة المرور الجديدة</label>
-                                        <input type="password" id="newPassword" class="form-control" required minlength="8">
+                                        <label class="form-label fw-bold">كلمة المرور الجديدة</label>
+                                        <div class="input-group">
+                                            <input type="password" id="newPassword" class="form-control" required minlength="8" placeholder="8 أحرف على الأقل">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('newPassword',this)"><i class="fas fa-eye"></i></button>
+                                        </div>
                                     </div>
                                     <div class="col-md-12">
-                                        <label class="form-label">تأكيد كلمة المرور</label>
-                                        <input type="password" id="confirmPassword" class="form-control" required minlength="8">
+                                        <label class="form-label fw-bold">تأكيد كلمة المرور</label>
+                                        <div class="input-group">
+                                            <input type="password" id="confirmPassword" class="form-control" required minlength="8" placeholder="أعد كتابة كلمة المرور الجديدة">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('confirmPassword',this)"><i class="fas fa-eye"></i></button>
+                                        </div>
                                     </div>
                                 </form>
                                 <div id="passwordStrength" class="mt-3"></div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                <button type="button" class="btn btn-primary" onclick="changePassword()">تغيير كلمة المرور</button>
+                                <button type="button" class="btn btn-primary" onclick="changePassword()"><i class="fas fa-save me-2"></i>تغيير كلمة المرور</button>
                             </div>
                         </div>
                     </div>
@@ -10291,27 +10530,50 @@
             if (newPasswordInput) {
                 newPasswordInput.addEventListener('input', function() {
                     const password = this.value;
-                    let strength = 'ضعيفة';
-                    let color = 'danger';
+                    let score = 0;
+                    let tips = [];
                     
-                    if (password.length >= 8) strength = 'متوسطة', color = 'warning';
-                    if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password)) 
-                        strength = 'قوية', color = 'success';
+                    if (password.length >= 8) score++; else tips.push('8 أحرف على الأقل');
+                    if (password.length >= 12) score++;
+                    if (/[A-Z]/.test(password)) score++; else tips.push('حرف كبير (A-Z)');
+                    if (/[0-9]/.test(password)) score++; else tips.push('رقم (0-9)');
+                    if (/[^A-Za-z0-9]/.test(password)) score++; else tips.push('رمز خاص (!@#$)');
+                    
+                    const levels = [
+                        { label: 'ضعيفة جداً', color: 'danger', width: '20%' },
+                        { label: 'ضعيفة', color: 'danger', width: '35%' },
+                        { label: 'متوسطة', color: 'warning', width: '55%' },
+                        { label: 'جيدة', color: 'info', width: '75%' },
+                        { label: 'قوية', color: 'success', width: '90%' },
+                        { label: 'ممتازة', color: 'success', width: '100%' },
+                    ];
+                    const level = levels[Math.min(score, 5)];
                     
                     const strengthDiv = document.getElementById('passwordStrength');
-                    if (strengthDiv) {
-                        strengthDiv.innerHTML = `<div class="alert alert-${color}">قوة كلمة المرور: <strong>${strength}</strong></div>`;
+                    if (strengthDiv && password.length > 0) {
+                        strengthDiv.innerHTML = `
+                            <div class="mb-1 d-flex justify-content-between">
+                                <small>قوة كلمة المرور:</small>
+                                <small class="text-${level.color} fw-bold">${level.label}</small>
+                            </div>
+                            <div class="progress" style="height:6px;">
+                                <div class="progress-bar bg-${level.color}" style="width:${level.width};transition:width 0.3s;"></div>
+                            </div>
+                            ${tips.length > 0 ? `<small class="text-muted d-block mt-1">💡 يُنصح بإضافة: ${tips.join('، ')}</small>` : ''}
+                        `;
+                    } else if (strengthDiv) {
+                        strengthDiv.innerHTML = '';
                     }
                 });
             }
         }
 
         function changePassword() {
-            const currentPassword = document.getElementById('currentPassword')?.value;
+            const currentPasswordVal = document.getElementById('currentPassword')?.value;
             const newPassword = document.getElementById('newPassword')?.value;
             const confirmPassword = document.getElementById('confirmPassword')?.value;
             
-            if (!currentPassword || !newPassword || !confirmPassword) {
+            if (!currentPasswordVal || !newPassword || !confirmPassword) {
                 showToast('يرجى ملء جميع الحقول', 'warning');
                 return;
             }
@@ -10325,21 +10587,36 @@
                 showToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 'error');
                 return;
             }
+
+            if (!/[A-Za-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                showToast('كلمة المرور يجب أن تحتوي على أحرف وأرقام', 'warning');
+                return;
+            }
             
-            // محاكاة التحقق من كلمة المرور الحالية
             const currentUser = getCurrentUser();
             if (!currentUser) {
                 showToast('لم يتم تسجيل الدخول', 'error');
                 return;
             }
             
-            // تحديث كلمة المرور
-            sessionStorage.setItem('userPassword', btoa(newPassword)); // تشفير بسيط (Base64)
+            // التحقق من كلمة المرور الحالية
+            const freshUsers = getLocalUsers();
+            const userIndex = freshUsers.findIndex(x => x.username === currentUser.username);
+            if (userIndex === -1 || freshUsers[userIndex].password !== currentPasswordVal) {
+                showToast('كلمة المرور الحالية غير صحيحة', 'error');
+                return;
+            }
             
-            showToast('تم تغيير كلمة المرور بنجاح', 'success');
+            // تحديث كلمة المرور في localStorage
+            freshUsers[userIndex].password = newPassword;
+            saveLocalUsers(freshUsers);
+            
+            showToast('✅ تم تغيير كلمة المرور بنجاح', 'success');
             logSecurityActivity('تغيير كلمة المرور', 'نجح', 'قام المستخدم بتغيير كلمة المرور');
             
             document.getElementById('changePasswordForm').reset();
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (strengthDiv) strengthDiv.innerHTML = '';
             const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
             if (modal) modal.hide();
         }
@@ -10350,123 +10627,186 @@
             const backup = {
                 id: 'backup_' + Date.now(),
                 timestamp: timestamp,
-                encryptionVersion: 1,
+                version: '2.5',
                 data: {
-                    employees,
-                    clients,
-                    contracts,
-                    attendance,
-                    dailyWork,
-                    dailyIncome,
-                    dailyExpenses,
-                    financialTransactions,
-                    services,
-                    tasks
+                    employees: employees,
+                    clients: clients,
+                    contracts: contracts,
+                    attendance: attendance,
+                    dailyWork: dailyWork,
+                    dailyIncome: dailyIncome,
+                    dailyExpenses: dailyExpenses,
+                    financialTransactions: financialTransactions,
+                    services: services,
+                    tasks: tasks,
+                    settings: settings
                 }
             };
             
-            localStorage.setItem('secureBackup_' + backup.id, JSON.stringify(backup));
-            sessionStorage.setItem('lastSecureBackup', timestamp);
-            
-            showToast('تم إنشاء نسخة احتياطية آمنة مشفرة', 'success');
-            logSecurityActivity('النسخ الاحتياطية', 'نجح', 'تم إنشاء نسخة احتياطية مشفرة للبيانات');
+            try {
+                localStorage.setItem('secureBackup_' + backup.id, JSON.stringify(backup));
+                sessionStorage.setItem('lastSecureBackup', timestamp);
+                showToast('✅ تم حفظ نسخة احتياطية محلياً', 'success');
+                logSecurityActivity('النسخ الاحتياطية', 'نجح', 'تم إنشاء نسخة احتياطية مشفرة');
+                loadSavedBackupsList();
+            } catch(e) {
+                showToast('❌ فشل الحفظ: مساحة التخزين ممتلئة', 'error');
+            }
         }
 
+        function createAndDownloadBackup() {
+            const timestamp = new Date().toISOString();
+            const backup = {
+                id: 'backup_' + Date.now(),
+                timestamp: timestamp,
+                version: '2.5',
+                exportedBy: getCurrentUser()?.username || 'unknown',
+                data: {
+                    employees: employees,
+                    clients: clients,
+                    contracts: contracts,
+                    attendance: attendance,
+                    dailyWork: dailyWork,
+                    dailyIncome: dailyIncome,
+                    dailyExpenses: dailyExpenses,
+                    financialTransactions: financialTransactions,
+                    services: services,
+                    tasks: tasks,
+                    settings: settings
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'superpro_backup_' + new Date().toISOString().slice(0,10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('✅ تم تحميل النسخة الاحتياطية', 'success');
+            logSecurityActivity('تصدير نسخة احتياطية', 'نجح', 'تم تحميل نسخة احتياطية كاملة');
+        }
+
+        function restoreFromBackupFile() {
+            const fileInput = document.getElementById('backupRestoreFile');
+            if (!fileInput?.files?.length) {
+                showToast('يرجى اختيار ملف النسخة الاحتياطية أولاً', 'warning');
+                return;
+            }
+            
+            if (!confirm('⚠️ سيتم استبدال جميع البيانات الحالية بالنسخة الاحتياطية. هل أنت متأكد؟')) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    if (!backup.data) throw new Error('ملف غير صالح');
+                    
+                    const d = backup.data;
+                    if (d.employees) { employees = d.employees; saveData(); }
+                    if (d.clients) { clients = d.clients; saveData(); }
+                    if (d.contracts) { contracts = d.contracts; saveData(); }
+                    if (d.attendance) { attendance = d.attendance; saveData(); }
+                    if (d.dailyWork) { dailyWork = d.dailyWork; saveData(); }
+                    if (d.dailyIncome) { dailyIncome = d.dailyIncome; saveData(); }
+                    if (d.dailyExpenses) { dailyExpenses = d.dailyExpenses; saveData(); }
+                    if (d.financialTransactions) { financialTransactions = d.financialTransactions; saveData(); }
+                    if (d.services) { services = d.services; saveData(); }
+                    if (d.tasks) { tasks = d.tasks; saveData(); }
+                    
+                    loadDashboard();
+                    showToast('✅ تم استرجاع البيانات بنجاح من النسخة الاحتياطية', 'success');
+                    logSecurityActivity('استرجاع نسخة احتياطية', 'نجح', 'تم استرجاع البيانات من ملف خارجي');
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('secureBackupModal'));
+                    if (modal) modal.hide();
+                } catch(err) {
+                    showToast('❌ خطأ في قراءة الملف: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        function loadSavedBackupsList() {
+            const container = document.getElementById('savedBackupsList');
+            if (!container) return;
+            
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('secureBackup_'));
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-inbox fa-2x mb-2 d-block"></i>لا توجد نسخ احتياطية محلية</div>';
+                return;
+            }
+            
+            const backups = keys.map(k => {
+                try { return { key: k, ...JSON.parse(localStorage.getItem(k)) }; } catch { return null; }
+            }).filter(Boolean).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            container.innerHTML = backups.map(b => `
+                <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                    <div>
+                        <i class="fas fa-file-archive text-success me-2"></i>
+                        <small class="fw-bold">${new Date(b.timestamp).toLocaleString('ar-SA')}</small>
+                        <small class="text-muted ms-2">v${b.version || '1.0'}</small>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-success" onclick="restoreLocalBackup('${b.key}')">
+                            <i class="fas fa-undo"></i> استرجاع
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="deleteLocalBackup('${b.key}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreLocalBackup(key) {
+            if (!confirm('⚠️ سيتم استبدال جميع البيانات. هل أنت متأكد؟')) return;
+            try {
+                const backup = JSON.parse(localStorage.getItem(key));
+                if (!backup?.data) throw new Error('بيانات غير صالحة');
+                const d = backup.data;
+                if (d.employees) employees = d.employees;
+                if (d.clients) clients = d.clients;
+                if (d.contracts) contracts = d.contracts;
+                if (d.dailyWork) dailyWork = d.dailyWork;
+                if (d.dailyIncome) dailyIncome = d.dailyIncome;
+                if (d.dailyExpenses) dailyExpenses = d.dailyExpenses;
+                if (d.financialTransactions) financialTransactions = d.financialTransactions;
+                if (d.services) services = d.services;
+                if (d.tasks) tasks = d.tasks;
+                saveData();
+                loadDashboard();
+                showToast('✅ تم الاسترجاع من النسخة المحلية', 'success');
+                logSecurityActivity('استرجاع نسخة محلية', 'نجح', key);
+            } catch(e) {
+                showToast('❌ فشل الاسترجاع: ' + e.message, 'error');
+            }
+        }
+
+        function deleteLocalBackup(key) {
+            if (!confirm('حذف هذه النسخة الاحتياطية؟')) return;
+            localStorage.removeItem(key);
+            loadSavedBackupsList();
+            showToast('تم حذف النسخة الاحتياطية', 'info');
+        }
+
+        function clearAllLocalBackups() {
+            if (!confirm('⚠️ حذف جميع النسخ الاحتياطية المحلية؟ لا يمكن التراجع.')) return;
+            Object.keys(localStorage).filter(k => k.startsWith('secureBackup_')).forEach(k => localStorage.removeItem(k));
+            loadSavedBackupsList();
+            showToast('تم مسح جميع النسخ الاحتياطية', 'warning');
+        }
         function setupAllModalEvents() {
-            // موظف
-            const empModal = document.getElementById('employeeModal');
-            if (empModal && !empModal._eventSetup) {
-                empModal._eventSetup = true;
-                empModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveEmployeeBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditEmployee(); };
-                    }
-                });
-            }
-            // عميل
-            const clientModal = document.getElementById('clientModal');
-            if (clientModal && !clientModal._eventSetup) {
-                clientModal._eventSetup = true;
-                clientModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveClientBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditClient(); };
-                    }
-                });
-            }
-            // عقد
-            const contractModal = document.getElementById('contractModal');
-            if (contractModal && !contractModal._eventSetup) {
-                contractModal._eventSetup = true;
-                contractModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveContractBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditContract(); };
-                    }
-                });
-            }
-            // عمل يومي
-            const dwModal = document.getElementById('dailyWorkModal');
-            if (dwModal && !dwModal._eventSetup) {
-                dwModal._eventSetup = true;
-                dwModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveDailyWorkBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditDailyWork(); };
-                    }
-                });
-            }
-            // مدخول
-            const diModal = document.getElementById('dailyIncomeModal');
-            if (diModal && !diModal._eventSetup) {
-                diModal._eventSetup = true;
-                diModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveDailyIncomeBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditDailyIncome(); };
-                    }
-                });
-            }
-            // مصروف
-            const deModal = document.getElementById('dailyExpenseModal');
-            if (deModal && !deModal._eventSetup) {
-                deModal._eventSetup = true;
-                deModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveDailyExpenseBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditDailyExpense(); };
-                    }
-                });
-            }
-            // خدمة
-            const svcModal = document.getElementById('serviceModal');
-            if (svcModal && !svcModal._eventSetup) {
-                svcModal._eventSetup = true;
-                svcModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveServiceBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditService(); };
-                    }
-                });
-            }
-            // معاملة مالية
-            const finModal = document.getElementById('financeModal');
-            if (finModal && !finModal._eventSetup) {
-                finModal._eventSetup = true;
-                finModal.addEventListener('show.bs.modal', function() {
-                    const saveBtn = document.getElementById('saveFinanceBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = null;
-                        saveBtn.onclick = function() { addOrEditFinanceTransaction(); };
-                    }
+            // نسخة احتياطية فقط - باقي المودالات تُدار من دوالها الخاصة
+            const backupModal = document.getElementById('secureBackupModal');
+            if (backupModal && !backupModal._eventSetup) {
+                backupModal._eventSetup = true;
+                backupModal.addEventListener('show.bs.modal', function() {
+                    loadSavedBackupsList();
                 });
             }
         }
@@ -10656,6 +10996,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         setupDailyWorkEvents();
         setupDailyIncomeEvents();
         setupDailyExpensesEvents();
+        setupFinanceEvents();
         console.log("Core event handlers initialized");
 
         initGlobalSearch();
@@ -10757,6 +11098,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
         
         console.log("System initialization complete!");
+
+        // تحديث الوقت الحي في لوحة التحكم
+        function updateDashboardTime() {
+            const el = document.getElementById('dashboardDateTime');
+            if (el) {
+                const now = new Date();
+                const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                el.textContent = now.toLocaleDateString('ar-SA', opts);
+            }
+        }
+        updateDashboardTime();
+        setInterval(updateDashboardTime, 30000);
     } catch (error) {
         console.error("خطأ في تهيئة النظام:", error);
         showNotification('خطأ في تحميل النظام: ' + error.message, 'error');
