@@ -4102,6 +4102,17 @@
                 // Also save to localStorage for persistence
                 localStorage.setItem('superpro_data', JSON.stringify(data));
                 console.log('✅ Data backed up to localStorage');
+                
+                // Compatibility: also persist under DataManager key
+                try {
+                    localStorage.setItem('superproDB', JSON.stringify({
+                        ...data,
+                        // DataManager naming compatibility
+                        income: data.dailyIncome,
+                        expenses: data.dailyExpenses,
+                        notifications: data.events
+                    }));
+                } catch (e) {}
 
                 // التخزين السحابي
                 if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
@@ -9920,6 +9931,28 @@
                 return false;
             };
 
+            const trySuperproDB = () => {
+                const saved = localStorage.getItem('superproDB');
+                if (!saved) return false;
+                try {
+                    const raw = JSON.parse(saved);
+                    if (raw && (raw.employees?.length || raw.clients?.length || raw.contracts?.length)) {
+                        // Map DataManager schema -> UI schema
+                        const mapped = {
+                            ...raw,
+                            dailyIncome: raw.dailyIncome || raw.income || [],
+                            dailyExpenses: raw.dailyExpenses || raw.expenses || [],
+                            events: raw.events || raw.notifications || []
+                        };
+                        console.log('💾 تحميل من superproDB');
+                        applyData(mapped);
+                        showNotification('تم تحميل البيانات المحفوظة', 'success');
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            };
+
             const loadFromFile = async () => {
                 try {
                     const response = await fetch('user-data-full.json');
@@ -10060,6 +10093,7 @@
                 if (fromCloud) return;
                 if (trySessionStorage()) return;
                 if (tryLocalStorage()) return;
+                if (trySuperproDB()) return;
                 return loadFromFile();
             });
         }
