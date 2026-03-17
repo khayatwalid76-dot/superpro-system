@@ -11104,6 +11104,16 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("Starting initializeDefaultData...");
         await initializeDefaultData();
         console.log("initializeDefaultData finished");
+
+        // تأكيد تحديث كل الواجهات بعد تحميل البيانات (حتى لو لم تُستدعَ applyData لأي سبب)
+        try {
+            if (typeof updateAllUI === 'function') updateAllUI();
+            if (typeof updateAllStats === 'function') updateAllStats();
+            if (typeof fillEmployeeSelects === 'function') fillEmployeeSelects();
+            if (typeof fillClientSelects === 'function') fillClientSelects();
+        } catch (e) {
+            console.warn('Post-data UI refresh skipped:', e);
+        }
         
         // تحميل لوحة التحكم بعد البيانات
         loadDashboard();
