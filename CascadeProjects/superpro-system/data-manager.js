@@ -8,6 +8,11 @@
 // آلية التخزين المركزي
 // ============================================================================
 const DataManager = {
+  // مفاتيح التخزين (للتوافق مع نسخ/واجهات أخرى)
+  storageKeys: {
+    primary: 'superproDB',
+    legacy: ['superpro_data'] // used by older app.js / index.html inline storage
+  },
   // البيانات الأساسية
   data: {
     employees: [],
@@ -63,15 +68,36 @@ const DataManager = {
   // ============================================================================
   loadFromStorage() {
     try {
-      const stored = localStorage.getItem('superproDB');
-      if (stored) {
-        const parsed = JSON.parse(stored);
+      const primaryKey = this.storageKeys?.primary || 'superproDB';
+      const storedPrimary = localStorage.getItem(primaryKey);
+      if (storedPrimary) {
+        const parsed = JSON.parse(storedPrimary);
         this.data = { ...this.data, ...parsed };
         console.log('✅ تم تحميل البيانات من التخزين المحلي');
-      } else {
-        console.log('📝 لا توجد بيانات محفوظة سابقاً');
-        this.initializeDefaultData();
+        return;
       }
+
+      // Fallback: try legacy keys, then migrate into primary
+      const legacyKeys = (this.storageKeys?.legacy || []).filter(Boolean);
+      for (const legacyKey of legacyKeys) {
+        const storedLegacy = localStorage.getItem(legacyKey);
+        if (!storedLegacy) continue;
+        try {
+          const parsedLegacy = JSON.parse(storedLegacy);
+          // Expected shape: { employees, clients, contracts, ... }
+          if (parsedLegacy && (parsedLegacy.employees || parsedLegacy.clients || parsedLegacy.contracts)) {
+            this.data = { ...this.data, ...parsedLegacy };
+            localStorage.setItem(primaryKey, JSON.stringify(this.data));
+            console.log(`✅ تم تحميل البيانات من ${legacyKey} وترحيلها إلى ${primaryKey}`);
+            return;
+          }
+        } catch (e) {
+          // ignore this legacy key
+        }
+      }
+
+      console.log('📝 لا توجد بيانات محفوظة سابقاً');
+      this.initializeDefaultData();
     } catch (error) {
       console.error('❌ خطأ في تحميل البيانات:', error);
       this.initializeDefaultData();
@@ -81,7 +107,12 @@ const DataManager = {
   save() {
     try {
       this.data.lastSync = new Date().toISOString();
-      localStorage.setItem('superproDB', JSON.stringify(this.data));
+      const primaryKey = this.storageKeys?.primary || 'superproDB';
+      localStorage.setItem(primaryKey, JSON.stringify(this.data));
+      // Also write to legacy key for compatibility with other loaders
+      try {
+        localStorage.setItem('superpro_data', JSON.stringify(this.data));
+      } catch (e) {}
       console.log('✅ تم حفظ البيانات محلياً');
       
       // محاولة المزامنة مع Firebase
