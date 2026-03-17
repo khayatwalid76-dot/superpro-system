@@ -966,7 +966,8 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                // Use relative path for GitHub Pages (repo subpath)
+                navigator.serviceWorker.register('sw.js')
                     .then(registration => {
                         console.log('✅ Service Worker registered:', registration);
 
@@ -5853,6 +5854,8 @@
                 if (paymentStatus === 'غير مدفوع')
                     setTimeout(() => showToast('تنبيه: حالة الدفع غير مدفوع. يرجى متابعة تحصيل المبلغ', 'warning'), 1000);
             };
+            // NOTE: legacy duplicated block (disabled to avoid runtime errors)
+            if (false) {
                 const clientManualInput = document.getElementById('dailyWorkClientManual');
 
                 if (!clientSelect.classList.contains('d-none')) {
@@ -5979,6 +5982,8 @@
 
                 updateDailyWorkStats();
                 filterDailyWorkByDate();
+
+            }
 
             const toggleClientBtn = document.getElementById('toggleClientInput');
             if (toggleClientBtn && !toggleClientBtn._toggleSetup) {
@@ -9886,11 +9891,24 @@
         async function initializeDefaultData() {
             console.log('🚀 تهيئة البيانات...');
 
+            const hasAnySavedData = (d) => {
+                try {
+                    if (!d || typeof d !== 'object') return false;
+                    const arrKeys = ['employees','clients','contracts','attendance','dailyWork','dailyIncome','dailyExpenses','income','expenses','services','tasks','events','notifications','financialTransactions','salaryAdvances'];
+                    if (arrKeys.some(k => Array.isArray(d[k]) && d[k].length > 0)) return true;
+                    if (d.settings && typeof d.settings === 'object' && Object.keys(d.settings).length > 0) return true;
+                    // If it has any known key at all, treat as data (prevents false negatives)
+                    return Object.keys(d).some(k => arrKeys.includes(k) || k === 'settings');
+                } catch (e) {
+                    return false;
+                }
+            };
+
             const tryFirebase = () => new Promise((resolve) => {
                 if (typeof firebaseDb === 'undefined' || !firebaseDb || !firebaseDb.ref) return resolve(null);
                 firebaseDb.ref(FB_PATH).once('value', (snap) => {
                     const d = snap.val();
-                    if (d && (d.employees?.length || d.clients?.length)) {
+                    if (hasAnySavedData(d)) {
                         console.log('☁️ تحميل من السحابة');
                         applyData(d);
                         showNotification('تم تحميل البيانات من السحابة', 'success');
@@ -9904,7 +9922,7 @@
                 if (saved) {
                     try {
                         const d = JSON.parse(saved);
-                        if (d && (d.employees?.length || d.clients?.length)) {
+                        if (hasAnySavedData(d)) {
                             console.log('💾 تحميل من التخزين المحلي');
                             applyData(d);
                             showNotification('تم تحميل البيانات المحفوظة', 'success');
@@ -9920,7 +9938,7 @@
                 if (saved) {
                     try {
                         const d = JSON.parse(saved);
-                        if (d && (d.employees?.length || d.clients?.length)) {
+                        if (hasAnySavedData(d)) {
                             console.log('💾 تحميل من localStorage');
                             applyData(d);
                             showNotification('تم تحميل البيانات المحفوظة', 'success');
@@ -9936,7 +9954,7 @@
                 if (!saved) return false;
                 try {
                     const raw = JSON.parse(saved);
-                    if (raw && (raw.employees?.length || raw.clients?.length || raw.contracts?.length)) {
+                    if (hasAnySavedData(raw)) {
                         // Map DataManager schema -> UI schema
                         const mapped = {
                             ...raw,
@@ -11042,14 +11060,21 @@ document.addEventListener('DOMContentLoaded', async function () {
         console.log("setupAllModalEvents finished");
         
         // اتصال فوري بدوال الإعداد لضمان جاهزية المعالجات قبل أي تفاعل من المستخدم
-        setupEmployeeEvents();
-        setupClientEvents();
-        setupContractEvents();
-        setupServiceEvents();
-        setupDailyWorkEvents();
-        setupDailyIncomeEvents();
-        setupDailyExpensesEvents();
-        setupFinanceEvents();
+        const safeInit = (label, fn) => {
+            try { fn(); }
+            catch (e) {
+                console.error(`Init error in ${label}:`, e);
+                showNotification(`تم تجاوز خطأ في تهيئة ${label}: ${e.message}`, 'warning');
+            }
+        };
+        safeInit('employees', setupEmployeeEvents);
+        safeInit('clients', setupClientEvents);
+        safeInit('contracts', setupContractEvents);
+        safeInit('services', setupServiceEvents);
+        safeInit('dailyWork', setupDailyWorkEvents);
+        safeInit('dailyIncome', setupDailyIncomeEvents);
+        safeInit('dailyExpenses', setupDailyExpensesEvents);
+        safeInit('finance', setupFinanceEvents);
         console.log("Core event handlers initialized");
 
         initGlobalSearch();
