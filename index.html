@@ -10347,6 +10347,31 @@
             const readOnly = role === 'viewer';
             const canDelete = role === 'admin';
 
+            // إعادة تفعيل العناصر قبل تطبيق القيود (حتى لا تبقى "طافئة" بعد تسجيل الدخول)
+            document.querySelectorAll('button[disabled], a.btn.disabled, button.disabled, a.btn[style*=\"pointer-events: none\"], button[style*=\"pointer-events: none\"]').forEach(el => {
+                if (el.closest('#authOverlay')) return;
+                // لا نعبث بعناصر Bootstrap الافتراضية (مثل إغلاق المودال) أو أي عناصر مقصودة disabled في HTML
+                el.removeAttribute('disabled');
+                el.classList.remove('disabled');
+                if (el.style) {
+                    el.style.pointerEvents = '';
+                    el.style.opacity = '';
+                }
+            });
+
+            // إذا كان المستخدم ليس Viewer: تأكد أن أزرار الإضافة/الإجراءات مفعلة فوراً
+            if (!readOnly) {
+                document.querySelectorAll('button, a.btn').forEach(el => {
+                    if (el.closest('#authOverlay')) return;
+                    el.removeAttribute('disabled');
+                    el.classList.remove('disabled');
+                    if (el.style) {
+                        el.style.pointerEvents = '';
+                        el.style.opacity = '';
+                    }
+                });
+            }
+
             // viewer: تعطيل أزرار الإضافة/الحفظ/الحذف/التعديل
             if (readOnly) {
                 document.querySelectorAll('button, a.btn').forEach(el => {
