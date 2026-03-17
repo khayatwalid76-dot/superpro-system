@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 
 <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5, user-scalable=yes" />
 
@@ -964,29 +967,43 @@
     </script>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Use relative path for GitHub Pages (repo subpath)
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registered:', registration);
+        // Cache-busting build id (update on deploy)
+        const BUILD_ID = '87554f0';
 
-                        // تحقق من وجود تحديثات
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // عرض إشعار بوجود تحديث
-                                    if (confirm('🔄 يتوفر تحديث جديد! هل تريد تحديث الصفحة؟')) {
-                                        window.location.reload();
-                                    }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    // If an old SW was registered at the origin root, it can keep serving stale HTML
+                    // (especially when migrating from /sw.js to subpath sw.js on GitHub Pages).
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(async (r) => {
+                        const url = (r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || '');
+                        if (url.endsWith('/sw.js') && location.pathname.startsWith('/superpro-system/')) {
+                            await r.unregister();
+                        }
+                    }));
+                } catch (e) {}
+
+                try {
+                    // Use a fully-qualified URL + build query to avoid cached SW script.
+                    const swUrl = new URL('sw.js', location.href);
+                    const registration = await navigator.serviceWorker.register(`${swUrl.href}?v=${BUILD_ID}`);
+                    console.log('✅ Service Worker registered:', registration);
+
+                    // تحقق من وجود تحديثات
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                if (confirm('🔄 يتوفر تحديث جديد! هل تريد تحديث الصفحة؟')) {
+                                    window.location.reload();
                                 }
-                            });
+                            }
                         });
-                    })
-                    .catch(error => {
-                        console.log('❌ Service Worker registration failed:', error);
                     });
+                } catch (error) {
+                    console.log('❌ Service Worker registration failed:', error);
+                }
             });
         }
 
