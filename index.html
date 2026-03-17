@@ -10312,6 +10312,8 @@
             setTimeout(() => {
                 setupNavigation();
                 setupAllModalEvents();
+                // إعادة تطبيق الصلاحيات بعد إعادة بناء الواجهة/الأزرار
+                applyRolePermissions();
             }, 150);
         }
 
@@ -11169,6 +11171,15 @@ window.addEventListener('load', function() {
                 btn.style.cursor = 'pointer';
                 btn.style.pointerEvents = 'auto';
             }
+        });
+
+        // Ensure "check" action buttons (✓) are clickable
+        document.querySelectorAll('[onclick*="markContractAsPaid"], [onclick*="markDailyWorkAsPaid"], [onclick*="markIncomeAsPaid"], [onclick*="completeTask"]').forEach(btn => {
+            btn.style.cursor = 'pointer';
+            btn.style.pointerEvents = 'auto';
+            btn.removeAttribute('disabled');
+            btn.classList.remove('disabled');
+            if (btn.style) btn.style.opacity = '';
         });
         
         // Ensure modals have handlers
