@@ -964,11 +964,25 @@
     </script>
 
     <script>
+        // Cache-busting build id (update on deploy)
+        const BUILD_ID = 'b1c3799';
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registered:', registration);
+            window.addEventListener('load', async () => {
+                try {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(regs.map(async (r) => {
+                        const url = (r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || '');
+                        if (url.endsWith('/sw.js') && location.pathname.startsWith('/superpro-system/')) {
+                            await r.unregister();
+                        }
+                    }));
+                } catch (e) {}
+
+                try {
+                    const swUrl = new URL('sw.js', location.href);
+                    const registration = await navigator.serviceWorker.register(`${swUrl.href}?v=${BUILD_ID}`);
+                    console.log('✅ Service Worker registered:', registration);
 
                         // تحقق من وجود تحديثات
                         registration.addEventListener('updatefound', () => {
@@ -982,10 +996,9 @@
                                 }
                             });
                         });
-                    })
-                    .catch(error => {
-                        console.log('❌ Service Worker registration failed:', error);
-                    });
+                } catch (error) {
+                    console.log('❌ Service Worker registration failed:', error);
+                }
             });
         }
 
@@ -5840,6 +5853,8 @@
                 if (paymentStatus === 'غير مدفوع')
                     setTimeout(() => showToast('تنبيه: حالة الدفع غير مدفوع. يرجى متابعة تحصيل المبلغ', 'warning'), 1000);
             };
+            // NOTE: legacy duplicated block (disabled to avoid runtime errors)
+            if (false) {
                 const clientManualInput = document.getElementById('dailyWorkClientManual');
 
                 if (!clientSelect.classList.contains('d-none')) {
@@ -5966,6 +5981,8 @@
 
                 updateDailyWorkStats();
                 filterDailyWorkByDate();
+
+            }
 
             const toggleClientBtn = document.getElementById('toggleClientInput');
             if (toggleClientBtn && !toggleClientBtn._toggleSetup) {
