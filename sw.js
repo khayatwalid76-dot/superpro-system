@@ -1,11 +1,15 @@
-// Service Worker - SUPER_PRO SYSTEM
-// GitHub Pages runs under a subpath, so use relative cache entries.
+// Service Worker - SUPER_PRO SYSTEM (Enhanced v4)
+// Bump this to force clients to get latest app shell
 const CACHE_NAME = 'superpro-v4';
 const APP_SHELL = [
     './',
     './index.html',
     './manifest.json',
-    './user-data-full.json'
+    './user-data-full.json',
+    './design-enhancements.css',
+    './design-enhancements.js',
+    './data-manager.js',
+    './professional-dashboard.css'
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,26 +32,35 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
-    const req = event.request;
-    const url = new URL(req.url);
+    const url = new URL(event.request.url);
 
-    // Network-first for navigations/HTML to avoid serving stale UI.
-    const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
-    if (isHTML) {
-        event.respondWith(
-            fetch(req)
-                .then((res) => {
-                    const copy = res.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-                    return res;
-                })
-                .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
-        );
+    // Network-first for navigations (HTML) to avoid serving stale UI that breaks buttons/data.
+    const isNavigation = event.request.mode === 'navigate';
+    const isHtml = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+    if (isNavigation || isHtml) {
+        event.respondWith((async () => {
+            try {
+                const fresh = await fetch(event.request);
+                const cache = await caches.open(CACHE_NAME);
+                cache.put(event.request, fresh.clone());
+                return fresh;
+            } catch (e) {
+                const cached = await caches.match(event.request);
+                return cached || caches.match('./index.html');
+            }
+        })());
         return;
     }
 
-    // Cache-first for static assets.
-    event.respondWith(
-        caches.match(req).then((cached) => cached || fetch(req))
-    );
+    // Cache-first for other GET requests
+    event.respondWith((async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        const fresh = await fetch(event.request);
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(event.request, fresh.clone());
+        } catch (e) {}
+        return fresh;
+    })());
 });
