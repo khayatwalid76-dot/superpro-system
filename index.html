@@ -5495,15 +5495,13 @@
         function setupClientEvents() {
             const clientModal = document.getElementById('clientModal');
             const saveBtn = document.getElementById('saveClientBtn');
-            let isEditMode = false;
-            let editIndex = -1;
             
             clientModal.addEventListener('show.bs.modal', function (e) {
                 document.getElementById('clientForm').reset();
                 document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
                 saveBtn.textContent = 'حفظ العميل';
-                isEditMode = false;
-                editIndex = -1;
+                window.editState.client.isEditMode = false;
+                window.editState.client.editIndex = -1;
                 
                 saveBtn.onclick = null;
                 saveBtn.onclick = function () {
@@ -5518,10 +5516,10 @@
                         return;
                     }
 
-                    if (isEditMode && editIndex >= 0) {
+                    if (window.editState.client.isEditMode && window.editState.client.editIndex >= 0) {
                         // تعديل
-                        clients[editIndex] = {
-                            ...clients[editIndex],
+                        clients[window.editState.client.editIndex] = {
+                            ...clients[window.editState.client.editIndex],
                             name,
                             phone: phone || '',
                             email: email || '',
@@ -5550,7 +5548,8 @@
                     document.getElementById('clientForm').reset();
                     document.querySelector('#clientModal .modal-title').textContent = 'إضافة عميل جديد';
                     saveBtn.textContent = 'حفظ العميل';
-                    isEditMode = false;
+                    window.editState.client.isEditMode = false;
+                    window.editState.client.editIndex = -1;
                     
                     renderClientsTable();
                     logActivity('إضافة/تحديث عميل', name);
@@ -5569,13 +5568,8 @@
                     });
                 });
             }
+        }
             
-            // وضع علم التعديل عند استدعاء editClient
-            window.setClientEditMode = function(index) {
-                isEditMode = true;
-                editIndex = index;
-            };
-
         function editClient(index) {
             const client = clients[index];
             if (!client) return;
@@ -5590,14 +5584,14 @@
             const saveBtn = document.getElementById('saveClientBtn');
             saveBtn.textContent = 'تحديث البيانات';
 
-            // تعيين علم التعديل
-            window.setClientEditMode(index);
+            // تعيين حالة التعديل
+            window.editState.client.isEditMode = true;
+            window.editState.client.editIndex = index;
             
             const modal = new bootstrap.Modal(document.getElementById('clientModal'));
             modal.show();
 
-                setupClientEvents();
-            };
+            setupClientEvents();
         }
 
         function deleteClient(index) {
@@ -8101,11 +8095,20 @@
             });
         }
 
+        // متغيرات عامة لتتبع حالة التعديل
+        window.editState = {
+            employee: { isEditMode: false, editIndex: -1 },
+            client: { isEditMode: false, editIndex: -1 },
+            contract: { isEditMode: false, editIndex: -1 },
+            service: { isEditMode: false, editIndex: -1 },
+            dailyWork: { isEditMode: false, editIndex: -1 },
+            dailyIncome: { isEditMode: false, editIndex: -1 },
+            dailyExpense: { isEditMode: false, editIndex: -1 }
+        };
+
         function setupEmployeeEvents() {
             const employeeModal = document.getElementById('employeeModal');
             const saveBtn = document.getElementById('saveEmployeeBtn');
-            let isEditMode = false;
-            let editIndex = -1;
             
             // استخدام معالج البحث آني للموظفين
             const searchInput = document.getElementById('employee-search');
@@ -8173,8 +8176,8 @@
             if (employeeModal) {
                 employeeModal.addEventListener('show.bs.modal', function (e) {
                     document.getElementById('employeeForm').reset();
-                    isEditMode = false;
-                    editIndex = -1;
+                    window.editState.employee.isEditMode = false;
+                    window.editState.employee.editIndex = -1;
                     
                     document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
                     saveBtn.textContent = 'حفظ الموظف';
@@ -8194,10 +8197,10 @@
                         return;
                     }
 
-                    if (isEditMode && editIndex >= 0) {
+                    if (window.editState.employee.isEditMode && window.editState.employee.editIndex >= 0) {
                         // تعديل
-                        employees[editIndex] = {
-                            ...employees[editIndex],
+                        employees[window.editState.employee.editIndex] = {
+                            ...employees[window.editState.employee.editIndex],
                             name: document.getElementById('employeeName').value,
                             idNumber: document.getElementById('employeeIdNumber').value,
                             hireDate: document.getElementById('employeeHireDate').value,
@@ -8237,8 +8240,8 @@
                     document.getElementById('employeeForm').reset();
                     document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
                     saveBtn.textContent = 'حفظ الموظف';
-                    isEditMode = false;
-                    editIndex = -1;
+                    window.editState.employee.isEditMode = false;
+                    window.editState.employee.editIndex = -1;
                     
                     updateEmployeeStats();
                     renderEmployeesTable();
@@ -8246,12 +8249,6 @@
                     logActivity('إدارة الموظفين', `${name}`);
                 };
             }
-            
-            // وضع علم التعديل عند استدعاء editEmployee
-            window.setEmployeeEditMode = function(index) {
-                isEditMode = true;
-                editIndex = index;
-            };
         }
 
         function renderEmployeesCards() {
@@ -8329,8 +8326,9 @@
             const saveBtn = document.getElementById('saveEmployeeBtn');
             saveBtn.textContent = 'تحديث البيانات';
 
-            // تعيين علم التعديل
-            window.setEmployeeEditMode(index);
+            // تعيين حالة التعديل
+            window.editState.employee.isEditMode = true;
+            window.editState.employee.editIndex = index;
 
             const modal = new bootstrap.Modal(document.getElementById('employeeModal'));
             modal.show();
