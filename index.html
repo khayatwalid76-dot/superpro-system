@@ -4712,9 +4712,12 @@
             const saveBtnElement = document.getElementById('saveContractBtn');
             
             contractModal.addEventListener('show.bs.modal', function (e) {
-                document.getElementById('contractForm').reset();
-                document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
-                saveBtnElement.textContent = 'حفظ العقد';
+                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
+                if (!window.editState.contract.isEditMode) {
+                    document.getElementById('contractForm').reset();
+                    document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
+                    saveBtnElement.textContent = 'حفظ العقد';
+                }
                 
                 saveBtnElement.onclick = null;
                 saveBtnElement.onclick = function () {
@@ -4738,7 +4741,7 @@
                     });
 
                     if (!number || !client || !employee || !amount || !startDate || !endDate) {
-                        alert('يرجى ملء جميع الحقول المطلوبة');
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
                         return;
                     }
 
@@ -4760,7 +4763,21 @@
                         createdAt: new Date().toISOString()
                     };
 
-                    contracts.push(contractData);
+                    // التحقق من وضع التعديل
+                    if (window.editState.contract.isEditMode && window.editState.contract.editIndex >= 0) {
+                        // تعديل
+                        contracts[window.editState.contract.editIndex] = {
+                            ...contracts[window.editState.contract.editIndex],
+                            ...contractData,
+                            updatedAt: new Date().toISOString()
+                        };
+                        showToast('تم تحديث العقد بنجاح');
+                    } else {
+                        // إضافة
+                        contracts.push(contractData);
+                        showToast('تم إضافة العقد بنجاح');
+                    }
+
                     saveData();
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
@@ -4769,11 +4786,12 @@
                     document.getElementById('contractForm').reset();
                     document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
                     saveBtnElement.textContent = 'حفظ العقد';
+                    window.editState.contract.isEditMode = false;
+                    window.editState.contract.editIndex = -1;
                     
                     updateContractStats();
                     updateContractsTable();
-                    showToast('تم إضافة العقد بنجاح');
-                    logActivity('إضافة عقد', `#${contractData.number} • ${contractData.client} • ${contractData.employee} • ${contractData.paymentStatus} • قيمة ${contractData.amount}`);
+                    logActivity('إدارة العقود', `${contractData.client} • ${contractData.employee}`);
                 };
             });
 
@@ -4844,67 +4862,12 @@
             const saveBtn = document.getElementById('saveContractBtn');
             saveBtn.textContent = 'تحديث العقد';
 
+            // تعيين حالة التعديل
+            window.editState.contract.isEditMode = true;
+            window.editState.contract.editIndex = index;
+
             const modal = new bootstrap.Modal(document.getElementById('contractModal'));
             modal.show();
-
-            saveBtn.onclick = function () {
-                const number = document.getElementById('contractNumber').value;
-                const client = document.getElementById('contractClient').value;
-                const employee = document.getElementById('contractEmployee').value;
-                const type = document.getElementById('contractType').value;
-                const startTime = document.getElementById('contractStartTime').value;
-                const endTime = document.getElementById('contractEndTime').value;
-                const amount = document.getElementById('contractAmount').value;
-                const paidAmount = document.getElementById('contractPaidAmount').value;
-                const startDate = document.getElementById('contractStartDate').value;
-                const endDate = document.getElementById('contractEndDate').value;
-                const paymentStatus = document.getElementById('contractPaymentStatus').value;
-                const status = document.getElementById('contractStatus').value;
-                const notes = document.getElementById('contractNotes').value;
-
-                const workDays = [];
-                document.querySelectorAll('input[name="workDays"]:checked').forEach(cb => {
-                    workDays.push(cb.value);
-                });
-
-                if (!number || !client || !employee || !amount || !startDate || !endDate) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
-                    return;
-                }
-
-                contracts[index] = {
-                    ...contracts[index],
-                    number,
-                    client,
-                    employee,
-                    type,
-                    workDays,
-                    startTime,
-                    endTime,
-                    amount: parseFloat(amount),
-                    paidAmount: parseFloat(paidAmount) || 0,
-                    startDate,
-                    endDate,
-                    paymentStatus,
-                    status,
-                    notes,
-                    updatedAt: new Date().toISOString()
-                };
-
-                saveData();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('contractModal'));
-                modal.hide();
-
-                document.getElementById('contractForm').reset();
-                document.querySelector('#contractModal .modal-title').textContent = 'إضافة عقد جديد';
-                saveBtn.textContent = 'حفظ العقد';
-
-                updateContractStats();
-                updateContractsTable();
-                showToast('تم تحديث العقد بنجاح');
-
-                setupContractEvents();
-            };
         }
 
         function markContractAsPaid(index) {
@@ -5613,17 +5576,19 @@
             
             // معالج فتح الـ modal
             dailyWorkModal.addEventListener('show.bs.modal', function (e) {
-                document.getElementById('dailyWorkForm').reset();
-                document.getElementById('dailyWorkDate').value = today;
-                document.getElementById('dailyWorkDateFilter').value = today;
-                document.getElementById('dailyWorkShift').value = 'صباحية';
+                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
+                if (!window.editState.dailyWork.isEditMode) {
+                    document.getElementById('dailyWorkForm').reset();
+                    document.getElementById('dailyWorkDate').value = today;
+                    document.getElementById('dailyWorkDateFilter').value = today;
+                    document.getElementById('dailyWorkShift').value = 'صباحية';
+                    document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي جديد';
+                    saveBtn.textContent = 'حفظ العمل';
+                }
                 
                 fillClientSelects();
                 fillMultiSelectWorkers();
                 fillDriversSelect();
-                
-                document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي جديد';
-                saveBtn.textContent = 'حفظ العمل';
                 
                 saveBtn.onclick = null;
                 saveBtn.onclick = function () {
@@ -5650,12 +5615,12 @@
                 const notes = document.getElementById('dailyWorkNotes').value;
 
                 if (!date || !clientName || !area || !amount || !paymentStatus || !paymentMethod) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
                     return;
                 }
 
                 if (selectedWorkers.length === 0) {
-                    alert('يرجى اختيار موظف واحد على الأقل');
+                    showToast('يرجى اختيار موظف واحد على الأقل', 'error');
                     return;
                 }
 
@@ -5704,7 +5669,21 @@
                     createdAt: new Date().toISOString()
                 };
 
-                dailyWork.push(dailyWorkData);
+                // التحقق من وضع التعديل
+                if (window.editState.dailyWork.isEditMode && window.editState.dailyWork.editIndex >= 0) {
+                    // تعديل
+                    dailyWork[window.editState.dailyWork.editIndex] = {
+                        ...dailyWork[window.editState.dailyWork.editIndex],
+                        ...dailyWorkData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث العمل اليومي بنجاح');
+                } else {
+                    // إضافة
+                    dailyWork.push(dailyWorkData);
+                    showToast(`تم إضافة العمل اليومي بنجاح لـ ${selectedWorkers.length} موظف`);
+                }
+
                 saveData();
 
                 if (paymentStatus === 'مدفوع') {
@@ -5730,13 +5709,17 @@
                 document.getElementById('dailyWorkForm').reset();
                 document.getElementById('dailyWorkDate').value = today;
                 document.getElementById('dailyWorkShift').value = 'صباحية';
+                document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي جديد';
+                saveBtn.textContent = 'حفظ العمل';
+                window.editState.dailyWork.isEditMode = false;
+                window.editState.dailyWork.editIndex = -1;
+                
                 fillMultiSelectWorkers();
                 fillDriversSelect();
                 fillClientSelects();
 
                 updateDailyWorkStats();
                 filterDailyWorkByDate();
-                showToast(`تم إضافة العمل اليومي بنجاح لـ ${selectedWorkers.length} موظف`);
 
                 if (paymentStatus === 'غير مدفوع') {
                     setTimeout(() => {
@@ -5979,76 +5962,12 @@
             const saveBtn = document.getElementById('saveDailyWorkBtn');
             saveBtn.textContent = 'تحديث البيانات';
 
+            // تعيين حالة التعديل
+            window.editState.dailyWork.isEditMode = true;
+            window.editState.dailyWork.editIndex = index;
+
             const modal = new bootstrap.Modal(document.getElementById('dailyWorkModal'));
             modal.show();
-
-            saveBtn.onclick = function () {
-                let clientName = '';
-                const clientSelect = document.getElementById('dailyWorkClient');
-                const clientManualInput = document.getElementById('dailyWorkClientManual');
-
-                if (!clientSelect.classList.contains('d-none')) {
-                    clientName = clientSelect.value;
-                } else {
-                    clientName = clientManualInput.value;
-                }
-
-                const date = document.getElementById('dailyWorkDate').value;
-                const clientNumber = document.getElementById('dailyWorkClientNumber').value;
-                const area = document.getElementById('dailyWorkArea').value;
-                const selectedWorkers = getSelectedWorkers();
-                const totalHours = document.getElementById('dailyWorkTotalHours').value;
-                const shift = document.getElementById('dailyWorkShift').value;
-                const driver = document.getElementById('dailyWorkDriver').value;
-                const amount = document.getElementById('dailyWorkAmount').value;
-                const paymentStatus = document.getElementById('dailyWorkPaymentStatus').value;
-                const paymentMethod = document.getElementById('dailyWorkPaymentMethod').value;
-                const notes = document.getElementById('dailyWorkNotes').value;
-
-                if (!date || !clientName || !area || !amount || !paymentStatus || !paymentMethod) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
-                    return;
-                }
-
-                if (selectedWorkers.length === 0) {
-                    alert('يرجى اختيار موظف واحد على الأقل');
-                    return;
-                }
-
-                dailyWork[index] = {
-                    ...dailyWork[index],
-                    date,
-                    client: clientName,
-                    clientNumber,
-                    area,
-                    workers: selectedWorkers,
-                    worker: selectedWorkers[0],
-                    totalHours: parseFloat(totalHours),
-                    shift: shift,
-                    driver,
-                    amount: parseFloat(amount),
-                    paymentStatus,
-                    paymentMethod,
-                    notes,
-                    updatedAt: new Date().toISOString()
-                };
-
-                saveData();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('dailyWorkModal'));
-                modal.hide();
-
-                document.getElementById('dailyWorkForm').reset();
-                document.getElementById('dailyWorkDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('dailyWorkShift').value = 'صباحية';
-                document.querySelector('#dailyWorkModal .modal-title').textContent = 'إضافة عمل يومي';
-                saveBtn.textContent = 'حفظ العمل اليومي';
-
-                updateDailyWorkStats();
-                filterDailyWorkByDate();
-                showToast('تم تحديث العمل اليومي بنجاح');
-
-                setupDailyWorkEvents();
-            };
         }
 
         function deleteDailyWork(index) {
@@ -6068,14 +5987,16 @@
             const saveBtn = document.getElementById('saveDailyIncomeBtn');
             
             dailyIncomeModal.addEventListener('show.bs.modal', function (e) {
-                document.getElementById('dailyIncomeForm').reset();
-                document.getElementById('dailyIncomeDate').value = today;
-                document.getElementById('dailyIncomeDateFilter').value = today;
+                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
+                if (!window.editState.dailyIncome.isEditMode) {
+                    document.getElementById('dailyIncomeForm').reset();
+                    document.getElementById('dailyIncomeDate').value = today;
+                    document.getElementById('dailyIncomeDateFilter').value = today;
+                    document.querySelector('#dailyIncomeModal .modal-title').textContent = 'إضافة مدخول يومي جديد';
+                    saveBtn.textContent = 'حفظ المدخول';
+                }
                 
                 fillDailyIncomeEmployeeSelect();
-                
-                document.querySelector('#dailyIncomeModal .modal-title').textContent = 'إضافة مدخول يومي جديد';
-                saveBtn.textContent = 'حفظ المدخول';
                 
                 saveBtn.onclick = null;
             
@@ -6090,7 +6011,7 @@
                 const description = document.getElementById('dailyIncomeDescription').value;
 
                 if (!date || !type || !amount || !paymentMethod || !status) {
-                    alert('يرجى ملء جميع الحقول المطلوبة');
+                    showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
                     return;
                 }
 
@@ -6107,7 +6028,21 @@
                     createdAt: new Date().toISOString()
                 };
 
-                dailyIncome.push(incomeData);
+                // التحقق من وضع التعديل
+                if (window.editState.dailyIncome.isEditMode && window.editState.dailyIncome.editIndex >= 0) {
+                    // تعديل
+                    dailyIncome[window.editState.dailyIncome.editIndex] = {
+                        ...dailyIncome[window.editState.dailyIncome.editIndex],
+                        ...incomeData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    showToast('تم تحديث المدخول بنجاح');
+                } else {
+                    // إضافة
+                    dailyIncome.push(incomeData);
+                    showToast('تم إضافة المدخول بنجاح');
+                }
+
                 saveData();
 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('dailyIncomeModal'));
@@ -6115,11 +6050,13 @@
 
                 document.getElementById('dailyIncomeForm').reset();
                 document.getElementById('dailyIncomeDate').value = today;
+                document.querySelector('#dailyIncomeModal .modal-title').textContent = 'إضافة مدخول يومي جديد';
+                saveBtn.textContent = 'حفظ المدخول';
+                window.editState.dailyIncome.isEditMode = false;
+                window.editState.dailyIncome.editIndex = -1;
 
                 updateDailyIncomeStats();
                 filterDailyIncomeByDate();
-                showToast('تم إضافة المدخول بنجاح');
-                logActivity('إضافة مدخول', `${incomeData.date} • ${incomeData.type} • ${incomeData.source} • ${incomeData.amount} • ${incomeData.paymentMethod} • ${incomeData.status}`);
                 };
             });
 
@@ -6193,14 +6130,16 @@
             }
 
             dailyExpenseModal.addEventListener('show.bs.modal', function (e) {
-                document.getElementById('dailyExpenseForm').reset();
-                document.getElementById('dailyExpenseDate').value = today;
-                document.getElementById('dailyExpensesDateFilter').value = today;
+                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
+                if (!window.editState.dailyExpense.isEditMode) {
+                    document.getElementById('dailyExpenseForm').reset();
+                    document.getElementById('dailyExpenseDate').value = today;
+                    document.getElementById('dailyExpensesDateFilter').value = today;
+                    document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
+                    saveBtn.textContent = 'حفظ المصروف';
+                }
                 
                 fillEmployeeExpenseSelect();
-                
-                document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
-                saveBtn.textContent = 'حفظ المصروف';
                 
                 saveBtn.onclick = null;
                 saveBtn.onclick = function () {
@@ -6213,40 +6152,56 @@
                     const notes = document.getElementById('dailyExpenseNotes').value;
 
                     if (!date || !type || !amount || !paymentMethod) {
-                        alert('يرجى ملء جميع الحقول المطلوبة');
-                    return;
-                }
+                        showToast('يرجى ملء جميع الحقول المطلوبة', 'error');
+                        return;
+                    }
 
-                if (type === 'تسبقة عن راتب' && !employee) {
-                    alert('يرجى اختيار الموظف لتسجيل التسبقة');
-                    return;
-                }
+                    if (type === 'تسبقة عن راتب' && !employee) {
+                        showToast('يرجى اختيار الموظف لتسجيل التسبقة', 'error');
+                        return;
+                    }
 
-                const expenseData = {
-                    id: Date.now(),
-                    date,
-                    type,
-                    employee: employee || null,
-                    description: description || `مصروف ${type}`,
-                    amount: parseFloat(amount),
-                    paymentMethod,
-                    notes,
-                    createdAt: new Date().toISOString()
-                };
+                    const expenseData = {
+                        id: Date.now(),
+                        date,
+                        type,
+                        employee: employee || null,
+                        description: description || `مصروف ${type}`,
+                        amount: parseFloat(amount),
+                        paymentMethod,
+                        notes,
+                        createdAt: new Date().toISOString()
+                    };
 
-                dailyExpenses.push(expenseData);
-                saveData();
+                    // التحقق من وضع التعديل
+                    if (window.editState.dailyExpense.isEditMode && window.editState.dailyExpense.editIndex >= 0) {
+                        // تعديل
+                        dailyExpenses[window.editState.dailyExpense.editIndex] = {
+                            ...dailyExpenses[window.editState.dailyExpense.editIndex],
+                            ...expenseData,
+                            updatedAt: new Date().toISOString()
+                        };
+                        showToast('تم تحديث المصروف بنجاح');
+                    } else {
+                        // إضافة
+                        dailyExpenses.push(expenseData);
+                        showToast('تم إضافة المصروف بنجاح');
+                    }
 
-                const modal = bootstrap.Modal.getInstance(document.getElementById('dailyExpenseModal'));
-                modal.hide();
+                    saveData();
 
-                document.getElementById('dailyExpenseForm').reset();
-                document.getElementById('dailyExpenseDate').value = today;
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('dailyExpenseModal'));
+                    modal.hide();
 
-                updateDailyExpensesStats();
-                filterDailyExpensesByDate();
-                showToast('تم إضافة المصروف بنجاح');
-                logActivity('إضافة مصروف', `${expenseData.date} • ${expenseData.type} • ${expenseData.employee || ''} • ${expenseData.amount} • ${expenseData.paymentMethod}`);
+                    document.getElementById('dailyExpenseForm').reset();
+                    document.getElementById('dailyExpenseDate').value = today;
+                    document.querySelector('#dailyExpenseModal .modal-title').textContent = 'إضافة مصروف يومي جديد';
+                    saveBtn.textContent = 'حفظ المصروف';
+                    window.editState.dailyExpense.isEditMode = false;
+                    window.editState.dailyExpense.editIndex = -1;
+
+                    updateDailyExpensesStats();
+                    filterDailyExpensesByDate();
                     };
                 });
 
@@ -8507,15 +8462,14 @@
         function setupServiceEvents() {
             const serviceModal = document.getElementById('serviceModal');
             const saveBtn = document.getElementById('saveServiceBtn');
-            let isEditMode = false;
-            let editIndex = -1;
             
             serviceModal.addEventListener('show.bs.modal', function (e) {
-                document.getElementById('serviceForm').reset();
-                isEditMode = false;
-                editIndex = -1;
-                document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
-                saveBtn.textContent = 'حفظ الخدمة';
+                // إعادة تعيين الحالة إلى إضافة إذا لم تكن في وضع التعديل
+                if (!window.editState.service.isEditMode) {
+                    document.getElementById('serviceForm').reset();
+                    document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
+                    saveBtn.textContent = 'حفظ الخدمة';
+                }
             });
             
             saveBtn.onclick = null;
@@ -8531,28 +8485,25 @@
                     return;
                 }
 
-                if (isEditMode && editIndex >= 0) {
+                const serviceData = {
+                    name,
+                    type,
+                    price: parseFloat(price),
+                    duration: parseFloat(duration) || 1,
+                    description,
+                    createdAt: new Date().toISOString()
+                };
+
+                if (window.editState.service.isEditMode && window.editState.service.editIndex >= 0) {
                     // تعديل
-                    services[editIndex] = {
-                        ...services[editIndex],
-                        name,
-                        type,
-                        price: parseFloat(price),
-                        duration: parseFloat(duration) || 1,
-                        description,
+                    services[window.editState.service.editIndex] = {
+                        ...services[window.editState.service.editIndex],
+                        ...serviceData,
                         updatedAt: new Date().toISOString()
                     };
                     showToast('تم تحديث الخدمة بنجاح');
                 } else {
                     // إضافة جديد
-                    const serviceData = {
-                        name,
-                        type,
-                        price: parseFloat(price),
-                        duration: parseFloat(duration) || 1,
-                        description,
-                        createdAt: new Date().toISOString()
-                    };
                     services.push(serviceData);
                     showToast('تم إضافة الخدمة بنجاح');
                 }
@@ -8565,17 +8516,11 @@
                 document.getElementById('serviceForm').reset();
                 document.querySelector('#serviceModal .modal-title').textContent = 'إضافة خدمة جديدة';
                 saveBtn.textContent = 'حفظ الخدمة';
-                isEditMode = false;
-                editIndex = -1;
+                window.editState.service.isEditMode = false;
+                window.editState.service.editIndex = -1;
 
                 renderServicesTable();
                 setupServiceEvents();
-            };
-            
-            // وضع علم التعديل
-            window.setServiceEditMode = function(index) {
-                isEditMode = true;
-                editIndex = index;
             };
         }
 
@@ -8593,8 +8538,9 @@
             const saveBtn = document.getElementById('saveServiceBtn');
             saveBtn.textContent = 'تحديث الخدمة';
 
-            // تعيين علم التعديل
-            window.setServiceEditMode(index);
+            // تعيين حالة التعديل
+            window.editState.service.isEditMode = true;
+            window.editState.service.editIndex = index;
 
             const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
             modal.show();
