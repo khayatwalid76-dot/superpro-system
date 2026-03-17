@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    
+    <!-- الصفحة الرئيسية -->
+    <url>
+        <loc>https://superpro-system.netlify.app/</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/" />
+    </url>
+    
+    <!-- صفحة الموظفين -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=employees</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=employees" />
+    </url>
+    
+    <!-- صفحة العملاء -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=clients</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=clients" />
+    </url>
+    
+    <!-- صفحة العقود -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=contracts</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=contracts" />
+    </url>
+    
+    <!-- صفحة التقارير -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=reports</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=reports" />
+    </url>
+    
+    <!-- صفحة التقويم -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=calendar</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=calendar" />
+    </url>
+    
+    <!-- صفحة المهام -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=tasks</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.6</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=tasks" />
+    </url>
+    
+    <!-- صفحة المالية -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=finance</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=finance" />
+    </url>
+    
+    <!-- صفحة الحضور -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=attendance</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.6</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=attendance" />
+    </url>
+    
+    <!-- صفحة الخدمات -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=services</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=services" />
+    </url>
+    
+    <!-- صفحة الإعدادات -->
+    <url>
+        <loc>https://superpro-system.netlify.app/?module=settings</loc>
+        <lastmod>2026-02-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://superpro-system.netlify.app/?module=settings" />
+    </url>
+    
+</urlset>
