@@ -1,63 +1,84 @@
 {
-  "name": "SUPER_PRO SYSTEM - نظام إدارة الشركة",
-  "short_name": "SUPER_PRO",
-  "description": "نظام إدارة متكامل باللغة العربية للشركات الصغيرة والمتوسطة",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#2c3e50",
-  "theme_color": "#3498db",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "lang": "ar",
-  "dir": "rtl",
-  "categories": ["business", "productivity", "utilities"],
-  "icons": [
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik05NiA0OEM2Ni44IDQ4IDQ4IDY2LjggNDggOTZTNjYuOCAxNDQgOTYgMTQ0UzE0NCAxMjUuMiAxNDQgOTZTMTI1LjIgNDggOTYgNDhaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNODAgNzJIMTEyVjEyMEg4MFY3MloiIGZpbGw9IiMyYzNlNTAiLz4KPHBhdGggZD0iTTg4IDg4SDEwNFYxMDRIOThWODhaIiBmaWxsPSIzNDk4ZGIiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8xXzEiIHgxPSIwIiB5MT0iMCIgeDI9IjE5MiIgeTI9IjE5MiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMmMzZTUwIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzM0OThkYiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPg==",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8yXzIpIi8+CjxwYXRoIGQ9Ik0yNTYgMTI4QzE3OC44IDEyOCAxMTggMTg4LjggMTE4IDI1NlMxNzguOCAzODQgMjU2IDM4NFMzOTQgMzIzLjIgMzk0IDI1NlMzMzMuMiAxMjggMjU2IDEyOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMTIgMTkySDMwMFYzMjBIMjEyVjE5MloiIGZpbGw9IiMyYzNlNTAiLz4KPHBhdGggZD0iTTI0MCAyNDBIMjcyVjI3MkgyNDBWMjQwWiIgZmlsbD0iIzM0OThkYiIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDBfbGluZWFyXzJfMiIgeDE9IjAiIHkxPSIwIiB4Mj0iNTEyIiB5Mj0iNTEyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMyYzNlNTAiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMzQ5OGRiIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "الموظفين",
-      "short_name": "الموظفين",
-      "description": "إدارة شؤون الموظفين",
-      "url": "/?module=employees",
-      "icons": [
+    "name": "SuperPro System - نظام سوبر برو",
+    "short_name": "SuperPro",
+    "description": "نظام إدارة متكامل للشركات - إدارة الموظفين والرواتب والعملاء والمشاريع",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0a0a2e",
+    "theme_color": "#667eea",
+    "orientation": "any",
+    "lang": "ar",
+    "dir": "rtl",
+    "categories": ["business", "productivity"],
+    "icons": [
         {
-          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiMzNDk4ZGIiLz4KPHBhdGggZD0iTTQ4IDMyQzQwLjI2OCAzMiAzNCAzOC4yNjggMzQgNDZDNDggNTQgNDAuMjY4IDYwIDQ4IDYwQzU1LjczMiA2MCA2MiA1My43MzIgNjIgNDZDNjIgMzguMjY4IDU1LjczMiAzMiA0OCAzMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA3NkMyNCA2Ny4xNjggMzEuMTY4IDYwIDQwIDYwSDU2QzY0LjgzMiA2MCA3MiA2Ny4xNjggNzIgNzZWODRIMjRWNzZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "العملاء",
-      "short_name": "العملاء",
-      "description": "إدارة العملاء",
-      "url": "/?module=clients",
-      "icons": [
+            "src": "icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
         {
-          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iNDgiIGZpbGw9IiMyOGE3NDUiLz4KPHBhdGggZD0iTTQ4IDMyQzQwLjI2OCAzMiAzNCAzOC4yNjggMzQgNDZDNDggNTQgNDAuMjY4IDYwIDQ4IDYwQzU1LjczMiA2MCA2MiA1My43MzIgNjIgNDZDNjIgMzguMjY4IDU1LjczMiAzMiA0OCAzMloiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yNCA3NkMyNCA2Ny4xNjggMzEuMTY4IDYwIDQwIDYwSDU2QzY0LjgzMiA2MCA3MiA2Ny4xNjggNzIgNzZWODRIMjRWNzZaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=",
-          "sizes": "96x96"
+            "src": "icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
         }
-      ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjZjhmOWZhIi8+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNjAiIGZpbGw9IiMyYzNlNTAiLz4KPHJlY3QgeD0iMTAiIHk9IjgwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgcng9IjgiIGZpbGw9IndoaXRlIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMjgwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMmMzZTUwIiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwiPuePtmEg2KfZhNin2LPYqSDYqNmK2YbYtdit2KfYqTwvdGV4dD4KPC9zdmc+",
-      "sizes": "320x568",
-      "type": "image/svg+xml",
-      "form_factor": "narrow",
-      "label": "واجهة الموبايل"
-    }
-  ]
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "لوحة التحكم",
+            "short_name": "الرئيسية",
+            "description": "فتح لوحة التحكم الرئيسية",
+            "url": "./index.html#dashboard"
+        },
+        {
+            "name": "الموظفين",
+            "short_name": "موظفين",
+            "description": "إدارة الموظفين",
+            "url": "./index.html#employees"
+        },
+        {
+            "name": "العملاء",
+            "short_name": "عملاء",
+            "description": "إدارة العملاء",
+            "url": "./index.html#clients"
+        }
+    ]
 }
