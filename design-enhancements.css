@@ -2156,3 +2156,93 @@ body.dark-mode .chip {
 body.dark-mode ::selection {
   background: rgba(0, 212, 170, 0.2);
 }
+
+/* =========================================================================
+   BUG FIX STYLES
+   ========================================================================= */
+
+/* Fix: Bootstrap toast should be hidden by default */
+#liveToast {
+  display: none !important;
+  visibility: hidden !important;
+}
+#liveToast.show {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Fix: Rename Bootstrap toast container to avoid conflict */
+.bs-toast-container {
+  position: fixed !important;
+  bottom: 1rem !important;
+  left: 1rem !important;
+  z-index: 1080 !important;
+  pointer-events: none !important;
+}
+[dir="ltr"] .bs-toast-container {
+  left: auto !important;
+  right: 1rem !important;
+}
+
+/* Fix: Ensure modals are fully interactive */
+.modal {
+  z-index: 12000 !important;
+}
+.modal-backdrop {
+  z-index: 11999 !important;
+}
+.modal-dialog {
+  pointer-events: auto !important;
+}
+.modal-content {
+  pointer-events: auto !important;
+}
+.modal-content input,
+.modal-content select,
+.modal-content textarea,
+.modal-content button,
+.modal-content .form-control,
+.modal-content .form-select {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+.modal-content .btn:not([disabled]) {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* Fix: Notification panel styling */
+#notificationPanel {
+  z-index: 12001 !important;
+  background: var(--sp-card-bg, #fff) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+}
+.dark-mode #notificationPanel {
+  background: var(--sp-card-bg, #1e293b) !important;
+  color: var(--sp-text, #e2e8f0) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Fix: Ensure notifications-toast-container doesn't block clicks */
+.notifications-toast-container {
+  pointer-events: none !important;
+}
+.notifications-toast-container > * {
+  pointer-events: auto;
+}
+
+/* Fix: LTR support for language switch */
+[dir="ltr"] .sidebar {
+  right: auto;
+  left: 0;
+}
+[dir="ltr"] .main-content {
+  margin-right: 0;
+  margin-left: 280px;
+}
+@media (max-width: 991px) {
+  [dir="ltr"] .main-content {
+    margin-left: 0;
+  }
+}
