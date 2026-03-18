@@ -1134,11 +1134,21 @@
             deferredPrompt = e;
 
             // عرض زر التثبيت
-            const installBtn = document.createElement('button');
-            installBtn.className = 'btn btn-primary position-fixed';
-            installBtn.style.cssText = 'bottom: 80px; left: 20px; z-index: 1050; border-radius: 50px; padding: 12px 20px;';
-            installBtn.innerHTML = '<i class="fas fa-download me-2"></i> تثبيت التطبيق';
-            document.body.appendChild(installBtn);
+            // استخدام الزر الموجود في الحاوية العائمة
+            const installBtn = document.getElementById('v5-install-fab');
+            if (installBtn) {
+                installBtn.style.removeProperty('display');
+                installBtn.style.display = 'flex';
+            } else {
+                // fallback: إنشاء زر مؤقت
+                var tmpBtn = document.createElement('button');
+                tmpBtn.className = 'btn btn-success position-fixed d-flex align-items-center justify-content-center rounded-circle shadow-lg';
+                tmpBtn.style.cssText = 'bottom:260px;left:20px;z-index:1050;width:48px;height:48px;font-size:18px;';
+                tmpBtn.innerHTML = '<i class="fas fa-download"></i>';
+                tmpBtn.title = 'تثبيت التطبيق';
+                document.body.appendChild(tmpBtn);
+                var installBtn = tmpBtn;
+            }
 
             installBtn.addEventListener('click', () => {
                 deferredPrompt.prompt();
@@ -1165,6 +1175,55 @@
     document.head.appendChild(style);
 })();
 </script>
+    <!-- V5 FAB Buttons CSS Fix -->
+    <style>
+        #v5-fab-container {
+            transition: all 0.3s ease;
+        }
+        #v5-fab-container button {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none !important;
+            outline: none !important;
+        }
+        #v5-fab-container button:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+        }
+        #v5-fab-container button:active {
+            transform: scale(0.95);
+        }
+        /* التأكد من عدم التداخل مع الشريط الجانبي */
+        @media (max-width: 768px) {
+            #v5-fab-container {
+                bottom: 15px !important;
+                left: 15px !important;
+                gap: 10px !important;
+            }
+            #v5-fab-container button {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                font-size: 15px !important;
+            }
+        }
+        /* tooltip للأزرار */
+        #v5-fab-container button[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 58px;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        #v5-fab-container button {
+            position: relative;
+        }
+    </style>
 </head>
 
 <body>
@@ -12459,16 +12518,19 @@ window.addEventListener('load', function() {
     <script src="bugfixes.js"></script>
     <!-- V3 Comprehensive Fixes & Improvements -->
     <script src="superpro-v4-master.js"></script>
-    <!-- V5 Floating Action Buttons -->
-    <div id="v5-fab-container" style="position:fixed;bottom:20px;left:20px;z-index:1050;display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-primary rounded-circle shadow-lg" style="width:50px;height:50px;" data-bs-toggle="modal" data-bs-target="#v5NotesModal" title="الملاحظات">
-            <i class="fas fa-sticky-note"></i>
+    <!-- V5 Floating Action Buttons - Fixed Layout -->
+    <div id="v5-fab-container" style="position:fixed;bottom:20px;left:20px;z-index:1050;display:flex;flex-direction:column-reverse;align-items:center;gap:12px;">
+        <button class="btn btn-lg btn-dark rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width:48px;height:48px;min-width:48px;font-size:18px;" onclick="if(typeof SuperProV5!=='undefined')SuperProV5.darkMode.toggle();else if(typeof DarkModeManager!=='undefined')DarkModeManager.toggle();" title="الوضع الليلي" id="v5-dark-toggle-fab">
+            <i class="fas fa-moon"></i>
         </button>
-        <button class="btn btn-danger rounded-circle shadow-lg" style="width:50px;height:50px;" data-bs-toggle="modal" data-bs-target="#v5PdfModal" title="تصدير PDF">
+        <button class="btn btn-lg btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width:48px;height:48px;min-width:48px;font-size:18px;" data-bs-toggle="modal" data-bs-target="#v5PdfModal" title="تصدير PDF">
             <i class="fas fa-file-pdf"></i>
         </button>
-        <button class="btn btn-dark rounded-circle shadow-lg" style="width:50px;height:50px;" onclick="SuperProV5.darkMode.toggle()" title="الوضع الليلي" id="v5-dark-toggle-fab">
-            <i class="fas fa-moon"></i>
+        <button class="btn btn-lg btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width:48px;height:48px;min-width:48px;font-size:18px;" data-bs-toggle="modal" data-bs-target="#v5NotesModal" title="الملاحظات">
+            <i class="fas fa-sticky-note"></i>
+        </button>
+        <button class="btn btn-lg btn-success rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width:48px;height:48px;min-width:48px;font-size:18px;display:none !important;" id="v5-install-fab" onclick="if(typeof PWAManager!=='undefined')PWAManager.promptInstall();" title="تثبيت التطبيق">
+            <i class="fas fa-download"></i>
         </button>
     </div>
 
