@@ -925,6 +925,37 @@
             --danger: #ff6666;
             --warning: #ffcc66;
         }
+    
+        /* === Account Management Card === */
+        #accountManagementCard .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.25);
+        }
+        #accountManagementCard .card-header {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        #accountManagementCard .alert-info {
+            background: linear-gradient(135deg, #e8f4fd, #d6eaf8);
+            border: 1px solid #85c1e9;
+            border-radius: 12px;
+        }
+        #accountManagementCard hr {
+            border-color: #dee2e6;
+        }
+        #accountManagementCard .btn-primary {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            border: none;
+            padding: 8px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        #accountManagementCard .btn-primary:hover {
+            background: linear-gradient(135deg, #1a252f, #2980b9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52,152,219,0.3);
+        }
+    
     </style>
 
     <!-- Firebase SDK -->
@@ -1079,12 +1110,12 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold" style="font-size:0.85rem;color:#555;">👤 اسم المستخدم</label>
-                    <input class="form-control" id="authUsername" autocomplete="username" value="admin" style="border-radius:10px;">
+                    <input class="form-control" id="authUsername" autocomplete="username" value="" style="border-radius:10px;">
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold" style="font-size:0.85rem;color:#555;">🔒 كلمة المرور</label>
                     <div class="input-group">
-                        <input type="password" class="form-control" id="authPassword" autocomplete="current-password" value="1234" style="border-radius:10px 0 0 10px;">
+                        <input type="password" class="form-control" id="authPassword" autocomplete="current-password" value="" style="border-radius:10px 0 0 10px;">
                         <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('authPassword',this)" style="border-radius:0 10px 10px 0;"><i class="fas fa-eye"></i></button>
                     </div>
                 </div>
@@ -1094,9 +1125,9 @@
                     </button>
                     <div class="alert alert-danger py-2 mb-0" id="authError" style="display:none;font-size:13px;border-radius:10px;"></div>
                 </div>
-                <div class="mt-3 p-2 rounded" style="background:#f8f9fb;font-size:0.78rem;color:#888;text-align:center;">
+                <div class="mt-3 p-2 rounded" id="loginHintBox" style="background:#f8f9fb;font-size:0.78rem;color:#888;text-align:center;">
                     <i class="fas fa-info-circle me-1"></i>
-                    تجريبي: <strong>admin/1234</strong> · <strong>supervisor/1234</strong> · <strong>viewer/1234</strong>
+                    <span id="loginCredentialsHint">أدخل بيانات الدخول</span>
                 </div>
             </div>
         </div>
@@ -2866,6 +2897,80 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
+
+
+            <!-- بطاقة إدارة الحساب -->
+            <div class="card mt-3" id="accountManagementCard">
+                <div class="card-header" style="background:linear-gradient(135deg,#2c3e50,#3498db);color:white;">
+                    <i class="fas fa-user-cog me-2"></i>إدارة الحساب
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <!-- المستخدم الحالي -->
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0 d-flex align-items-center" id="currentUserInfoSettings">
+                                <i class="fas fa-user-circle fa-2x me-3"></i>
+                                <div>
+                                    <strong id="settingsCurrentUsername">—</strong>
+                                    <br><small class="text-muted" id="settingsCurrentRole">—</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- تغيير اسم المستخدم -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-user me-1"></i>اسم المستخدم الجديد</label>
+                            <input type="text" class="form-control" id="settingsNewUsername" placeholder="أدخل اسم المستخدم الجديد" minlength="3" maxlength="30">
+                            <small class="text-muted">3 أحرف على الأقل، بدون مسافات</small>
+                        </div>
+
+                        <!-- تغيير الاسم الظاهر -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold"><i class="fas fa-id-card me-1"></i>الاسم الظاهر</label>
+                            <input type="text" class="form-control" id="settingsNewDisplayName" placeholder="الاسم الذي يظهر في النظام">
+                            <small class="text-muted">يظهر في الترحيب والتقارير</small>
+                        </div>
+
+                        <div class="col-12"><hr class="my-1"></div>
+
+                        <!-- تغيير كلمة المرور -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold"><i class="fas fa-lock me-1"></i>كلمة المرور الحالية</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="settingsCurrentPassword" placeholder="كلمة المرور الحالية">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('settingsCurrentPassword',this)"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold"><i class="fas fa-key me-1"></i>كلمة المرور الجديدة</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="settingsNewPassword" placeholder="8 أحرف على الأقل" minlength="4">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('settingsNewPassword',this)"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold"><i class="fas fa-check-double me-1"></i>تأكيد كلمة المرور</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="settingsConfirmPassword" placeholder="أعد كتابة كلمة المرور">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePwdVis('settingsConfirmPassword',this)"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- مؤشر قوة كلمة المرور -->
+                        <div class="col-12" id="settingsPasswordStrength"></div>
+
+                        <!-- أزرار الحفظ -->
+                        <div class="col-12 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary" id="saveAccountChangesBtn" onclick="saveAccountChanges()">
+                                <i class="fas fa-save me-2"></i>حفظ التغييرات
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetAccountForm()">
+                                <i class="fas fa-undo me-2"></i>إعادة تعيين
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -7231,6 +7336,7 @@
                     break;
                 case 'settings':
                     console.log('⚙️ تحميل الإعدادات');
+                    setTimeout(initAccountManagement, 100);
                     loadSettings();
                     break;
                 case 'activityLog':
@@ -11305,7 +11411,275 @@
             if (modal) modal.hide();
         }
 
-        // ===== نظام النسخ الاحتياطية المحسّن =====
+
+        // ===== نظام إدارة الحساب في الإعدادات =====
+        function initAccountManagement() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+
+            const usernameEl = document.getElementById('settingsCurrentUsername');
+            const roleEl = document.getElementById('settingsCurrentRole');
+            const newUsernameEl = document.getElementById('settingsNewUsername');
+            const newDisplayNameEl = document.getElementById('settingsNewDisplayName');
+
+            if (usernameEl) {
+                const freshUsers = getLocalUsers();
+                const u = freshUsers.find(x => x.username === currentUser.username);
+                usernameEl.textContent = currentUser.displayName || currentUser.username;
+                const roleLabels = { admin: '🔴 مدير النظام', supervisor: '🟡 مشرف', viewer: '🟢 عرض فقط' };
+                if (roleEl) roleEl.textContent = (roleLabels[currentUser.role] || currentUser.role) + ' — @' + currentUser.username;
+            }
+            if (newUsernameEl) newUsernameEl.value = currentUser.username;
+            if (newDisplayNameEl) newDisplayNameEl.value = currentUser.displayName || '';
+
+            // مؤشر قوة كلمة المرور
+            const newPwdInput = document.getElementById('settingsNewPassword');
+            if (newPwdInput) {
+                newPwdInput.addEventListener('input', function() {
+                    showPasswordStrengthInSettings(this.value);
+                });
+            }
+        }
+
+        function showPasswordStrengthInSettings(password) {
+            const container = document.getElementById('settingsPasswordStrength');
+            if (!container) return;
+            if (!password || password.length === 0) { container.innerHTML = ''; return; }
+
+            let score = 0;
+            let tips = [];
+            if (password.length >= 4) score++; else tips.push('4 أحرف على الأقل');
+            if (password.length >= 8) score++;
+            if (password.length >= 12) score++;
+            if (/[A-Z]/.test(password)) score++; else tips.push('حرف كبير');
+            if (/[0-9]/.test(password)) score++; else tips.push('رقم');
+            if (/[^A-Za-z0-9]/.test(password)) score++; else tips.push('رمز خاص');
+
+            const levels = [
+                { label: 'ضعيفة جداً', color: 'danger', pct: 15 },
+                { label: 'ضعيفة', color: 'danger', pct: 30 },
+                { label: 'مقبولة', color: 'warning', pct: 45 },
+                { label: 'متوسطة', color: 'warning', pct: 60 },
+                { label: 'جيدة', color: 'info', pct: 75 },
+                { label: 'قوية', color: 'success', pct: 90 },
+                { label: 'ممتازة', color: 'success', pct: 100 }
+            ];
+            const level = levels[Math.min(score, 6)];
+
+            container.innerHTML = `
+                <div class="d-flex justify-content-between mb-1">
+                    <small>قوة كلمة المرور:</small>
+                    <small class="fw-bold text-${level.color}">${level.label}</small>
+                </div>
+                <div class="progress" style="height:6px;">
+                    <div class="progress-bar bg-${level.color}" style="width:${level.pct}%;transition:width 0.3s;"></div>
+                </div>
+                ${tips.length > 0 ? '<small class="text-muted d-block mt-1">💡 يُنصح بإضافة: ' + tips.join('، ') + '</small>' : ''}
+            `;
+        }
+
+        function saveAccountChanges() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) { showToast('يرجى تسجيل الدخول أولاً', 'error'); return; }
+
+            const newUsername = (document.getElementById('settingsNewUsername')?.value || '').trim();
+            const newDisplayName = (document.getElementById('settingsNewDisplayName')?.value || '').trim();
+            const currentPwd = (document.getElementById('settingsCurrentPassword')?.value || '');
+            const newPwd = (document.getElementById('settingsNewPassword')?.value || '');
+            const confirmPwd = (document.getElementById('settingsConfirmPassword')?.value || '');
+
+            const freshUsers = getLocalUsers();
+            const userIndex = freshUsers.findIndex(x => x.username === currentUser.username);
+            if (userIndex === -1) { showToast('خطأ: المستخدم غير موجود', 'error'); return; }
+
+            let changes = [];
+
+            // --- تغيير اسم المستخدم ---
+            if (newUsername && newUsername !== currentUser.username) {
+                if (newUsername.length < 3) {
+                    showToast('اسم المستخدم يجب أن يكون 3 أحرف على الأقل', 'warning');
+                    return;
+                }
+                if (/\s/.test(newUsername)) {
+                    showToast('اسم المستخدم يجب ألا يحتوي على مسافات', 'warning');
+                    return;
+                }
+                // تحقق من عدم وجود نفس الاسم
+                if (freshUsers.some((u, i) => i !== userIndex && u.username === newUsername)) {
+                    showToast('اسم المستخدم مستخدم بالفعل', 'error');
+                    return;
+                }
+                freshUsers[userIndex].username = newUsername;
+                changes.push('اسم المستخدم');
+            }
+
+            // --- تغيير الاسم الظاهر ---
+            if (newDisplayName && newDisplayName !== freshUsers[userIndex].displayName) {
+                freshUsers[userIndex].displayName = newDisplayName;
+                changes.push('الاسم الظاهر');
+            }
+
+            // --- تغيير كلمة المرور ---
+            if (newPwd || confirmPwd || currentPwd) {
+                if (!currentPwd) {
+                    showToast('يرجى إدخال كلمة المرور الحالية', 'warning');
+                    return;
+                }
+                if (freshUsers[userIndex].password !== currentPwd) {
+                    showToast('كلمة المرور الحالية غير صحيحة', 'error');
+                    return;
+                }
+                if (!newPwd) {
+                    showToast('يرجى إدخال كلمة المرور الجديدة', 'warning');
+                    return;
+                }
+                if (newPwd !== confirmPwd) {
+                    showToast('كلمات المرور الجديدة غير متطابقة', 'error');
+                    return;
+                }
+                if (newPwd.length < 4) {
+                    showToast('كلمة المرور يجب أن تكون 4 أحرف على الأقل', 'warning');
+                    return;
+                }
+                freshUsers[userIndex].password = newPwd;
+                changes.push('كلمة المرور');
+            }
+
+            if (changes.length === 0) {
+                showToast('لم يتم إجراء أي تغيير', 'info');
+                return;
+            }
+
+            // حفظ التغييرات
+            saveLocalUsers(freshUsers);
+
+            // تحديث الجلسة الحالية
+            const updatedUser = freshUsers[userIndex];
+            setCurrentUser({
+                username: updatedUser.username,
+                role: updatedUser.role,
+                displayName: updatedUser.displayName,
+                loggedAt: currentUser.loggedAt || new Date().toISOString()
+            });
+
+            showToast('✅ تم حفظ التغييرات: ' + changes.join('، '), 'success');
+
+            // تسجيل النشاط
+            if (typeof logActivity === 'function') {
+                logActivity('تعديل الحساب', 'تم تغيير: ' + changes.join('، '));
+            }
+            if (typeof logSecurityActivity === 'function') {
+                logSecurityActivity('تعديل الحساب', 'نجح', 'تم تغيير: ' + changes.join('، '));
+            }
+
+            // تحديث واجهة الإعدادات
+            initAccountManagement();
+
+            // مسح حقول كلمة المرور
+            ['settingsCurrentPassword', 'settingsNewPassword', 'settingsConfirmPassword'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const strengthDiv = document.getElementById('settingsPasswordStrength');
+            if (strengthDiv) strengthDiv.innerHTML = '';
+
+            // تحديث اسم المستخدم في شريط التنقل إن وُجد
+            updateNavbarUserInfo();
+        }
+
+        function resetAccountForm() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            const freshUsers = getLocalUsers();
+            const u = freshUsers.find(x => x.username === currentUser.username);
+
+            const fields = {
+                'settingsNewUsername': u ? u.username : '',
+                'settingsNewDisplayName': u ? u.displayName : '',
+                'settingsCurrentPassword': '',
+                'settingsNewPassword': '',
+                'settingsConfirmPassword': ''
+            };
+            Object.entries(fields).forEach(([id, val]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            });
+            const strengthDiv = document.getElementById('settingsPasswordStrength');
+            if (strengthDiv) strengthDiv.innerHTML = '';
+            showToast('تم إعادة تعيين النموذج', 'info');
+        }
+
+        function updateNavbarUserInfo() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) return;
+            // Update any navbar elements showing user info
+            document.querySelectorAll('.user-display-name, #userDisplayName').forEach(el => {
+                el.textContent = currentUser.displayName || currentUser.username;
+            });
+        }
+
+        function updateLoginHint() {
+            const hintEl = document.getElementById('loginCredentialsHint');
+            if (!hintEl) return;
+            const users = getLocalUsers();
+            const hints = users.map(u => {
+                const roleIcon = u.role === 'admin' ? '🔴' : u.role === 'supervisor' ? '🟡' : '🟢';
+                return roleIcon + ' ' + u.username;
+            });
+            hintEl.innerHTML = 'المستخدمون: ' + hints.join(' · ');
+        }
+
+        // تهيئة عند فتح الإعدادات
+        const _origSettingsLoad = (function() {
+            // Patch the settings module load
+            const origSwitch = window._switchToModule || function(){};
+            const settingsObserver = new MutationObserver((mutations) => {
+                mutations.forEach(m => {
+                    if (m.target.id === 'settings' && m.target.style.display !== 'none') {
+                        initAccountManagement();
+                    }
+                });
+            });
+            const settingsEl = document.getElementById('settings');
+            if (settingsEl) {
+                settingsObserver.observe(settingsEl, { attributes: true, attributeFilter: ['style', 'class'] });
+            }
+        })();
+
+        // تهيئة عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                updateLoginHint();
+                // Also populate login fields with first user for convenience
+                const users = getLocalUsers();
+                const usernameInput = document.getElementById('authUsername');
+                const passwordInput = document.getElementById('authPassword');
+                if (usernameInput && !usernameInput.value && users.length > 0) {
+                    usernameInput.value = users[0].username;
+                    passwordInput.value = users[0].password;
+                }
+            }, 500);
+        });
+
+        // Also hook into syncRoleToUser to update from current users
+        (function patchRoleSync() {
+            const roleSel = document.getElementById('authRole');
+            const userInput = document.getElementById('authUsername');
+            const passInput = document.getElementById('authPassword');
+            if (roleSel && userInput) {
+                roleSel.addEventListener('change', function() {
+                    const role = this.value;
+                    const freshUsers = getLocalUsers();
+                    const u = freshUsers.find(x => x.role === role);
+                    if (u) {
+                        userInput.value = u.username;
+                        if (passInput) passInput.value = u.password;
+                    }
+                });
+            }
+        })();
+
+                // ===== نظام النسخ الاحتياطية المحسّن =====
         function createSecureBackupWithEncryption() {
             const timestamp = new Date().toISOString();
             const backup = {
