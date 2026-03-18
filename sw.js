@@ -1,68 +1,84 @@
-// Service Worker - SUPER_PRO SYSTEM (Enhanced v4)
-// Bump this to force clients to get latest app shell
-const CACHE_NAME = 'superpro-v5';
-const APP_SHELL = [
+const CACHE_NAME = 'superpro-v5-cache';
+const STATIC_ASSETS = [
     './',
     './index.html',
-    './manifest.json',
-    './user-data-full.json',
-    './design-enhancements.css',
+    './app.js',
+    './improvements-v5.js',
     './design-enhancements.js',
-    './data-manager.js',
-    './professional-dashboard.css',
+    './language-system.js',
     './bugfixes.js',
-    './language-system.js'
+    './superpro-v4-master.js',
+    './manifest.json'
 ];
 
-self.addEventListener('install', (event) => {
+// Install - cache static assets
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(APP_SHELL);
-        }).then(() => self.skipWaiting())
+        caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(STATIC_ASSETS);
+        })
     );
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+// Activate - clean old caches
+self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(
-                keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-            )
-        ).then(() => self.clients.claim())
+        caches.keys().then(keys => {
+            return Promise.all(
+                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+            );
+        })
     );
+    self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') return;
-    const url = new URL(event.request.url);
-
-    // Network-first for navigations (HTML) to avoid serving stale UI that breaks buttons/data.
-    const isNavigation = event.request.mode === 'navigate';
-    const isHtml = url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
-    if (isNavigation || isHtml) {
-        event.respondWith((async () => {
-            try {
-                const fresh = await fetch(event.request);
-                const cache = await caches.open(CACHE_NAME);
-                cache.put(event.request, fresh.clone());
-                return fresh;
-            } catch (e) {
-                const cached = await caches.match(event.request);
-                return cached || caches.match('./index.html');
-            }
-        })());
+// Fetch - network first, fallback to cache
+self.addEventListener('fetch', event => {
+    if (event.request.url.includes('firebaseio.com') || 
+        event.request.url.includes('googleapis.com') ||
+        event.request.url.includes('firestore.googleapis.com')) {
         return;
     }
+    
+    event.respondWith(
+        fetch(event.request)
+            .then(response => {
+                if (response.status === 200) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
+                return response;
+            })
+            .catch(() => {
+                return caches.match(event.request);
+            })
+    );
+});
 
-    // Cache-first for other GET requests
-    event.respondWith((async () => {
-        const cached = await caches.match(event.request);
-        if (cached) return cached;
-        const fresh = await fetch(event.request);
-        try {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(event.request, fresh.clone());
-        } catch (e) {}
-        return fresh;
-    })());
+// Push notifications
+self.addEventListener('push', event => {
+    const data = event.data ? event.data.json() : {};
+    const options = {
+        body: data.body || 'لديك إشعار جديد',
+        icon: './icons/icon-192x192.png',
+        badge: './icons/icon-72x72.png',
+        vibrate: [100, 50, 100],
+        dir: 'rtl',
+        lang: 'ar',
+        data: { url: data.url || './' },
+        actions: data.actions || []
+    };
+    event.waitUntil(
+        self.registration.showNotification(data.title || 'SuperPro System', options)
+    );
+});
+
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow(event.notification.data.url || './')
+    );
 });

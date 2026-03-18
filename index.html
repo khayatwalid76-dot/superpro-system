@@ -64,11 +64,17 @@
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#667eea" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SuperPro" />
+    <meta name="msapplication-TileColor" content="#667eea" />
+    <meta name="msapplication-TileImage" content="icons/icon-144x144.png" />
 
     <!-- Favicon and Icons -->
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiMzNDk4ZGIiLz4KPHBhdGggZD0iTTEwIDEwSDIyVjIySDEwVjEwWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+" />
-    <link rel="apple-touch-icon"
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png" />
         href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMjAiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8zXzMpIi8+CjxwYXRoIGQ9Ik05MCA0NUM2Mi44IDQ1IDQ1IDYyLjggNDUgOTBTNjIuOCAxMzUgOTAgMTM1UzEzNSAxMTcuMiAxMzUgOTBTMTE3LjIgNDUgOTAgNDVaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNzUgNzVIMTA1VjEwNUg3NVY3NVoiIGZpbGw9IiMyYzNlNTAiLz4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwX2xpbmVhcl8zXzMiIHgxPSIwIiB5MT0iMCIgeDI9IjE4MCIgeTI9IjE4MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMmMzZTUwIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzM0OThkYiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPg==" />
 
     <!-- Bootstrap CSS -->
@@ -957,6 +963,85 @@
         }
     
     </style>
+
+
+    <!-- V5 Notes Modal -->
+    <div class="modal fade" id="v5NotesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-sticky-note me-2"></i>الملاحظات</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">إضافة ملاحظة جديدة</label>
+                        <textarea class="form-control" id="v5-new-note-text" rows="3" placeholder="اكتب ملاحظتك هنا..."></textarea>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <select class="form-select" id="v5-note-priority">
+                                <option value="low">🟢 عادية</option>
+                                <option value="medium">🟡 متوسطة</option>
+                                <option value="high">🔴 مهمة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="v5-note-category">
+                                <option value="general">عامة</option>
+                                <option value="employee">موظف</option>
+                                <option value="client">عميل</option>
+                                <option value="project">مشروع</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="SuperProV5.notes.add()"><i class="fas fa-plus"></i> إضافة</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id="v5-notes-list" style="max-height: 400px; overflow-y: auto;">
+                        <p class="text-muted text-center">لا توجد ملاحظات</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- V5 PDF Export Modal -->
+    <div class="modal fade" id="v5PdfModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-file-pdf me-2"></i>تصدير PDF</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">عنوان التقرير</label>
+                        <input type="text" class="form-control" id="v5-pdf-title" value="تقرير SuperPro">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">نوع التقرير</label>
+                        <select class="form-select" id="v5-pdf-type">
+                            <option value="employees">تقرير الموظفين</option>
+                            <option value="salaries">تقرير الرواتب</option>
+                            <option value="clients">تقرير العملاء</option>
+                            <option value="contracts">تقرير العقود</option>
+                            <option value="finance">التقرير المالي</option>
+                            <option value="attendance">تقرير الحضور</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="v5-pdf-include-charts" checked>
+                        <label class="form-check-label">تضمين الرسوم البيانية</label>
+                    </div>
+                    <button class="btn btn-danger w-100" onclick="SuperProV5.pdf.generate()">
+                        <i class="fas fa-download me-2"></i>تحميل PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -2717,6 +2802,10 @@
 
         <!-- CALENDAR -->
         <div id="calendar" class="module-container" style="display:none">
+            <!-- V5 Enhanced Calendar Controls -->
+            <div class="d-flex justify-content-between align-items-center mb-3" id="v5-calendar-controls" style="display:none !important;">
+                <!-- سيتم تفعيلها من improvements-v5.js -->
+            </div>
             <h2 class="section-title">التقويم والمواعيد</h2>
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -2838,8 +2927,11 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <button class="btn btn-primary" id="exportReportBtn">
+                            <button class="btn btn-primary me-2" id="exportReportBtn">
                                 <i class="fas fa-download me-2"></i>تصدير التقرير
+                            </button>
+                            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#v5PdfModal">
+                                <i class="fas fa-file-pdf me-2"></i>تصدير PDF احترافي
                             </button>
                         </div>
                     </div>
@@ -2974,6 +3066,45 @@
                 </div>
             </div>
 
+            <!-- V5 Enhanced Dark Mode Settings -->
+            <div class="card mt-3">
+                <div class="card-header" style="background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;">
+                    <i class="fas fa-moon me-2"></i>إعدادات الوضع الليلي المحسّن
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="v5-dark-mode-toggle" onchange="SuperProV5.darkMode.toggle()">
+                                <label class="form-check-label" for="v5-dark-mode-toggle">تفعيل الوضع الليلي</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="v5-auto-dark-mode" onchange="SuperProV5.darkMode.setAutoSchedule(this.checked)">
+                                <label class="form-check-label" for="v5-auto-dark-mode">تفعيل تلقائي (6م - 6ص)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">لون التمييز</label>
+                            <input type="color" class="form-control form-control-color w-100" id="v5-accent-color" value="#667eea" onchange="SuperProV5.darkMode.setAccentColor(this.value)">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">درجة السطوع</label>
+                            <input type="range" class="form-range" id="v5-brightness" min="50" max="100" value="100" onchange="SuperProV5.darkMode.setBrightness(this.value)">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">حجم الخط</label>
+                            <select class="form-select" id="v5-font-size" onchange="SuperProV5.darkMode.setFontSize(this.value)">
+                                <option value="small">صغير</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="large">كبير</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card mt-3">
                 <div class="card-header">نسخ احتياطي</div>
                 <div class="card-body">
@@ -3084,6 +3215,39 @@
                 </div>
             </div>
             
+            <!-- V5 Interactive Charts -->
+            <div class="row g-3 mb-4" id="v5-charts-container">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <span><i class="fas fa-chart-area"></i> الرسوم البيانية التفاعلية</span>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-light btn-sm" onclick="SuperProV5.charts.renderRevenueChart()"><i class="fas fa-sync"></i> تحديث</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <h6 class="text-center mb-2">📈 الإيرادات الشهرية</h6>
+                                    <canvas id="v5-revenue-chart" height="250"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-center mb-2">📊 المصروفات الشهرية</h6>
+                                    <canvas id="v5-expenses-chart" height="250"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-center mb-2">🏢 توزيع الموظفين</h6>
+                                    <canvas id="v5-employees-chart" height="250"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-center mb-2">📋 حالة المشاريع</h6>
+                                    <canvas id="v5-projects-chart" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Additional Reports -->
             <div class="row g-3">
                 <div class="col-md-4">
@@ -3102,7 +3266,7 @@
         <div id="notifications" class="module-container" style="display:none">
             <h2 class="section-title mb-4">🔔 الإشعارات والتنبيهات</h2>
             <div class="alert alert-info"><i class="fas fa-bell"></i> نظام الإشعارات المتقدم</div>
-            <div class="row g-3">
+            <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <button class="btn btn-warning w-100" onclick="notificationsModule.alertExpiredContracts()"><i class="fas fa-calendar-times"></i> العقود المنتهية</button>
                 </div>
@@ -3111,6 +3275,32 @@
                 </div>
                 <div class="col-md-4">
                     <button class="btn btn-info w-100" onclick="notificationsModule.alertLowAttendance()"><i class="fas fa-user-check"></i> الحضور المنخفض</button>
+                </div>
+            </div>
+            
+            <!-- V5 Smart Alerts -->
+            <div class="card mb-3">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-bell"></i> التنبيهات الذكية التلقائية
+                    <button class="btn btn-sm btn-light float-end" onclick="SuperProV5.alerts.checkAll()"><i class="fas fa-sync"></i> فحص الآن</button>
+                </div>
+                <div class="card-body">
+                    <div id="v5-smart-alerts-container">
+                        <p class="text-muted text-center"><i class="fas fa-spinner fa-spin"></i> جاري فحص التنبيهات...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification History -->
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <i class="fas fa-history"></i> سجل الإشعارات
+                    <button class="btn btn-sm btn-light float-end" onclick="SuperProV5.alerts.clearHistory()"><i class="fas fa-trash"></i> مسح</button>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    <div id="v5-notification-history">
+                        <p class="text-muted text-center">لا توجد إشعارات سابقة</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3221,6 +3411,43 @@
                             <h5>الأذونات</h5>
                             <button class="btn btn-sm btn-success w-100" onclick="alert('التحقق من الأذونات...')">تحقق</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- V5 Advanced Permissions Matrix -->
+            <div class="card mt-4">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-user-shield"></i> مصفوفة الصلاحيات المتقدمة
+                    <button class="btn btn-sm btn-warning float-end" onclick="SuperProV5.permissions.saveAll()"><i class="fas fa-save"></i> حفظ التغييرات</button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover mb-0" id="v5-permissions-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>القسم</th>
+                                    <th class="text-center">مدير النظام</th>
+                                    <th class="text-center">مشرف</th>
+                                    <th class="text-center">عرض فقط</th>
+                                </tr>
+                            </thead>
+                            <tbody id="v5-permissions-body">
+                                <!-- سيتم تعبئتها ديناميكياً -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Session Management -->
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-desktop"></i> الجلسات النشطة
+                </div>
+                <div class="card-body">
+                    <div id="v5-active-sessions">
+                        <p class="text-muted text-center">جاري تحميل الجلسات...</p>
                     </div>
                 </div>
             </div>
@@ -12232,6 +12459,21 @@ window.addEventListener('load', function() {
     <script src="bugfixes.js"></script>
     <!-- V3 Comprehensive Fixes & Improvements -->
     <script src="superpro-v4-master.js"></script>
+    <!-- V5 Floating Action Buttons -->
+    <div id="v5-fab-container" style="position:fixed;bottom:20px;left:20px;z-index:1050;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary rounded-circle shadow-lg" style="width:50px;height:50px;" data-bs-toggle="modal" data-bs-target="#v5NotesModal" title="الملاحظات">
+            <i class="fas fa-sticky-note"></i>
+        </button>
+        <button class="btn btn-danger rounded-circle shadow-lg" style="width:50px;height:50px;" data-bs-toggle="modal" data-bs-target="#v5PdfModal" title="تصدير PDF">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+        <button class="btn btn-dark rounded-circle shadow-lg" style="width:50px;height:50px;" onclick="SuperProV5.darkMode.toggle()" title="الوضع الليلي" id="v5-dark-toggle-fab">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- V5 Comprehensive Improvements -->
+    <script src="improvements-v5.js"></script>
 </body>
 
 </html>
