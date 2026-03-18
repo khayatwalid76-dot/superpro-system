@@ -1,0 +1,605 @@
+/* ==========================================================================
+   SUPER_PRO v3 — Comprehensive Fixes & Improvements
+   ========================================================================== */
+
+/* ---- FIX 1: Toast container hidden on load ---- */
+.toast-container,
+.bs-toast-container {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    position: fixed !important;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1080;
+}
+.toast-container.show-toast {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+#liveToast {
+    display: none !important;
+}
+
+/* ---- FIX 2: Action buttons in tables — override white color ---- */
+table .quick-action-btn,
+.table .quick-action-btn,
+.btn-group .quick-action-btn,
+td .quick-action-btn,
+.module-container .quick-action-btn {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid currentColor !important;
+    color: inherit !important;
+}
+
+table .quick-action-btn.btn-outline-warning,
+.table .quick-action-btn.btn-outline-warning,
+.btn-group .quick-action-btn.btn-outline-warning,
+td .btn-outline-warning.quick-action-btn {
+    color: #e67e22 !important;
+    border-color: #e67e22 !important;
+}
+
+table .quick-action-btn.btn-outline-warning:hover,
+.table .quick-action-btn.btn-outline-warning:hover,
+td .btn-outline-warning.quick-action-btn:hover {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+
+table .quick-action-btn.btn-outline-danger,
+.table .quick-action-btn.btn-outline-danger,
+.btn-group .quick-action-btn.btn-outline-danger,
+td .btn-outline-danger.quick-action-btn {
+    color: #e74c3c !important;
+    border-color: #e74c3c !important;
+}
+
+table .quick-action-btn.btn-outline-danger:hover,
+.table .quick-action-btn.btn-outline-danger:hover,
+td .btn-outline-danger.quick-action-btn:hover {
+    background: #e74c3c !important;
+    color: #fff !important;
+}
+
+table .quick-action-btn.btn-outline-success,
+.table .quick-action-btn.btn-outline-success,
+td .btn-outline-success.quick-action-btn {
+    color: #27ae60 !important;
+    border-color: #27ae60 !important;
+}
+
+table .quick-action-btn.btn-outline-success:hover,
+td .btn-outline-success.quick-action-btn:hover {
+    background: #27ae60 !important;
+    color: #fff !important;
+}
+
+table .quick-action-btn.btn-outline-info,
+.table .quick-action-btn.btn-outline-info,
+td .btn-outline-info.quick-action-btn {
+    color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+}
+
+table .quick-action-btn.btn-outline-info:hover,
+td .btn-outline-info.quick-action-btn:hover {
+    background: #17a2b8 !important;
+    color: #fff !important;
+}
+
+table .quick-action-btn.btn-outline-primary,
+.table .quick-action-btn.btn-outline-primary,
+td .btn-outline-primary.quick-action-btn {
+    color: #3498db !important;
+    border-color: #3498db !important;
+}
+
+table .quick-action-btn.btn-outline-primary:hover,
+td .btn-outline-primary.quick-action-btn:hover {
+    background: #3498db !important;
+    color: #fff !important;
+}
+
+/* Also fix non-quick-action-btn outline buttons in tables */
+table .btn-outline-warning,
+.table .btn-outline-warning {
+    color: #e67e22 !important;
+    border-color: #e67e22 !important;
+    background: transparent !important;
+}
+table .btn-outline-warning:hover {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+table .btn-outline-danger,
+.table .btn-outline-danger {
+    color: #e74c3c !important;
+    border-color: #e74c3c !important;
+    background: transparent !important;
+}
+table .btn-outline-danger:hover {
+    background: #e74c3c !important;
+    color: #fff !important;
+}
+table .btn-outline-success,
+.table .btn-outline-success {
+    color: #27ae60 !important;
+    border-color: #27ae60 !important;
+    background: transparent !important;
+}
+table .btn-outline-success:hover {
+    background: #27ae60 !important;
+    color: #fff !important;
+}
+table .btn-outline-info,
+.table .btn-outline-info {
+    color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    background: transparent !important;
+}
+table .btn-outline-info:hover {
+    background: #17a2b8 !important;
+    color: #fff !important;
+}
+table .btn-outline-primary,
+.table .btn-outline-primary {
+    color: #3498db !important;
+    border-color: #3498db !important;
+    background: transparent !important;
+}
+table .btn-outline-primary:hover {
+    background: #3498db !important;
+    color: #fff !important;
+}
+
+/* ---- FIX 3: LTR Layout — sidebar switches to left ---- */
+html[dir="ltr"] .sidebar {
+    right: auto !important;
+    left: 0 !important;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+}
+
+html[dir="ltr"] .main-content {
+    margin-right: 0 !important;
+    margin-left: 280px !important;
+}
+
+html[dir="ltr"] .sidebar .nav-link {
+    text-align: left;
+    direction: ltr;
+}
+
+html[dir="ltr"] .sidebar .nav-link i {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+html[dir="ltr"] .sidebar .nav-link:hover,
+html[dir="ltr"] .sidebar .nav-link.active {
+    transform: translateX(3px);
+    box-shadow: inset -3px 0 0 #3498db;
+}
+
+html[dir="ltr"] .navbar .container-fluid {
+    flex-direction: row;
+}
+
+html[dir="ltr"] .sidebar .section-title {
+    text-align: left;
+}
+
+html[dir="ltr"] #notificationPanel {
+    left: auto !important;
+    right: 20px !important;
+}
+
+html[dir="ltr"] .dropdown-menu-end {
+    right: 0 !important;
+    left: auto !important;
+}
+
+@media (max-width: 992px) {
+    html[dir="ltr"] .main-content {
+        margin-left: 80px !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    html[dir="ltr"] .main-content {
+        margin-left: 0 !important;
+    }
+}
+
+/* ---- FIX 4: Tooltips styling ---- */
+.tooltip {
+    z-index: 99999 !important;
+}
+.tooltip-inner {
+    background: #2c3e50;
+    color: #fff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-family: 'Tajawal', sans-serif;
+    max-width: 220px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.tooltip .tooltip-arrow::before {
+    border-top-color: #2c3e50;
+}
+.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #2c3e50;
+}
+
+/* ---- FIX 5: Notification "mark all read" visual feedback ---- */
+#notificationPanel .notification-read {
+    opacity: 0.55;
+    position: relative;
+}
+#notificationPanel .notification-read::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    color: #27ae60;
+    font-size: 0.7rem;
+}
+
+/* ---- IMPROVEMENT: Enhanced Dashboard Stats ---- */
+.stat-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+.stat-change.up {
+    color: #27ae60;
+    background: rgba(39,174,96,0.1);
+}
+.stat-change.down {
+    color: #e74c3c;
+    background: rgba(231,76,60,0.1);
+}
+.stat-change.stable {
+    color: #f39c12;
+    background: rgba(243,156,18,0.1);
+}
+
+/* ---- IMPROVEMENT: Floating Action Button (FAB) ---- */
+.fab-container {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    z-index: 5000;
+    direction: ltr;
+}
+html[dir="ltr"] .fab-container {
+    left: auto;
+    right: 25px;
+}
+.fab-main {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: #fff;
+    border: none;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(52,152,219,0.4);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+}
+.fab-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(52,152,219,0.5);
+}
+.fab-main.active {
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.fab-menu {
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+html[dir="ltr"] .fab-menu {
+    left: auto;
+    right: 0;
+}
+.fab-menu.show {
+    display: flex;
+    animation: fabSlideUp 0.3s ease-out;
+}
+@keyframes fabSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #fff;
+    border-radius: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    border: none;
+    color: #333;
+}
+.fab-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    background: #3498db;
+    color: #fff;
+}
+html[dir="ltr"] .fab-item:hover {
+    transform: translateX(5px);
+}
+.fab-item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* ---- IMPROVEMENT: Activity Log ---- */
+.activity-log-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+.activity-log-item:hover {
+    background: #f8f9fa;
+}
+.activity-log-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+.activity-log-icon.add { background: rgba(39,174,96,0.15); color: #27ae60; }
+.activity-log-icon.edit { background: rgba(52,152,219,0.15); color: #3498db; }
+.activity-log-icon.delete { background: rgba(231,76,60,0.15); color: #e74c3c; }
+.activity-log-icon.login { background: rgba(155,89,182,0.15); color: #9b59b6; }
+
+/* ---- IMPROVEMENT: Theme selector ---- */
+:root[data-theme-color="blue"] { --sp-primary: #3498db; --sp-primary-dark: #2c3e50; }
+:root[data-theme-color="green"] { --sp-primary: #27ae60; --sp-primary-dark: #1a5c35; }
+:root[data-theme-color="purple"] { --sp-primary: #8e44ad; --sp-primary-dark: #4a235a; }
+:root[data-theme-color="orange"] { --sp-primary: #e67e22; --sp-primary-dark: #7d4411; }
+
+[data-theme-color="green"] .sidebar {
+    background: linear-gradient(180deg, #1a5c35 0%, #27ae60 40%, #1e8449 100%) !important;
+}
+[data-theme-color="green"] .navbar {
+    background: linear-gradient(90deg, #1a5c35, #27ae60, #1e8449) !important;
+}
+[data-theme-color="green"] .sidebar .nav-link:hover,
+[data-theme-color="green"] .sidebar .nav-link.active {
+    background: rgba(255,255,255,.22) !important;
+    box-shadow: inset 3px 0 0 #2ecc71 !important;
+}
+[data-theme-color="green"] .fab-main {
+    background: linear-gradient(135deg, #27ae60, #1a5c35) !important;
+}
+
+[data-theme-color="purple"] .sidebar {
+    background: linear-gradient(180deg, #4a235a 0%, #8e44ad 40%, #6c3483 100%) !important;
+}
+[data-theme-color="purple"] .navbar {
+    background: linear-gradient(90deg, #4a235a, #8e44ad, #6c3483) !important;
+}
+[data-theme-color="purple"] .sidebar .nav-link:hover,
+[data-theme-color="purple"] .sidebar .nav-link.active {
+    background: rgba(255,255,255,.22) !important;
+    box-shadow: inset 3px 0 0 #9b59b6 !important;
+}
+[data-theme-color="purple"] .fab-main {
+    background: linear-gradient(135deg, #8e44ad, #4a235a) !important;
+}
+
+[data-theme-color="orange"] .sidebar {
+    background: linear-gradient(180deg, #7d4411 0%, #e67e22 40%, #ca6f1e 100%) !important;
+}
+[data-theme-color="orange"] .navbar {
+    background: linear-gradient(90deg, #7d4411, #e67e22, #ca6f1e) !important;
+}
+[data-theme-color="orange"] .sidebar .nav-link:hover,
+[data-theme-color="orange"] .sidebar .nav-link.active {
+    background: rgba(255,255,255,.22) !important;
+    box-shadow: inset 3px 0 0 #f39c12 !important;
+}
+[data-theme-color="orange"] .fab-main {
+    background: linear-gradient(135deg, #e67e22, #7d4411) !important;
+}
+
+/* ---- IMPROVEMENT: Daily Summary panel ---- */
+.daily-summary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 14px;
+    padding: 20px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+.daily-summary h5 {
+    color: #fff;
+    margin-bottom: 12px;
+}
+.daily-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.daily-summary-item:last-child {
+    border-bottom: none;
+}
+.daily-summary-item i {
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+/* ---- IMPROVEMENT: Budget Progress Bars ---- */
+.budget-progress {
+    margin-bottom: 12px;
+}
+.budget-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+}
+.budget-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #eee;
+    overflow: hidden;
+}
+.budget-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+.budget-progress-fill.safe { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+.budget-progress-fill.warning { background: linear-gradient(90deg, #f39c12, #e67e22); }
+.budget-progress-fill.danger { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+/* ---- IMPROVEMENT: Kanban board ---- */
+.kanban-board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+.kanban-column {
+    min-width: 280px;
+    max-width: 320px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 12px;
+    flex-shrink: 0;
+}
+.kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.kanban-column-header .badge {
+    font-size: 0.7rem;
+}
+.kanban-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: grab;
+    transition: all 0.2s;
+    border-right: 3px solid #3498db;
+}
+html[dir="ltr"] .kanban-card {
+    border-right: none;
+    border-left: 3px solid #3498db;
+}
+.kanban-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+.kanban-card.dragging {
+    opacity: 0.5;
+    transform: rotate(2deg);
+}
+.kanban-card.priority-high { border-color: #e74c3c; }
+.kanban-card.priority-medium { border-color: #f39c12; }
+.kanban-card.priority-low { border-color: #27ae60; }
+
+/* ---- IMPROVEMENT: Leave calendar ---- */
+.leave-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.leave-day {
+    padding: 8px 4px;
+    text-align: center;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.leave-day.has-leave {
+    background: rgba(231,76,60,0.15);
+    color: #e74c3c;
+    font-weight: 600;
+}
+.leave-day.today {
+    background: #3498db;
+    color: #fff;
+    font-weight: 700;
+}
+.leave-day.header {
+    font-weight: 700;
+    color: #666;
+    background: transparent;
+}
+
+/* ---- General animation for page load ---- */
+@keyframes spFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.module-container.active-module {
+    animation: spFadeIn 0.3s ease-out;
+}
+
+/* ---- Print styles fix ---- */
+@media print {
+    .sidebar, .navbar, .fab-container, #notificationPanel, .toast-container {
+        display: none !important;
+    }
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
