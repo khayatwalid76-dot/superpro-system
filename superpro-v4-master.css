@@ -1,1 +1,446 @@
-PLACEHOLDER
+/* ==========================================================================
+   SUPER_PRO v4 — Master CSS Fixes & Improvements
+   Loaded LAST to override everything
+   ========================================================================== */
+
+/* ---- FIX 1: Toast container - show only when bootstrap .show class ---- */
+.toast-container {
+    position: fixed !important;
+    bottom: 1.5rem !important;
+    left: 1.5rem !important;
+    z-index: 11000 !important;
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+}
+.toast-container > * {
+    pointer-events: auto;
+}
+.toast-container .toast {
+    display: none;
+}
+.toast-container .toast.show {
+    display: block !important;
+}
+/* Hide raw toast HTML that appears as "marks" */
+#liveToast:not(.show) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* ---- FIX 2: Module container - support both .active AND .active-module ---- */
+.module-container {
+    display: none !important;
+}
+.module-container.active-module,
+.module-container.active {
+    display: block !important;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- FIX 3: Navbar — Guarantee visibility ---- */
+.navbar,
+#mainNavbar {
+    background: linear-gradient(90deg, #1a2535, #2c3e50, #1e3a5f) !important;
+    min-height: 56px;
+}
+
+/* Ensure all navbar text/buttons are visible (white on dark) */
+#mainNavbar .btn-outline-light {
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,0.5) !important;
+}
+#mainNavbar .btn-outline-light:hover {
+    background: rgba(255,255,255,0.15) !important;
+    border-color: #ffffff !important;
+}
+
+/* Search input in navbar */
+#globalSearchInput {
+    background: rgba(255,255,255,0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+    min-width: 180px;
+}
+#globalSearchInput::placeholder {
+    color: rgba(255,255,255,0.6) !important;
+}
+#globalSearchInput:focus {
+    background: rgba(255,255,255,0.2) !important;
+    border-color: rgba(255,255,255,0.6) !important;
+    box-shadow: 0 0 0 2px rgba(52,152,219,0.4) !important;
+}
+
+/* Current date text */
+#current-date {
+    color: rgba(255,255,255,0.85) !important;
+}
+
+/* Brand text */
+.navbar-brand, .brand-text {
+    color: #ffffff !important;
+}
+
+/* Notification badge */
+#notificationBadge {
+    background: #dc3545 !important;
+    color: #fff !important;
+    font-size: 0.65rem !important;
+    min-width: 18px;
+    height: 18px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 50%;
+    top: -4px !important;
+    start: -4px !important;
+}
+#notificationBadge[style*="display: none"],
+#notificationBadge.d-none-force {
+    display: none !important;
+}
+
+/* Auth user button */
+#authUserBtn {
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,0.5) !important;
+}
+
+/* Dropdown menus from navbar */
+#mainNavbar .dropdown-menu {
+    background: #fff !important;
+    color: #333 !important;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+#mainNavbar .dropdown-item {
+    color: #333 !important;
+}
+#mainNavbar .dropdown-item:hover {
+    background: #f0f4f8 !important;
+}
+#mainNavbar .dropdown-item.active {
+    background: #3498db !important;
+    color: #fff !important;
+}
+#mainNavbar .dropdown-header {
+    color: #666 !important;
+}
+
+/* ---- FIX 4: Action buttons in tables ---- */
+table .quick-action-btn,
+.table .quick-action-btn,
+td .quick-action-btn,
+.module-container .quick-action-btn,
+.btn-group .quick-action-btn {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid currentColor !important;
+}
+table .quick-action-btn.btn-outline-warning,
+td .quick-action-btn.btn-outline-warning,
+.btn-group-sm .btn-outline-warning {
+    color: #e67e22 !important;
+    border-color: #e67e22 !important;
+}
+table .quick-action-btn.btn-outline-warning:hover,
+td .quick-action-btn.btn-outline-warning:hover {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+table .quick-action-btn.btn-outline-danger,
+td .quick-action-btn.btn-outline-danger,
+.btn-group-sm .btn-outline-danger {
+    color: #e74c3c !important;
+    border-color: #e74c3c !important;
+}
+table .quick-action-btn.btn-outline-danger:hover,
+td .quick-action-btn.btn-outline-danger:hover {
+    background: #e74c3c !important;
+    color: #fff !important;
+}
+table .quick-action-btn.btn-outline-success,
+td .quick-action-btn.btn-outline-success {
+    color: #27ae60 !important;
+    border-color: #27ae60 !important;
+}
+table .quick-action-btn.btn-outline-info,
+td .quick-action-btn.btn-outline-info {
+    color: #2980b9 !important;
+    border-color: #2980b9 !important;
+}
+
+/* ---- FIX 5: Notification Panel ---- */
+#notificationPanel {
+    background: #fff !important;
+    color: #333 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15) !important;
+    z-index: 9999 !important;
+}
+#notificationPanel h6 {
+    color: #333 !important;
+}
+.notification-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.notification-item:hover {
+    background: #f5f7fa;
+}
+.notification-item.notification-read {
+    opacity: 0.5;
+    background: #f9f9f9;
+}
+.notification-item .mark-read-btn {
+    cursor: pointer;
+    color: #3498db;
+    font-size: 0.75rem;
+}
+.notification-item .mark-read-btn:hover {
+    text-decoration: underline;
+}
+
+/* ---- RTL/LTR Sidebar Switch ---- */
+html[dir="rtl"] .sidebar {
+    right: 0;
+    left: auto;
+}
+html[dir="ltr"] .sidebar {
+    left: 0 !important;
+    right: auto !important;
+}
+html[dir="ltr"] .main-content {
+    margin-left: 280px !important;
+    margin-right: 0 !important;
+}
+html[dir="rtl"] .main-content {
+    margin-right: 280px;
+    margin-left: 0;
+}
+html[dir="ltr"] .sidebar .nav-link {
+    text-align: left !important;
+    direction: ltr;
+}
+html[dir="ltr"] .sidebar .nav-link i {
+    margin-right: 10px !important;
+    margin-left: 0 !important;
+}
+html[dir="ltr"] .sidebar .section-title {
+    text-align: left !important;
+}
+html[dir="ltr"] #notificationPanel {
+    right: 20px !important;
+    left: auto !important;
+}
+html[dir="rtl"] #notificationPanel {
+    left: 20px;
+    right: auto;
+}
+html[dir="ltr"] .navbar .container-fluid {
+    flex-direction: row !important;
+}
+
+/* ---- Tooltip styles ---- */
+[data-tooltip] {
+    position: relative;
+}
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10000;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #2c3e50;
+    z-index: 10001;
+}
+
+/* ---- FAB (Floating Action Button) ---- */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    z-index: 9000;
+}
+html[dir="rtl"] .fab-container {
+    left: 30px;
+    right: auto;
+}
+html[dir="ltr"] .fab-container {
+    right: 30px;
+    left: auto;
+}
+.fab-main {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(52,152,219,0.4);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fab-main:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 24px rgba(52,152,219,0.5);
+}
+.fab-main.active {
+    transform: rotate(45deg);
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.fab-menu {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.fab-menu.show {
+    display: flex;
+    animation: fadeInUp 0.2s ease;
+}
+.fab-item {
+    background: #fff;
+    color: #2c3e50;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+.fab-item:hover {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+    transform: translateX(-5px);
+}
+html[dir="ltr"] .fab-item:hover {
+    transform: translateX(5px);
+}
+
+/* ---- Theme Colors ---- */
+[data-theme-color="green"] .navbar,
+[data-theme-color="green"] #mainNavbar {
+    background: linear-gradient(90deg, #1a4731, #27ae60, #1a6b3c) !important;
+}
+[data-theme-color="green"] .sidebar {
+    background: linear-gradient(180deg, #1a4731 0%, #27ae60 40%, #1a6b3c 100%) !important;
+}
+[data-theme-color="green"] .fab-main {
+    background: linear-gradient(135deg, #27ae60, #1a4731) !important;
+}
+[data-theme-color="purple"] .navbar,
+[data-theme-color="purple"] #mainNavbar {
+    background: linear-gradient(90deg, #4a1a6b, #8e44ad, #6c3483) !important;
+}
+[data-theme-color="purple"] .sidebar {
+    background: linear-gradient(180deg, #4a1a6b 0%, #8e44ad 40%, #6c3483 100%) !important;
+}
+[data-theme-color="purple"] .fab-main {
+    background: linear-gradient(135deg, #8e44ad, #4a1a6b) !important;
+}
+[data-theme-color="orange"] .navbar,
+[data-theme-color="orange"] #mainNavbar {
+    background: linear-gradient(90deg, #784212, #e67e22, #d35400) !important;
+}
+[data-theme-color="orange"] .sidebar {
+    background: linear-gradient(180deg, #784212 0%, #e67e22 40%, #d35400 100%) !important;
+}
+[data-theme-color="orange"] .fab-main {
+    background: linear-gradient(135deg, #e67e22, #784212) !important;
+}
+
+/* ---- Theme Selector ---- */
+.theme-selector {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 8999;
+    background: #fff;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 8px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+html[dir="rtl"] .theme-selector {
+    left: 0;
+    right: auto;
+    border-radius: 0 12px 12px 0;
+}
+html[dir="ltr"] .theme-selector {
+    right: 0;
+    left: auto;
+    border-radius: 12px 0 0 12px;
+}
+.theme-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+}
+.theme-dot:hover,
+.theme-dot.active {
+    border-color: #333;
+    transform: scale(1.15);
+}
+.theme-dot[data-color="blue"]   { background: linear-gradient(135deg, #2c3e50, #3498db); }
+.theme-dot[data-color="green"]  { background: linear-gradient(135deg, #1a4731, #27ae60); }
+.theme-dot[data-color="purple"] { background: linear-gradient(135deg, #4a1a6b, #8e44ad); }
+.theme-dot[data-color="orange"] { background: linear-gradient(135deg, #784212, #e67e22); }
+
+/* ---- Print styles ---- */
+@media print {
+    .sidebar, .navbar, .fab-container, .theme-selector, #notificationPanel,
+    .toast-container, .fab-main, #fabMenu { display: none !important; }
+    .main-content { margin: 0 !important; padding: 10px !important; }
+    .module-container.active-module, .module-container.active { display: block !important; }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+    html[dir="ltr"] .main-content,
+    html[dir="rtl"] .main-content {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
