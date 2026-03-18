@@ -1,6 +1,6 @@
 // Service Worker - SUPER_PRO SYSTEM (Enhanced v4)
 // Bump this to force clients to get latest app shell
-const CACHE_NAME = 'superpro-v4';
+const CACHE_NAME = 'superpro-v5';
 const APP_SHELL = [
     './',
     './index.html',
@@ -9,7 +9,9 @@ const APP_SHELL = [
     './design-enhancements.css',
     './design-enhancements.js',
     './data-manager.js',
-    './professional-dashboard.css'
+    './professional-dashboard.css',
+    './bugfixes.js',
+    './language-system.js'
 ];
 
 self.addEventListener('install', (event) => {
