@@ -5217,7 +5217,16 @@
         // ===== فصل التنبيهات =====
         function renderSeparatedAlerts() {
             const alertsContainer = document.getElementById('recentAlerts');
+            if (!alertsContainer) return;
             alertsContainer.innerHTML = '';
+
+            // V7: Ensure data is arrays
+            if (typeof contracts !== 'undefined' && contracts && !Array.isArray(contracts) && typeof contracts === 'object') {
+                window.contracts = Object.values(contracts).filter(v=>v!=null);
+            }
+            if (typeof employees !== 'undefined' && employees && !Array.isArray(employees) && typeof employees === 'object') {
+                window.employees = Object.values(employees).filter(v=>v!=null);
+            }
 
             let totalAlerts = 0;
 
@@ -5281,27 +5290,44 @@
         function getContractAlerts() {
             const today = new Date();
             const alerts = [];
+            const contractArr = Array.isArray(contracts) ? contracts : (contracts && typeof contracts === 'object' ? Object.values(contracts).filter(v=>v!=null) : []);
 
-            contracts.forEach(contract => {
+            contractArr.forEach(contract => {
+                if (!contract) return;
+                // V7: فقط العقود الغير مدفوعة التي اوشكت على الانتهاء او منتهية
+                const isPaid = contract.paymentStatus === 'مدفوع';
+                
                 if (contract.endDate) {
                     const endDate = new Date(contract.endDate);
                     const timeDiff = endDate.getTime() - today.getTime();
                     const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-                    if (daysDiff <= 30 && daysDiff >= 0) {
+                    if (daysDiff <= 30 && daysDiff >= 0 && !isPaid) {
                         const alert = document.createElement('div');
                         alert.className = `alert alert-${daysDiff <= 7 ? 'danger' : 'warning'} alert-dismissible fade show mb-2`;
                         alert.innerHTML = `
                             <i class="fas fa-file-contract me-2"></i>
-                            عقد ${contract.number || ''} مع ${contract.client} ينتهي خلال ${daysDiff} يوم
+                            عقد ${contract.number || ''} مع ${contract.client || contract.clientName || ''} ينتهي خلال ${daysDiff} يوم — ${contract.paymentStatus || 'غير مدفوع'}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        alerts.push(alert);
+                    }
+                    
+                    // عقد منتهي وغير مدفوع
+                    if (daysDiff < 0 && !isPaid) {
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible fade show mb-2';
+                        alert.innerHTML = `
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            عقد ${contract.number || ''} مع ${contract.client || contract.clientName || ''} منتهي منذ ${Math.abs(daysDiff)} يوم — ${contract.paymentStatus || 'غير مدفوع'}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         `;
                         alerts.push(alert);
                     }
                 }
 
-                // تنبيهات المدفوعات المتأخرة
-                if (contract.paymentStatus !== 'مدفوع') {
+                // تنبيهات المبالغ الغير مدفوعة (منفصلة)
+                if (!isPaid) {
                     const amount = parseFloat(contract.amount) || 0;
                     const paid = parseFloat(contract.paidAmount) || 0;
                     const remaining = amount - paid;
@@ -5311,7 +5337,7 @@
                         alert.className = 'alert alert-info alert-dismissible fade show mb-2';
                         alert.innerHTML = `
                             <i class="fas fa-money-bill-wave me-2"></i>
-                            عقد ${contract.number || ''} مع ${contract.client}: ${remaining.toLocaleString()} ر.ق غير مدفوعة
+                            عقد ${contract.number || ''} مع ${contract.client || contract.clientName || ''}: ${remaining.toLocaleString()} ر.ق غير مدفوعة
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         `;
                         alerts.push(alert);
@@ -5326,7 +5352,9 @@
             const today = new Date();
             const alerts = [];
 
-            employees.forEach(emp => {
+            const empArr = Array.isArray(employees) ? employees : (employees && typeof employees === 'object' ? Object.values(employees).filter(v=>v!=null) : []);
+            empArr.forEach(emp => {
+                if (!emp || !emp.residencyExpiry) return;
                 if (emp.residencyExpiry) {
                     const expiryDate = new Date(emp.residencyExpiry);
                     const timeDiff = expiryDate.getTime() - today.getTime();
@@ -11180,6 +11208,18 @@
         function applyData(data) {
             console.log('🔄 تطبيق البيانات على النظام:', data);
 
+            // V7 FIX: Convert Firebase objects to proper arrays
+            ['employees','clients','contracts','dailyWork','dailyIncome','dailyExpenses',
+             'attendance','services','tasks','events','monthlyExpenses',
+             'financialTransactions','salaryAdvances'].forEach(function(key) {
+                if (data[key] && !Array.isArray(data[key]) && typeof data[key] === 'object') {
+                    data[key] = Object.values(data[key]).filter(function(v) { return v != null; });
+                    console.log('🔧 V7: Converted ' + key + ' from Firebase object to array (' + data[key].length + ' items)');
+                } else if (Array.isArray(data[key])) {
+                    data[key] = data[key].filter(function(v) { return v != null; });
+                }
+            });
+
             // تحديث المتغيرات العامة
             window.employees = data.employees || [];
             window.clients = data.clients || [];
@@ -12537,6 +12577,7 @@ window.addEventListener('load', function() {
     <!-- V5 Comprehensive Improvements -->
     <script src="improvements-v5.js"></script>
     <script src="bugfix-v6.js"></script>
+    <script src="bugfix-v7.js"></script>
 </body>
 
 </html>

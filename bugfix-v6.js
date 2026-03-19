@@ -437,26 +437,32 @@
       if (!read.includes(id)) { read.push(id); localStorage.setItem('superpro_read_notifications', JSON.stringify(read)); }
     }
 
+    function stableNotifId(prefix, obj) {
+      var key = safeStr(obj.number || obj.client || obj.clientName || obj.name || obj.idNumber || '').replace(/\s+/g, '_');
+      return prefix + '_' + (key || 'unknown');
+    }
     function gatherNotifications() {
       var notifs = [];
       var today = new Date();
-      ensureArray(window.contracts).forEach(function(c, i) {
+      ensureArray(window.contracts).forEach(function(c) {
+        if (!c) return;
         if (c.endDate) {
           var d = Math.ceil((new Date(c.endDate) - today) / 86400000);
-          if (d <= 30 && d > 0) notifs.push({id:'c_exp_'+i, icon:'fas fa-file-contract', color:'warning', title:'عقد يقترب من الانتهاء', text:(c.client||'عقد')+' — ينتهي بعد '+d+' يوم', time:c.endDate});
-          else if (d <= 0) notifs.push({id:'c_ended_'+i, icon:'fas fa-exclamation-triangle', color:'danger', title:'عقد منتهي', text:(c.client||'عقد')+' — انتهى منذ '+Math.abs(d)+' يوم', time:c.endDate});
+          if (d <= 30 && d > 0) notifs.push({id:stableNotifId('c_exp',c), icon:'fas fa-file-contract', color:'warning', title:'عقد يقترب من الانتهاء', text:(c.client||c.clientName||'عقد')+' — ينتهي بعد '+d+' يوم', time:c.endDate});
+          else if (d <= 0) notifs.push({id:stableNotifId('c_ended',c), icon:'fas fa-exclamation-triangle', color:'danger', title:'عقد منتهي', text:(c.client||c.clientName||'عقد')+' — انتهى منذ '+Math.abs(d)+' يوم', time:c.endDate});
         }
-        if (c.paymentStatus === 'غير مدفوع') notifs.push({id:'c_unpaid_'+i, icon:'fas fa-money-bill-wave', color:'danger', title:'عقد غير مدفوع', text:(c.client||'عقد')+' — '+(c.amount||0)+' ر.ق', time:c.createdAt||''});
+        if (c.paymentStatus === 'غير مدفوع') notifs.push({id:stableNotifId('c_unpaid',c), icon:'fas fa-money-bill-wave', color:'danger', title:'عقد غير مدفوع', text:(c.client||c.clientName||'عقد')+' — '+(c.amount||0)+' ر.ق', time:c.createdAt||''});
       });
-      ensureArray(window.employees).forEach(function(emp, i) {
+      ensureArray(window.employees).forEach(function(emp) {
+        if (!emp) return;
         if (emp.residencyExpiry) {
           var d = Math.ceil((new Date(emp.residencyExpiry) - today) / 86400000);
-          if (d <= 30 && d > 0) notifs.push({id:'r_exp_'+i, icon:'fas fa-passport', color:'warning', title:'إقامة تنتهي قريباً', text:(emp.name||'موظف')+' — تنتهي بعد '+d+' يوم', time:emp.residencyExpiry});
-          else if (d <= 0) notifs.push({id:'r_ended_'+i, icon:'fas fa-exclamation-circle', color:'danger', title:'إقامة منتهية', text:(emp.name||'موظف')+' — انتهت منذ '+Math.abs(d)+' يوم', time:emp.residencyExpiry});
+          if (d <= 30 && d > 0) notifs.push({id:stableNotifId('r_exp',emp), icon:'fas fa-passport', color:'warning', title:'إقامة تنتهي قريباً', text:(emp.name||'موظف')+' — تنتهي بعد '+d+' يوم', time:emp.residencyExpiry});
+          else if (d <= 0) notifs.push({id:stableNotifId('r_ended',emp), icon:'fas fa-exclamation-circle', color:'danger', title:'إقامة منتهية', text:(emp.name||'موظف')+' — انتهت منذ '+Math.abs(d)+' يوم', time:emp.residencyExpiry});
         }
       });
-      var unpaid = ensureArray(window.dailyWork).filter(function(w){return w.paymentStatus==='غير مدفوع';}).length;
-      if (unpaid > 0) notifs.push({id:'unpaid_work', icon:'fas fa-hand-holding-usd', color:'info', title:'أعمال غير مدفوعة', text:unpaid+' سجل بحاجة لتحصيل', time:new Date().toISOString().split('T')[0]});
+      var unpaid = ensureArray(window.dailyWork).filter(function(w){return w && w.paymentStatus==='غير مدفوع';}).length;
+      if (unpaid > 0) notifs.push({id:'unpaid_work_total', icon:'fas fa-hand-holding-usd', color:'info', title:'أعمال غير مدفوعة', text:unpaid+' سجل بحاجة لتحصيل', time:new Date().toISOString().split('T')[0]});
       return notifs;
     }
 
@@ -590,10 +596,11 @@
     // 1. تنبيهات العقود
     var contractAlerts = [];
     contractsList.forEach(function(c) {
+      if (!c || c.paymentStatus === 'مدفوع') return; // V7: فقط العقود الغير مدفوعة
       if (c.endDate) {
         var d = Math.ceil((new Date(c.endDate) - today) / 86400000);
-        if (d <= 30 && d > 0) contractAlerts.push({text: 'عقد ' + safeStr(c.number) + ' مع ' + safeStr(c.client) + ' ينتهي خلال ' + d + ' يوم', level: d <= 7 ? 'danger' : 'warning', icon: 'fas fa-clock'});
-        else if (d <= 0) contractAlerts.push({text: 'عقد ' + safeStr(c.number) + ' مع ' + safeStr(c.client) + ' منتهي منذ ' + Math.abs(d) + ' يوم', level: 'danger', icon: 'fas fa-exclamation-triangle'});
+        if (d <= 30 && d > 0) contractAlerts.push({text: 'عقد ' + safeStr(c.number) + ' مع ' + safeStr(c.client || c.clientName) + ' ينتهي خلال ' + d + ' يوم — ' + safeStr(c.paymentStatus || 'غير مدفوع'), level: d <= 7 ? 'danger' : 'warning', icon: 'fas fa-clock'});
+        else if (d <= 0) contractAlerts.push({text: 'عقد ' + safeStr(c.number) + ' مع ' + safeStr(c.client || c.clientName) + ' منتهي منذ ' + Math.abs(d) + ' يوم — ' + safeStr(c.paymentStatus || 'غير مدفوع'), level: 'danger', icon: 'fas fa-exclamation-triangle'});
       }
     });
 
@@ -787,6 +794,9 @@
       console.log('✅ V6.3: المرحلة 3');
     }, 3500);
   }
+
+  // V7: Apply critical data fixes IMMEDIATELY (before DOMContentLoaded)
+  try { fixDataArrays(); } catch(e) { console.warn('V6.3 immediate fixDataArrays:', e); }
 
   if (document.readyState === 'complete') {
     scheduleStart();
