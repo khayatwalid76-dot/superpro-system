@@ -4683,20 +4683,20 @@
         // INITIALIZATION: Global Variables & Data Management
         // =====================================================================
         let isDMReady = false;
-        let employees = [];
-        let clients = [];
-        let contracts = [];
-        let attendance = [];
-        let dailyWork = [];
-        let dailyIncome = [];
-        let dailyExpenses = [];
-        let financialTransactions = [];
-        let services = [];
+        var employees = [];
+        var clients = [];
+        var contracts = [];
+        var attendance = [];
+        var dailyWork = [];
+        var dailyIncome = [];
+        var dailyExpenses = [];
+        var financialTransactions = [];
+        var services = [];
         let settings = {};
-        let tasks = [];
-        let events = [];
-        let salaryAdvances = [];
-        let monthlyExpenses = [];
+        var tasks = [];
+        var events = [];
+        var salaryAdvances = [];
+        var monthlyExpenses = [];
 
         // نظام التخزين
         const LS_KEYS = {
@@ -11206,6 +11206,15 @@
 
         // دالة تطبيق البيانات على النظام
         function applyData(data) {
+            // V8 FIX: Convert Firebase objects to arrays
+            var _dataKeys = ['employees','clients','contracts','dailyWork','dailyIncome','dailyExpenses',
+                'attendance','services','tasks','events','monthlyExpenses','financialTransactions','salaryAdvances'];
+            _dataKeys.forEach(function(key) {
+                if (data[key] && !Array.isArray(data[key]) && typeof data[key] === 'object') {
+                    data[key] = Object.values(data[key]).filter(function(v) { return v != null; });
+                    console.log('🔧 V8 applyData: Converted ' + key + ' to array (' + data[key].length + ' items)');
+                }
+            });
             console.log('🔄 تطبيق البيانات على النظام:', data);
 
             // V7 FIX: Convert Firebase objects to proper arrays
@@ -12578,6 +12587,7 @@ window.addEventListener('load', function() {
     <script src="improvements-v5.js"></script>
     <script src="bugfix-v6.js"></script>
     <script src="bugfix-v7.js"></script>
+    <script src="bugfix-v8.js"></script>
 </body>
 
 </html>
