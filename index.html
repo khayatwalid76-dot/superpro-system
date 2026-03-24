@@ -785,8 +785,9 @@
 
         /* تحسينات الجداول */
         .table-responsive {
-            max-height: 600px;
+            max-height: none;
             overflow-y: auto;
+            overflow-x: auto;
             border-radius: 10px;
         }
 
@@ -3641,6 +3642,26 @@
                         <div class="col-md-6">
                             <label class="form-label">الراتب الأساسي (ر.ق)</label>
                             <input id="employeeSalary" type="number" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">بدل سكن (ر.ق)</label>
+                            <input id="employeeHousingAllowance" type="number" class="form-control" placeholder="0" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">بدل مواصلات (ر.ق)</label>
+                            <input id="employeeTransportAllowance" type="number" class="form-control" placeholder="0" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">بدل طعام (ر.ق)</label>
+                            <input id="employeeFoodAllowance" type="number" class="form-control" placeholder="0" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">بدلات أخرى (ر.ق)</label>
+                            <input id="employeeOtherAllowance" type="number" class="form-control" placeholder="0" min="0">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">إجمالي الراتب (ر.ق)</label>
+                            <input id="employeeTotalSalary" type="number" class="form-control" readonly style="background:linear-gradient(135deg,#f0f8ff,#e8f4fd); font-weight:bold; color:#2c3e50; font-size:1.1em; border:2px solid #3498db;">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">الهاتف</label>
@@ -12589,6 +12610,7 @@ window.addEventListener('load', function() {
     <script src="bugfix-v7.js"></script>
     <script src="bugfix-v8.js"></script>
     <script src="bugfix-v9.js"></script>
+    <script src="bugfix-v10.js"></script>
 </body>
 
 </html>

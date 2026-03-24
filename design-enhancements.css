@@ -389,7 +389,7 @@ body .sidebar-group.collapsed .group-icon {
 .table-responsive,
 .table-container {
   border-radius: var(--sp-radius);
-  overflow: hidden;
+  overflow: auto;
   box-shadow: var(--sp-shadow-sm);
   background: var(--sp-card-bg);
 }
