@@ -16,6 +16,7 @@
   var scrollFixStyle = document.createElement('style');
   scrollFixStyle.id = 'v10-scroll-fix';
   scrollFixStyle.textContent = [
+    '/* FIX: Table scroll */',
     '.table-responsive, .table-container {',
     '  overflow-y: auto !important;',
     '  overflow-x: auto !important;',
@@ -35,10 +36,14 @@
     '.card-body .table-responsive {',
     '  max-height: none !important;',
     '  overflow: auto !important;',
-    '}'
+    '}',
+    '',
+    '/* FIX: Hide v6 and v7 duplicate alert rows via CSS (nuclear option) */',
+    '#v6-dashboard-alerts-row { display: none !important; height: 0 !important; overflow: hidden !important; }',
+    '#v7-dashboard-alerts-row { display: none !important; height: 0 !important; overflow: hidden !important; }'
   ].join('\n');
   document.head.appendChild(scrollFixStyle);
-  console.log('✅ V10: Scroll fix applied');
+  console.log('✅ V10: Scroll fix + alert CSS fix applied');
 
   // ========================================================================
   // FIX 2: إصلاح تكرار جداول التنبيهات في لوحة التحكم
