@@ -22,13 +22,19 @@
     '}',
     '#employees .table-responsive,',
     '#clients .table-responsive,',
-    '#contracts .table-responsive {',
+    '#contracts .table-responsive,',
+    '#dailyWork .table-responsive,',
+    '#hr .table-responsive {',
     '  max-height: none !important;',
     '  overflow: auto !important;',
     '}',
     '.module-container {',
     '  overflow-y: auto !important;',
     '  overflow-x: hidden !important;',
+    '}',
+    '.card-body .table-responsive {',
+    '  max-height: none !important;',
+    '  overflow: auto !important;',
     '}'
   ].join('\n');
   document.head.appendChild(scrollFixStyle);
@@ -36,54 +42,94 @@
 
   // ========================================================================
   // FIX 2: إصلاح تكرار جداول التنبيهات في لوحة التحكم
-  // المشكلة: v6 وv7 وv8 كلهم ينشئون صفوف تنبيهات منفصلة
-  // الحل: إزالة صفوف v6 وv7 والإبقاء فقط على v8
+  // المشكلة: v6 وv7 وv8 كلهم ينشئون صفوف تنبيهات في أوقات مختلفة
+  // v6 ينشئ v6-dashboard-alerts-row (لا يحذف v8)
+  // v7 ينشئ v7-dashboard-alerts-row (لا يحذف v8)
+  // v8 ينشئ v8-dashboard-alerts-row (يحذف v6 وv7)
+  // لكن v6 وv7 يعيدون الإنشاء في phases لاحقة بعد v8
+  // الحل: MutationObserver + override renderSeparatedAlerts + تنظيف دوري
   // ========================================================================
+
+  // 1. جعل renderSeparatedAlerts لا تفعل شيئاً (v8 يتولى المهمة)
+  function neutralizeRenderSeparatedAlerts() {
+    if (typeof window.renderSeparatedAlerts === 'function' && !window.renderSeparatedAlerts._v10neutralized) {
+      var orig = window.renderSeparatedAlerts;
+      window.renderSeparatedAlerts = function() {
+        // لا نفعل شيئاً - v8 يتولى عرض التنبيهات
+        console.log('V10: renderSeparatedAlerts neutralized');
+      };
+      window.renderSeparatedAlerts._v10neutralized = true;
+    }
+  }
+
+  // 2. تنظيف الصفوف المكررة
   function cleanDuplicateAlerts() {
-    // إزالة صفوف v6 وv7 (نبقي فقط v8)
+    // إزالة صفوف v6 وv7 دائماً
     ['v6-dashboard-alerts-row', 'v7-dashboard-alerts-row'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
         el.remove();
-        console.log('🔧 V10: Removed duplicate alert row: ' + id);
+        console.log('V10: Removed ' + id);
       }
     });
+
+    // التأكد من وجود صف v8 واحد فقط
+    var v8Rows = document.querySelectorAll('#v8-dashboard-alerts-row');
+    if (v8Rows.length > 1) {
+      for (var i = 1; i < v8Rows.length; i++) {
+        v8Rows[i].remove();
+        console.log('V10: Removed duplicate v8 row');
+      }
+    }
+
+    // إخفاء بطاقة التنبيهات القديمة التي تقول "تم النقل"
+    var recentAlerts = document.getElementById('recentAlerts');
+    if (recentAlerts) {
+      var cardParent = recentAlerts.closest('.card');
+      if (cardParent && recentAlerts.textContent.indexOf('تم نقل التنبيهات') !== -1) {
+        cardParent.style.display = 'none';
+      }
+    }
   }
 
-  // تشغيل التنظيف بشكل دوري لأن v6 وv7 يعيدون الإنشاء في phases مختلفة
-  var alertCleanupInterval = setInterval(cleanDuplicateAlerts, 500);
-  // وقف المراقبة بعد 20 ثانية (بعد انتهاء جميع phases)
-  setTimeout(function() {
-    clearInterval(alertCleanupInterval);
-    // تنظيف نهائي
-    cleanDuplicateAlerts();
-    console.log('✅ V10: Alert cleanup monitoring stopped');
-  }, 20000);
+  // 3. MutationObserver لمراقبة إضافة صفوف جديدة
+  function setupAlertObserver() {
+    var dashboard = document.getElementById('dashboard');
+    if (!dashboard) return;
 
-  // أيضاً: نعترض دوال v6 وv7 لمنعها من إنشاء صفوف جديدة
-  // نعمل patch على loadDashboard ليقوم بالتنظيف بعد كل استدعاء
+    var observer = new MutationObserver(function(mutations) {
+      var needsCleanup = false;
+      mutations.forEach(function(mutation) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1) {
+            var id = node.id || '';
+            if (id === 'v6-dashboard-alerts-row' || id === 'v7-dashboard-alerts-row') {
+              needsCleanup = true;
+            }
+          }
+        });
+      });
+      if (needsCleanup) {
+        setTimeout(cleanDuplicateAlerts, 10);
+      }
+    });
+
+    observer.observe(dashboard, { childList: true, subtree: true });
+    console.log('✅ V10: Alert MutationObserver active');
+  }
+
+  // 4. Patch loadDashboard لتنظيف بعد كل استدعاء
   function patchLoadDashboardV10() {
     var orig = window.loadDashboard;
     if (typeof orig !== 'function' || orig._v10patched) return;
     window.loadDashboard = function() {
       orig.call(this);
-      // تنظيف بعد 150ms (قبل v8 الذي يعمل عند 200ms)
-      setTimeout(function() {
-        ['v6-dashboard-alerts-row', 'v7-dashboard-alerts-row'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) el.remove();
-        });
-      }, 150);
-      // تنظيف بعد 300ms (بعد v8)
-      setTimeout(function() {
-        ['v6-dashboard-alerts-row', 'v7-dashboard-alerts-row'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) el.remove();
-        });
-      }, 300);
+      // تنظيف متعدد المراحل بعد كل استدعاء
+      [50, 150, 250, 400, 600, 1000].forEach(function(delay) {
+        setTimeout(cleanDuplicateAlerts, delay);
+      });
     };
     window.loadDashboard._v10patched = true;
-    // الحفاظ على flags القديمة
     window.loadDashboard._v8patched = true;
     window.loadDashboard._v7patched = true;
     window.loadDashboard._v6patched = true;
@@ -123,11 +169,12 @@
     var saveBtn = document.getElementById('saveEmployeeBtn');
     if (!saveBtn || saveBtn._v10patched) return;
 
-    var origOnclick = saveBtn.onclick;
-    saveBtn.onclick = null;
-    saveBtn._v10patched = true;
+    // إزالة جميع الأحداث القديمة
+    var newBtn = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(newBtn, saveBtn);
+    newBtn._v10patched = true;
 
-    saveBtn.addEventListener('click', function() {
+    newBtn.addEventListener('click', function() {
       var name = document.getElementById('employeeName').value;
       var nationality = document.getElementById('employeeNationality').value;
       var job = document.getElementById('employeeJob').value;
@@ -140,8 +187,8 @@
 
       var empData = {
         name: name,
-        idNumber: document.getElementById('employeeIdNumber').value,
-        hireDate: document.getElementById('employeeHireDate').value,
+        idNumber: document.getElementById('employeeIdNumber')?.value || '',
+        hireDate: document.getElementById('employeeHireDate')?.value || '',
         nationality: nationality,
         job: job,
         salary: parseFloat(salary),
@@ -149,12 +196,11 @@
         transportAllowance: parseFloat(document.getElementById('employeeTransportAllowance')?.value) || 0,
         foodAllowance: parseFloat(document.getElementById('employeeFoodAllowance')?.value) || 0,
         otherAllowance: parseFloat(document.getElementById('employeeOtherAllowance')?.value) || 0,
-        phone: document.getElementById('employeePhone').value,
-        status: document.getElementById('employeeStatus').value,
-        residencyExpiry: document.getElementById('employeeResidencyExpiry').value,
-        gender: document.getElementById('employeeGender').value
+        phone: document.getElementById('employeePhone')?.value || '',
+        status: document.getElementById('employeeStatus')?.value || 'نشط',
+        residencyExpiry: document.getElementById('employeeResidencyExpiry')?.value || '',
+        gender: document.getElementById('employeeGender')?.value || ''
       };
-      // حساب إجمالي الراتب
       empData.totalSalary = empData.salary + empData.housingAllowance + empData.transportAllowance + empData.foodAllowance + empData.otherAllowance;
 
       if (window.editState && window.editState.employee && window.editState.employee.isEditMode && window.editState.employee.editIndex >= 0) {
@@ -173,9 +219,11 @@
 
       var employeeModal = document.getElementById('employeeModal');
       try { bootstrap.Modal.getInstance(employeeModal)?.hide(); } catch(e) {}
-      document.getElementById('employeeForm').reset();
-      document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
-      saveBtn.textContent = 'حفظ الموظف';
+      try { document.getElementById('employeeForm').reset(); } catch(e) {}
+      try {
+        document.querySelector('#employeeModal .modal-title').textContent = 'إضافة موظف جديد';
+        document.getElementById('saveEmployeeBtn').textContent = 'حفظ الموظف';
+      } catch(e) {}
       if (window.editState && window.editState.employee) {
         window.editState.employee.isEditMode = false;
         window.editState.employee.editIndex = -1;
@@ -193,18 +241,19 @@
 
     window.editEmployee = function(index) {
       origEdit.call(this, index);
-      // بعد فتح النافذة، نملأ حقول البدلات
       setTimeout(function() {
         var emp = window.employees[index];
         if (!emp) return;
-        var housingField = document.getElementById('employeeHousingAllowance');
-        var transportField = document.getElementById('employeeTransportAllowance');
-        var foodField = document.getElementById('employeeFoodAllowance');
-        var otherField = document.getElementById('employeeOtherAllowance');
-        if (housingField) housingField.value = emp.housingAllowance || '';
-        if (transportField) transportField.value = emp.transportAllowance || '';
-        if (foodField) foodField.value = emp.foodAllowance || '';
-        if (otherField) otherField.value = emp.otherAllowance || '';
+        var fields = {
+          'employeeHousingAllowance': emp.housingAllowance,
+          'employeeTransportAllowance': emp.transportAllowance,
+          'employeeFoodAllowance': emp.foodAllowance,
+          'employeeOtherAllowance': emp.otherAllowance
+        };
+        Object.keys(fields).forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.value = fields[id] || '';
+        });
         updateTotalSalary();
       }, 100);
     };
@@ -218,14 +267,13 @@
 
     window.renderEmployeesTable = function() {
       origRender.call(this);
-      // بعد الرسم، نضيف معلومات البدلات لكل صف
       var tbody = document.getElementById('employees-table-body');
       if (!tbody) return;
       var rows = tbody.querySelectorAll('tr.employee-card');
-      var employees = window.employees || [];
+      var emps = window.employees || [];
       rows.forEach(function(row, index) {
-        if (index >= employees.length) return;
-        var emp = employees[index];
+        if (index >= emps.length) return;
+        var emp = emps[index];
         var salaryCell = row.querySelector('td:nth-child(4)');
         if (!salaryCell) return;
 
@@ -237,7 +285,7 @@
         var baseSalary = parseFloat(emp.salary) || 0;
         var totalSalary = baseSalary + totalAllowances;
 
-        var html = '<div class="employee-info-item"><strong>الراتب الأساسي: </strong><span class="text-success">' + baseSalary.toLocaleString() + ' ر.ق</span></div>';
+        var html = '<div class="employee-info-item"><strong>الأساسي: </strong><span class="text-success">' + baseSalary.toLocaleString() + ' ر.ق</span></div>';
         if (totalAllowances > 0) {
           html += '<div class="employee-info-item" style="font-size:0.85em; color:#666;">';
           var parts = [];
@@ -255,7 +303,7 @@
     window.renderEmployeesTable._v10patched = true;
   }
 
-  // تعديل حساب كشف الرواتب لاستخدام البدلات من بيانات الموظف
+  // تعديل حساب كشف الرواتب لاستخدام البدلات
   function patchPayrollCalculation() {
     var origCalc = window.calculatePayroll;
     if (typeof origCalc !== 'function' || origCalc._v10patched) return;
@@ -264,7 +312,6 @@
       var rows = origCalc.call(this, month);
       if (!Array.isArray(rows)) return rows;
 
-      // تحديث كل صف بالبدلات الفعلية من بيانات الموظف
       rows.forEach(function(row) {
         var emp = (window.employees || []).find(function(e) { return e && e.name === row.employee; });
         if (emp) {
@@ -273,7 +320,6 @@
           var food = parseFloat(emp.foodAllowance) || 0;
           var other = parseFloat(emp.otherAllowance) || 0;
           row.allowances = housing + transport + food + other;
-          // إعادة حساب صافي الراتب
           row.net = Math.max(0, Math.round(row.baseSalary + row.overtimeAllowance + row.allowances - row.deductions - row.advances));
         }
       });
@@ -289,11 +335,13 @@
   function startV10() {
     console.log('🔧 V10: Starting...');
 
-    // Fix dashboard alerts duplication
+    // Dashboard alerts fix
+    try { neutralizeRenderSeparatedAlerts(); } catch(e) { console.error('V10:', e); }
     try { patchLoadDashboardV10(); } catch(e) { console.error('V10:', e); }
+    try { setupAlertObserver(); } catch(e) { console.error('V10:', e); }
     try { cleanDuplicateAlerts(); } catch(e) {}
 
-    // Fix employee save/edit with allowances
+    // Employee allowances
     try { patchSaveEmployee(); } catch(e) { console.error('V10 save:', e); }
     try { patchEditEmployee(); } catch(e) { console.error('V10 edit:', e); }
     try { patchRenderEmployeesTable(); } catch(e) { console.error('V10 render:', e); }
@@ -305,6 +353,7 @@
     // Phase 2: بعد تحميل جميع ملفات bugfix الأخرى
     setTimeout(function() {
       console.log('🔧 V10: Phase 2...');
+      try { neutralizeRenderSeparatedAlerts(); } catch(e) {}
       try { patchLoadDashboardV10(); } catch(e) {}
       try { cleanDuplicateAlerts(); } catch(e) {}
       try { patchSaveEmployee(); } catch(e) {}
@@ -313,7 +362,6 @@
       try { patchPayrollCalculation(); } catch(e) {}
       try { bindAllowanceEvents(); } catch(e) {}
 
-      // إعادة رسم جدول الموظفين إذا كان ظاهراً
       var empModule = document.getElementById('employees');
       if (empModule && empModule.style.display !== 'none') {
         if (typeof window.renderEmployeesTable === 'function') window.renderEmployeesTable();
@@ -322,8 +370,9 @@
       console.log('✅ V10: Phase 2 complete');
     }, 6000);
 
-    // Phase 3: تأكيد نهائي
+    // Phase 3: تأكيد نهائي بعد انتهاء جميع phases من v6/v7/v8
     setTimeout(function() {
+      try { neutralizeRenderSeparatedAlerts(); } catch(e) {}
       try { cleanDuplicateAlerts(); } catch(e) {}
       try { patchSaveEmployee(); } catch(e) {}
       try { patchEditEmployee(); } catch(e) {}
@@ -332,6 +381,17 @@
       try { bindAllowanceEvents(); } catch(e) {}
       console.log('✅ V10: Phase 3 complete - All V10 fixes applied');
     }, 12000);
+
+    // Continuous cleanup every 500ms for 30 seconds
+    var cleanupCount = 0;
+    var cleanupInterval = setInterval(function() {
+      cleanDuplicateAlerts();
+      cleanupCount++;
+      if (cleanupCount >= 60) {
+        clearInterval(cleanupInterval);
+        console.log('✅ V10: Cleanup monitoring complete');
+      }
+    }, 500);
   }
 
   if (document.readyState === 'complete') {
@@ -347,7 +407,6 @@
       setTimeout(function() {
         bindAllowanceEvents();
         if (!window.editState?.employee?.isEditMode) {
-          // إعادة تعيين حقول البدلات عند الإضافة الجديدة
           ['employeeHousingAllowance','employeeTransportAllowance','employeeFoodAllowance','employeeOtherAllowance','employeeTotalSalary'].forEach(function(id) {
             var el = document.getElementById(id);
             if (el) el.value = '';
