@@ -1,4 +1,4 @@
-const CACHE_NAME = 'superpro-v14-cache';
+const CACHE_NAME = 'superpro-v15-data-cache';
 const STATIC_ASSETS = [
     './',
     './index.html',
@@ -17,6 +17,7 @@ const STATIC_ASSETS = [
     './bugfix-v12.js',
     './bugfix-v13.js',
     './bugfix-v14.js',
+    './data-import.js',
     './manifest.json'
 ];
 
