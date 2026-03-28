@@ -4777,59 +4777,79 @@
         // حفظ البيانات (محلي + سحابي)
         function saveData() {
             try {
-                console.log('💾 Saving data...');
                 const data = {
                     employees, clients, attendance, contracts, services, settings,
                     tasks, events, dailyWork, dailyIncome, dailyExpenses,
                     financialTransactions, salaryAdvances, monthlyExpenses
                 };
-                sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(employees));
-                sessionStorage.setItem(LS_KEYS.clients, JSON.stringify(clients));
-                sessionStorage.setItem(LS_KEYS.attendance, JSON.stringify(attendance));
-                sessionStorage.setItem(LS_KEYS.contracts, JSON.stringify(contracts));
-                sessionStorage.setItem(LS_KEYS.services, JSON.stringify(services));
-                sessionStorage.setItem(LS_KEYS.settings, JSON.stringify(settings));
-                sessionStorage.setItem(LS_KEYS.tasks, JSON.stringify(tasks));
-                sessionStorage.setItem(LS_KEYS.events, JSON.stringify(events));
-                sessionStorage.setItem(LS_KEYS.dailyWork, JSON.stringify(dailyWork));
-                sessionStorage.setItem(LS_KEYS.dailyIncome, JSON.stringify(dailyIncome));
-                sessionStorage.setItem(LS_KEYS.dailyExpenses, JSON.stringify(dailyExpenses));
-                sessionStorage.setItem(LS_KEYS.financialTransactions, JSON.stringify(financialTransactions));
-                sessionStorage.setItem(LS_KEYS.salaryAdvances, JSON.stringify(salaryAdvances));
-                sessionStorage.setItem(LS_KEYS.monthlyExpenses, JSON.stringify(monthlyExpenses));
-                // Keep a unified session snapshot (used on next refresh)
-                sessionStorage.setItem('superpro_data', JSON.stringify(data));
 
-                console.log('✅ Data saved to sessionStorage');
-                
-                // Also save to localStorage for persistence
+                // الحفظ الأساسي في localStorage (يبقى بعد التحديث)
                 localStorage.setItem('superpro_data', JSON.stringify(data));
-                console.log('✅ Data backed up to localStorage');
-                
-                // Compatibility: also persist under DataManager key
+
+                // نسخة للتوافق مع DataManager
                 try {
                     localStorage.setItem('superproDB', JSON.stringify({
                         ...data,
-                        // DataManager naming compatibility
                         income: data.dailyIncome,
                         expenses: data.dailyExpenses,
                         notifications: data.events
                     }));
                 } catch (e) {}
 
+                // sessionStorage للسرعة (يُفقد عند إغلاق المتصفح)
+                try {
+                    sessionStorage.setItem('superpro_data', JSON.stringify(data));
+                } catch(e) {}
+
                 // التخزين السحابي
                 if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
                     firebaseDb.ref(FB_PATH).set(data).catch(() => {});
                 }
 
-                if (document.getElementById('dashboard') && document.getElementById('dashboard').classList.contains('active-module')) {
-                    loadDashboard();
-                }
+                // تحديث الإحصائيات والشريط العلوي
                 updateAllStats();
+                updateTopBarAlerts();
+
+                // تحديث الصفحة الحالية فقط إذا كانت لوحة التحكم
+                const dashboardEl = document.getElementById('dashboard');
+                if (dashboardEl && dashboardEl.classList.contains('active-module')) {
+                    updateDashboardStats();
+                    renderSeparatedAlerts();
+                    updateFinancialSummary();
+                    initCharts();
+                }
+
             } catch (error) {
                 console.error('❌ Error saving data:', error);
                 showToast('خطأ في حفظ البيانات', 'error');
             }
+        }
+
+        // تحديث عداد التنبيهات في الشريط العلوي
+        function updateTopBarAlerts() {
+            try {
+                const today = new Date();
+                let count = 0;
+
+                // تنبيهات العقود المنتهية أو القريبة من الانتهاء
+                (contracts || []).forEach(c => {
+                    if (!c || !c.endDate) return;
+                    const end = new Date(c.endDate);
+                    const diff = Math.ceil((end - today) / (1000 * 3600 * 24));
+                    if (diff <= 30 && c.paymentStatus !== 'مدفوع') count++;
+                });
+
+                // تنبيهات الإقامات المنتهية أو القريبة
+                (employees || []).forEach(e => {
+                    if (!e || !e.residencyExpiry) return;
+                    const exp = new Date(e.residencyExpiry);
+                    const diff = Math.ceil((exp - today) / (1000 * 3600 * 24));
+                    if (diff <= 30) count++;
+                });
+
+                const alertsCountEl = document.getElementById('alertsCount');
+                if (alertsCountEl) alertsCountEl.textContent = count;
+            } catch(e) {}
         }
 
         // دالة عرض الإشعارات
@@ -5023,90 +5043,121 @@
 
         // ===== إصلاح مخططات لوحة التحكم =====
         function initCharts() {
-            // رسم بياني للأداء الشهري - يعتمد على البيانات الفعلية
-            const performanceCtx = document.getElementById('performanceChart');
-            if (performanceCtx) {
-                const monthlyData = getMonthlyData();
-                performanceCtx.height = 300;
+            renderPerformanceChart();
+            renderTasksChart();
 
-                // تدمير المخطط السابق إذا كان موجودًا
-                if (window.performanceChartInstance) {
-                    window.performanceChartInstance.destroy();
-                }
-
-                window.performanceChartInstance = new Chart(performanceCtx.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: monthlyData.labels,
-                        datasets: [
-                            {
-                                label: 'الإيرادات',
-                                data: monthlyData.income,
-                                borderColor: '#28a745',
-                                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            },
-                            {
-                                label: 'المصروفات',
-                                data: monthlyData.expenses,
-                                borderColor: '#dc3545',
-                                backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                rtl: true
-                            }
-                        }
-                    }
-                });
-            }
-
-            // رسم بياني للمهام - يعتمد على البيانات الفعلية
-            const tasksCtx = document.getElementById('tasksChart');
-            if (tasksCtx) {
-                const taskData = getTaskDistribution();
-                tasksCtx.height = 300;
-
-                // تدمير المخطط السابق إذا كان موجودًا
-                if (window.tasksChartInstance) {
-                    window.tasksChartInstance.destroy();
-                }
-
-                window.tasksChartInstance = new Chart(tasksCtx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: taskData.labels,
-                        datasets: [{
-                            data: taskData.data,
-                            backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
+            // ربط قائمة تغيير الفترة الزمنية للرسم البياني
+            const chartPeriodSelect = document.getElementById('chartPeriod');
+            if (chartPeriodSelect && !chartPeriodSelect._periodBound) {
+                chartPeriodSelect._periodBound = true;
+                chartPeriodSelect.addEventListener('change', function () {
+                    renderPerformanceChart(this.value);
                 });
             }
         }
 
-        // دالة لجمع البيانات الشهرية من النظام
-        function getMonthlyData() {
+        function renderPerformanceChart(period) {
+            period = period || (document.getElementById('chartPeriod')?.value) || 'month';
+            const performanceCtx = document.getElementById('performanceChart');
+            if (!performanceCtx) return;
+
+            const monthlyData = getMonthlyData(period);
+            performanceCtx.height = 300;
+
+            if (window.performanceChartInstance) {
+                window.performanceChartInstance.destroy();
+                window.performanceChartInstance = null;
+            }
+
+            window.performanceChartInstance = new Chart(performanceCtx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [
+                        {
+                            label: 'الإيرادات',
+                            data: monthlyData.income,
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'المصروفات',
+                            data: monthlyData.expenses,
+                            borderColor: '#dc3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', rtl: true },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('ar-QA') + ' ر.ق';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(val) { return val.toLocaleString('ar-QA'); }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTasksChart() {
+            const tasksCtx = document.getElementById('tasksChart');
+            if (!tasksCtx) return;
+
+            const taskData = getTaskDistribution();
+            tasksCtx.height = 300;
+
+            if (window.tasksChartInstance) {
+                window.tasksChartInstance.destroy();
+                window.tasksChartInstance = null;
+            }
+
+            window.tasksChartInstance = new Chart(tasksCtx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: taskData.labels,
+                    datasets: [{
+                        data: taskData.data,
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // دالة لجمع البيانات الشهرية من النظام مع دعم الفترات المختلفة
+        function getMonthlyData(period) {
+            period = period || 'month';
             const months = [];
             const incomeData = [];
             const expenseData = [];
 
-            // الحصول على آخر 6 أشهر
             const today = new Date();
-            for (let i = 5; i >= 0; i--) {
+            let numPoints = 6;
+            if (period === 'quarter') numPoints = 3;
+            else if (period === 'year') numPoints = 12;
+
+            for (let i = numPoints - 1; i >= 0; i--) {
                 const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
                 const monthName = date.toLocaleDateString('ar-SA', { month: 'long' });
                 months.push(monthName);
@@ -5115,32 +5166,47 @@
                 const year = date.getFullYear();
 
                 // حساب الإيرادات لهذا الشهر
-                const monthIncome = dailyIncome
+                const monthIncome = (dailyIncome || [])
                     .filter(income => {
+                        if (!income || !income.date) return false;
                         const incomeDate = new Date(income.date);
-                        return incomeDate.getMonth() + 1 === month &&
-                            incomeDate.getFullYear() === year;
+                        return incomeDate.getMonth() + 1 === month && incomeDate.getFullYear() === year;
                     })
                     .reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
 
+                // إيرادات العمل اليومي
+                const dailyWorkIncome = (dailyWork || [])
+                    .filter(work => {
+                        if (!work || !work.date) return false;
+                        const wDate = new Date(work.date);
+                        return wDate.getMonth() + 1 === month && wDate.getFullYear() === year;
+                    })
+                    .reduce((sum, work) => sum + (parseFloat(work.amount) || 0), 0);
+
+                // إيرادات العقود المدفوعة في هذا الشهر
+                const contractIncome = (contracts || [])
+                    .filter(c => {
+                        if (!c || !c.paymentDate) return false;
+                        const pDate = new Date(c.paymentDate);
+                        return pDate.getMonth() + 1 === month && pDate.getFullYear() === year
+                            && c.paymentStatus === 'مدفوع';
+                    })
+                    .reduce((sum, c) => sum + (parseFloat(c.paidAmount || c.amount) || 0), 0);
+
                 // حساب المصروفات لهذا الشهر
-                const monthExpense = dailyExpenses
+                const monthExpense = (dailyExpenses || [])
                     .filter(expense => {
+                        if (!expense || !expense.date) return false;
                         const expenseDate = new Date(expense.date);
-                        return expenseDate.getMonth() + 1 === month &&
-                            expenseDate.getFullYear() === year;
+                        return expenseDate.getMonth() + 1 === month && expenseDate.getFullYear() === year;
                     })
                     .reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
 
-                incomeData.push(monthIncome);
+                incomeData.push(monthIncome + dailyWorkIncome + contractIncome);
                 expenseData.push(monthExpense);
             }
 
-            return {
-                labels: months,
-                income: incomeData,
-                expenses: expenseData
-            };
+            return { labels: months, income: incomeData, expenses: expenseData };
         }
 
         // دالة لجمع توزيع المهام
@@ -5165,6 +5231,7 @@
             updateDailyWorkStats();
             updateDailyIncomeStats();
             updateDailyExpensesStats();
+            // الرسوم البيانية تُحدَّث بعد تحميل البيانات لضمان صحة الأرقام
             initCharts();
         }
 
@@ -5481,28 +5548,34 @@
         }
 
         function updateFinancialSummary() {
-            const today = new Date().toISOString().split('T')[0];
+            const totalDailyIncome = (dailyIncome || []).reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+            const totalDailyWorkIncome = (dailyWork || []).reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
+            const totalContractIncome = (contracts || [])
+                .filter(c => c.paymentStatus === 'مدفوع')
+                .reduce((sum, c) => sum + (parseFloat(c.paidAmount || c.amount) || 0), 0);
 
-            const todayIncome = dailyIncome
-                .filter(income => income.date === today)
-                .reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
+            const totalIncome = totalDailyIncome + totalDailyWorkIncome + totalContractIncome;
+            const totalExpenses = (dailyExpenses || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            const netProfit = totalIncome - totalExpenses;
 
-            const todayExpenses = dailyExpenses
-                .filter(expense => expense.date === today)
-                .reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+            const quickIncomeEl = document.getElementById('quickIncome');
+            const quickExpenseEl = document.getElementById('quickExpense');
+            const quickNetEl = document.getElementById('quickNet');
 
-            const totalIncome = dailyIncome.reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
-            const totalExpenses = dailyExpenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+            if (quickIncomeEl) quickIncomeEl.textContent = totalIncome.toLocaleString('ar-QA');
+            if (quickExpenseEl) quickExpenseEl.textContent = totalExpenses.toLocaleString('ar-QA');
+            if (quickNetEl) {
+                quickNetEl.textContent = netProfit.toLocaleString('ar-QA');
+                quickNetEl.className = netProfit >= 0 ? 'text-success' : 'text-danger';
+            }
 
-            document.getElementById('quickIncome').textContent = totalIncome.toLocaleString();
-            document.getElementById('quickExpense').textContent = totalExpenses.toLocaleString();
-            document.getElementById('quickNet').textContent = (totalIncome - totalExpenses).toLocaleString();
+            const incomePercentage = totalIncome > 0 ? Math.min(100, (totalDailyIncome / totalIncome * 100)) : 0;
+            const expensePercentage = totalIncome > 0 ? Math.min(100, (totalExpenses / totalIncome * 100)) : 0;
 
-            const incomePercentage = totalIncome > 0 ? (todayIncome / totalIncome * 100) : 0;
-            const expensePercentage = totalExpenses > 0 ? (todayExpenses / totalExpenses * 100) : 0;
-
-            document.getElementById('incomeBar').style.width = `${incomePercentage}%`;
-            document.getElementById('expenseBar').style.width = `${expensePercentage}%`;
+            const incomeBar = document.getElementById('incomeBar');
+            const expenseBar = document.getElementById('expenseBar');
+            if (incomeBar) incomeBar.style.width = `${incomePercentage}%`;
+            if (expenseBar) expenseBar.style.width = `${expensePercentage}%`;
         }
 
         // ===== إصلاح فلترة العقود حسب حالة الدفع =====
@@ -9610,42 +9683,51 @@
         // ===== وظائف أقسام أخرى =====
         function loadAttendance() {
             const today = new Date().toISOString().split('T')[0];
-            const attModal = document.getElementById('attModal');
+
+            // ضبط التاريخ الافتراضي
+            const attDateInput = document.getElementById('attDate');
+            if (attDateInput && !attDateInput.value) {
+                attDateInput.value = today;
+            }
+
+            // ملء قائمة الموظفين دائماً عند تحميل القسم
+            fillAttendanceEmployeeSelect();
+
+            // ربط زر الحفظ مباشرة (inline form - لا يوجد modal)
             const saveBtn = document.getElementById('saveAttendanceBtn');
+            if (saveBtn) {
+                saveBtn.onclick = null;
+                saveBtn.onclick = function () {
+                    const employee = document.getElementById('attEmployeeSelect').value;
+                    const date = document.getElementById('attDate').value;
+                    const status = document.getElementById('attStatus').value;
+                    const hours = document.getElementById('attTotalHours').value;
 
-            if (attModal && !attModal._attSetupDone) {
-                attModal._attSetupDone = true;
+                    if (!employee || !date) {
+                        showToast('يرجى اختيار الموظف والتاريخ', 'error');
+                        return;
+                    }
 
-                attModal.addEventListener('show.bs.modal', function () {
-                    document.getElementById('attForm').reset();
+                    attendance.push({
+                        employee,
+                        date,
+                        status,
+                        hours: parseFloat(hours) || 0,
+                        source: 'يدوي',
+                        timestamp: new Date().toISOString()
+                    });
+                    saveData();
+                    showToast('✅ تم تسجيل الحضور بنجاح');
+
+                    // إعادة تعيين الحقول
+                    document.getElementById('attEmployeeSelect').value = '';
                     document.getElementById('attDate').value = today;
-                    fillAttendanceEmployeeSelect();
-                    if (document.querySelector('#attModal .modal-title'))
-                        document.querySelector('#attModal .modal-title').textContent = 'تسجيل الحضور';
-                    if (saveBtn) saveBtn.textContent = 'حفظ الحضور';
-                });
+                    document.getElementById('attStatus').value = 'حاضر';
+                    document.getElementById('attTotalHours').value = '0';
 
-                if (saveBtn) {
-                    saveBtn.onclick = function () {
-                        const employee = document.getElementById('attEmployeeSelect').value;
-                        const date = document.getElementById('attDate').value;
-                        const status = document.getElementById('attStatus').value;
-                        const hours = document.getElementById('attTotalHours').value;
-
-                        if (!employee || !date) {
-                            showToast('يرجى ملء الحقول المطلوبة', 'error');
-                            return;
-                        }
-
-                        attendance.push({ employee, date, status,
-                            hours: parseFloat(hours) || 0,
-                            source: 'يدوي', timestamp: new Date().toISOString() });
-                        saveData();
-                        showToast('✅ تم تسجيل الحضور بنجاح');
-                        bootstrap.Modal.getInstance(attModal)?.hide();
-                        loadAttendanceTable();
-                    };
-                }
+                    loadAttendanceTable();
+                    logActivity('تسجيل حضور', employee + ' - ' + date);
+                };
             }
 
             loadAttendanceTable();
@@ -9653,48 +9735,60 @@
 
         function fillAttendanceEmployeeSelect() {
             const select = document.getElementById('attEmployeeSelect');
+            if (!select) return;
+            const current = select.value;
             select.innerHTML = '<option value="">اختر الموظف</option>';
 
-            employees.forEach(emp => {
+            (employees || []).forEach(emp => {
+                if (!emp || !emp.name) return;
                 const option = document.createElement('option');
                 option.value = emp.name;
-                option.textContent = `${emp.name} - ${emp.job}`;
+                option.textContent = `${emp.name}${emp.job ? ' - ' + emp.job : ''}`;
                 select.appendChild(option);
             });
+
+            // استعادة القيمة السابقة إن وُجدت
+            if (current) select.value = current;
         }
 
         function loadAttendanceTable() {
             const tbody = document.getElementById('attendanceTableBody');
-            tbody.innerHTML = '';
+            if (!tbody) return;
 
-            if (attendance.length === 0) {
+            const attArr = Array.isArray(attendance) ? attendance : [];
+
+            if (attArr.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="text-center text-muted py-3">
-                            <i class="fas fa-clock fa-2x mb-2"></i>
-                            <p>لا توجد سجلات حضور</p>
+                            <i class="fas fa-clock fa-2x mb-2 d-block"></i>
+                            لا توجد سجلات حضور
                         </td>
                     </tr>
                 `;
+                const countEl = document.getElementById('attendanceCount');
+                if (countEl) countEl.textContent = '0 سجل';
                 return;
             }
 
-            attendance.forEach((record, index) => {
+            // ترتيب من الأحدث للأقدم
+            const sorted = [...attArr].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = '';
+            sorted.forEach((record, index) => {
+                const empName = record.employee || record.employeeName || record.name || '-';
+                const statusClass = record.status === 'حاضر' ? 'bg-success' :
+                    record.status === 'غياب' ? 'bg-danger' : 'bg-warning text-dark';
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${record.employee}</td>
-                    <td>${record.date}</td>
+                    <td><strong>${empName}</strong></td>
+                    <td>${record.date || '-'}</td>
+                    <td><span class="badge ${statusClass}">${record.status || '-'}</span></td>
+                    <td>${record.hours || 0} ساعة</td>
+                    <td>${record.source || 'يدوي'}</td>
                     <td>
-                        <span class="badge ${record.status === 'حاضر' ? 'bg-success' :
-                        record.status === 'غياب' ? 'bg-danger' : 'bg-warning'}">
-                            ${record.status}
-                        </span>
-                    </td>
-                    <td>${record.hours} ساعة</td>
-                    <td>${record.source}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${index})">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${attArr.indexOf(record)})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -9702,7 +9796,8 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('attendanceCount').textContent = attendance.length + ' سجل';
+            const countEl = document.getElementById('attendanceCount');
+            if (countEl) countEl.textContent = attArr.length + ' سجل';
         }
 
         function deleteAttendance(index) {
@@ -10366,19 +10461,16 @@
 
         // ===== قسم الرواتب =====
         function loadPayroll() {
-            if (window.__payrollInitialized) return;
-            window.__payrollInitialized = true;
-
             // تهيئة الشهر الافتراضي
             const payrollMonthInput = document.getElementById('payrollMonth');
             if (payrollMonthInput && !payrollMonthInput.value) {
                 payrollMonthInput.value = new Date().toISOString().slice(0, 7);
             }
 
-            // تهيئة قائمة الموظفين
+            // تهيئة قائمة الموظفين (دائماً لتعكس آخر البيانات)
             fillEmployeeSelect('payrollEmployee');
 
-            // تشغيل الحساب
+            // تشغيل الحساب - يُعاد ربطه في كل مرة لضمان قراءة أحدث البيانات
             let calculateBtn = document.getElementById('calculatePayroll');
             if (calculateBtn) {
                 calculateBtn.onclick = null;
@@ -10392,30 +10484,40 @@
                     const rows = calculatePayrollRows({ month, employeeName });
                     window.__lastPayrollRows = rows;
                     renderPayrollTable(rows);
-                    showToast(`تم حساب الرواتب (${rows.length})`, 'success');
+                    if (rows.length > 0) {
+                        showToast(`✅ تم حساب الرواتب: ${rows.length} موظف`, 'success');
+                    } else {
+                        showToast('لا توجد بيانات موظفين لهذا الشهر', 'warning');
+                    }
                     logActivity('حساب الرواتب', `الشهر ${month}${employeeName ? ` • الموظف ${employeeName}` : ''} • عدد السجلات ${rows.length}`);
                 };
             }
 
-            // تصدير
+            // تصدير XLSX
             let exportXlsx = document.getElementById('exportPayrollXLSX');
             if (exportXlsx) {
                 exportXlsx.onclick = null;
                 exportXlsx.onclick = function () {
                     const rows = window.__lastPayrollRows || [];
-                    if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                    if (!rows.length) return showToast('يرجى حساب الرواتب أولاً', 'warning');
                     exportPayrollRowsXLSX(rows);
                 };
             }
 
+            // تصدير CSV
             let exportCsv = document.getElementById('exportPayrollCSV');
             if (exportCsv) {
                 exportCsv.onclick = null;
                 exportCsv.onclick = function () {
                     const rows = window.__lastPayrollRows || [];
-                    if (!rows.length) return showToast('لا توجد بيانات للتصدير', 'warning');
+                    if (!rows.length) return showToast('يرجى حساب الرواتب أولاً', 'warning');
                     exportPayrollRowsCSV(rows);
                 };
+            }
+
+            // إذا كان هناك حساب سابق، اعرضه مجدداً
+            if (window.__lastPayrollRows && window.__lastPayrollRows.length > 0) {
+                renderPayrollTable(window.__lastPayrollRows);
             }
         }
 
@@ -10454,7 +10556,7 @@
                     .filter(r => (r?.date || '').toString().startsWith(month))
                     .filter(r => getAttendanceEmployeeName(r) === emp.name);
 
-                const absentDays = monthAttendance.filter(r => (r?.status || '') === 'غائب').length;
+                const absentDays = monthAttendance.filter(r => (r?.status || '') === 'غياب').length;
                 const presentDays = monthAttendance.filter(r => (r?.status || '') === 'حاضر').length;
                 const totalHours = monthAttendance.reduce((sum, r) => sum + safeNumber(r?.hours), 0);
 
@@ -10524,25 +10626,25 @@
                 return;
             }
 
-            tbody.innerHTML = rows.map(r => `
+            tbody.innerHTML = rows.map((r, idx) => `
                 <tr>
                     <td>${r.index}</td>
                     <td>${r.employee}</td>
-                    <td>${r.nationality}</td>
+                    <td>${r.nationality || '-'}</td>
                     <td>${r.month}</td>
-                    <td>${safeNumber(r.baseSalary).toLocaleString()}</td>
+                    <td>${safeNumber(r.baseSalary).toLocaleString()} ر.ق</td>
                     <td>${safeNumber(r.totalHours).toLocaleString()}</td>
                     <td>${safeNumber(r.overtimeHours).toLocaleString()}</td>
                     <td>${safeNumber(r.overtimeAllowance).toLocaleString()}</td>
                     <td>${safeNumber(r.allowances).toLocaleString()}</td>
-                    <td>${safeNumber(r.deductions).toLocaleString()}</td>
-                    <td>${safeNumber(r.advances).toLocaleString()}</td>
-                    <td class="fw-bold text-success">${safeNumber(r.net).toLocaleString()}</td>
+                    <td class="text-danger">${safeNumber(r.deductions).toLocaleString()}</td>
+                    <td class="text-warning">${safeNumber(r.advances).toLocaleString()}</td>
+                    <td class="fw-bold text-success">${safeNumber(r.net).toLocaleString()} ر.ق</td>
                     <td><span class="badge ${r.status === 'مكتمل' ? 'bg-success' : 'bg-warning text-dark'}">${r.status}</span></td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="showPayrollDetails('${r._meta.presentDays}', '${r._meta.absentDays}')">تفاصيل</button>
-                            <button class="btn btn-outline-secondary" onclick="printPayslip(${rows.indexOf(r)})">
+                            <button class="btn btn-outline-primary" onclick="showPayrollDetails('${r._meta ? r._meta.presentDays : 0}', '${r._meta ? r._meta.absentDays : 0}')">تفاصيل</button>
+                            <button class="btn btn-outline-secondary" onclick="printPayslip(${idx})">
                                 <i class="fas fa-print"></i>
                             </button>
                         </div>
@@ -11162,8 +11264,9 @@
 
             await tryFirebase().then((fromCloud) => {
                 if (fromCloud) return;
-                if (trySessionStorage()) return;
+                // localStorage أولاً لأنه يبقى بعد إغلاق المتصفح وإعادة التحميل
                 if (tryLocalStorage()) return;
+                if (trySessionStorage()) return;
                 if (trySuperproDB()) return;
                 return loadFromFile();
             });
@@ -11317,8 +11420,9 @@
             if (typeof loadDailyExpenses === 'function') loadDailyExpenses();
             if (typeof loadAttendance === 'function') loadAttendance();
 
-            // تحديث الإحصائيات
+            // تحديث الإحصائيات والشريط العلوي
             updateStatistics();
+            if (typeof updateTopBarAlerts === 'function') updateTopBarAlerts();
         }
 
         // دالة تحديث الإحصائيات
@@ -12407,13 +12511,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         initGlobalSearch();
         console.log("initGlobalSearch finished");
         
-        initCharts();
-        console.log("initCharts finished");
-        
+        // initCharts يُستدعى بعد تحميل البيانات في loadDashboard
         setupAutoBackup();
         console.log("setupAutoBackup finished");
 
         setInterval(updateCurrentDate, 60000);
+        // تحديث التنبيهات في الشريط العلوي كل 5 دقائق
+        setInterval(function() {
+            if (typeof updateTopBarAlerts === 'function') updateTopBarAlerts();
+        }, 300000);
 
         initializeSystem();
         console.log("initializeSystem finished");
@@ -12503,6 +12609,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         
         // تحميل لوحة التحكم بعد البيانات
         loadDashboard();
+        updateTopBarAlerts();
         console.log("loadDashboard finished");
 
         // إخفاء شريط الحالة
