@@ -45,9 +45,13 @@
         console.log('🔧 SuperPro Final: Applying patches...');
 
         // ---- PATCH saveData ----
+        // يجب استدعاء الحفظ الأصلي من index.html لتحديث الشريط العلوي، التنبيهات، Firebase، والواجهة.
         var _origSave = window.saveData;
         window.saveData = function() {
             try {
+                if (typeof _origSave === 'function') {
+                    _origSave.call(window);
+                }
                 var data = {
                     employees: window.employees || [],
                     clients: window.clients || [],
@@ -64,36 +68,8 @@
                     salaryAdvances: window.salaryAdvances || [],
                     monthlyExpenses: window.monthlyExpenses || []
                 };
-
-                // Save ONE copy to sessionStorage (not individual keys)
-                try { sessionStorage.setItem('superpro_data', JSON.stringify(data)); } catch(e) {}
-
-                // Save ONE copy to localStorage
-                try { localStorage.setItem('superpro_data', JSON.stringify(data)); } catch(e) {}
-
-                // Save to superproDB for DataManager compat
-                try {
-                    localStorage.setItem('superproDB', JSON.stringify({
-                        ...data,
-                        income: data.dailyIncome,
-                        expenses: data.dailyExpenses,
-                        notifications: data.events
-                    }));
-                } catch(e) {}
-
-                // Save to IndexedDB (large, reliable)
                 saveToIDB(data);
-
-                // Firebase cloud
-                if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
-                    var fbPath = window.FB_PATH || 'superpro_data'; // FIXED: was 'superpro-data' (wrong path)
-                    firebaseDb.ref(fbPath).set(data).catch(function(){});
-                }
-
-                // Update stats but DON'T reload dashboard (prevents infinite loop)
-                try { if (typeof updateAllStats === 'function') updateAllStats(); } catch(e) {}
-
-                console.log('✅ Data saved');
+                console.log('✅ Data saved (with IndexedDB backup)');
             } catch(error) {
                 console.warn('⚠️ Save warning:', error.message);
             }
@@ -329,7 +305,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Wait for data import to finish (~5 seconds after load)
         setTimeout(function() {
-            buildModernChart();
+            // إعادة رسم نفس مخطط لوحة التحكم من المصدر الموحد (index) لتجنب تضارب البيانات مع dailyIncome
+            if (typeof window.initCharts === 'function') {
+                try { window.initCharts(); } catch (e) {}
+            } else if (typeof buildModernChart === 'function') {
+                buildModernChart();
+            }
             setupInvoiceList();
             enhanceReports();
             enhanceFiltersUI();
@@ -341,205 +322,16 @@
     // ============================================================
     // 6. MODERN PERFORMANCE CHART
     // ============================================================
+    /** يعيد رسم نفس مخطط الأداء من index (getMonthlyData) دون استبدال الرصيد أو تضارب البيانات */
     function buildModernChart() {
-        var canvas = document.getElementById('performanceChart');
-        if (!canvas || typeof Chart === 'undefined') return;
-
-        // Destroy existing
         try {
-            var ex = Chart.getChart(canvas);
-            if (ex) ex.destroy();
-        } catch(e) {}
-
-        // Collect monthly data from invoices (financialTransactions)
-        var invoices = window.financialTransactions || [];
-        var dailyW = window.dailyWork || [];
-        var monthlyMap = {};
-
-        // From invoices
-        invoices.forEach(function(inv) {
-            if (!inv.date) return;
-            var month = inv.date.substring(0, 7); // YYYY-MM
-            if (!monthlyMap[month]) monthlyMap[month] = { revenue: 0, paid: 0, unpaid: 0, count: 0 };
-            var amt = parseFloat(inv.amount) || 0;
-            monthlyMap[month].revenue += amt;
-            monthlyMap[month].count++;
-            if (inv.paymentStatus === 'مدفوع' || inv.status === 'مدفوع') {
-                monthlyMap[month].paid += amt;
-            } else {
-                monthlyMap[month].unpaid += amt;
+            if (typeof window.renderPerformanceChart === 'function') {
+                var sel = document.getElementById('chartPeriod');
+                window.renderPerformanceChart(sel && sel.value ? sel.value : 'month');
             }
-        });
-
-        // Also from dailyWork if no invoice data
-        if (invoices.length === 0) {
-            dailyW.forEach(function(w) {
-                if (!w.date) return;
-                var month = w.date.substring(0, 7);
-                if (!monthlyMap[month]) monthlyMap[month] = { revenue: 0, paid: 0, unpaid: 0, count: 0 };
-                var amt = parseFloat(w.amount) || 0;
-                monthlyMap[month].revenue += amt;
-                monthlyMap[month].count++;
-                if (w.paymentStatus === 'مدفوع') {
-                    monthlyMap[month].paid += amt;
-                } else {
-                    monthlyMap[month].unpaid += amt;
-                }
-            });
+        } catch (e) {
+            console.warn('buildModernChart:', e.message);
         }
-
-        var months = Object.keys(monthlyMap).sort();
-        if (months.length === 0) return;
-
-        var labels = months.map(function(m) {
-            var parts = m.split('-');
-            var monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-            return monthNames[parseInt(parts[1]) - 1] + ' ' + parts[0];
-        });
-
-        var revenueData = months.map(function(m) { return monthlyMap[m].revenue; });
-        var paidData = months.map(function(m) { return monthlyMap[m].paid; });
-        var unpaidData = months.map(function(m) { return monthlyMap[m].unpaid; });
-
-        // Create modern gradient chart
-        var ctx = canvas.getContext('2d');
-        canvas.height = 350;
-
-        var gradGreen = ctx.createLinearGradient(0, 0, 0, 350);
-        gradGreen.addColorStop(0, 'rgba(40, 167, 69, 0.4)');
-        gradGreen.addColorStop(1, 'rgba(40, 167, 69, 0.02)');
-
-        var gradBlue = ctx.createLinearGradient(0, 0, 0, 350);
-        gradBlue.addColorStop(0, 'rgba(13, 110, 253, 0.4)');
-        gradBlue.addColorStop(1, 'rgba(13, 110, 253, 0.02)');
-
-        var gradRed = ctx.createLinearGradient(0, 0, 0, 350);
-        gradRed.addColorStop(0, 'rgba(220, 53, 69, 0.4)');
-        gradRed.addColorStop(1, 'rgba(220, 53, 69, 0.02)');
-
-        window.performanceChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'إجمالي الإيرادات',
-                        data: revenueData,
-                        backgroundColor: gradBlue,
-                        borderColor: '#0d6efd',
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        order: 2
-                    },
-                    {
-                        label: 'المدفوع',
-                        data: paidData,
-                        backgroundColor: gradGreen,
-                        borderColor: '#28a745',
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        order: 3
-                    },
-                    {
-                        label: 'غير المدفوع',
-                        data: unpaidData,
-                        backgroundColor: gradRed,
-                        borderColor: '#dc3545',
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        order: 4
-                    },
-                    {
-                        label: 'اتجاه الإيرادات',
-                        data: revenueData,
-                        type: 'line',
-                        borderColor: '#6f42c1',
-                        backgroundColor: 'rgba(111, 66, 193, 0.1)',
-                        borderWidth: 3,
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#6f42c1',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointHoverRadius: 8,
-                        order: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 1200,
-                    easing: 'easeOutQuart'
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        rtl: true,
-                        labels: {
-                            font: { size: 13, family: 'Tajawal, sans-serif' },
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        rtl: true,
-                        backgroundColor: 'rgba(0,0,0,0.85)',
-                        titleFont: { size: 14 },
-                        bodyFont: { size: 13 },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(ctx) {
-                                return ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' ر.ق';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: { size: 12 },
-                            callback: function(v) { return v.toLocaleString() + ' ر.ق'; }
-                        },
-                        grid: { color: 'rgba(0,0,0,0.06)' }
-                    },
-                    x: {
-                        ticks: { font: { size: 12 } },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-
-        // Update dashboard stat cards
-        try {
-            var totalRevenue = revenueData.reduce(function(a, b) { return a + b; }, 0);
-            var totalPaid = paidData.reduce(function(a, b) { return a + b; }, 0);
-            var totalUnpaid = unpaidData.reduce(function(a, b) { return a + b; }, 0);
-
-            var el;
-            el = document.getElementById('statBalance');
-            if (el) el.textContent = totalRevenue.toLocaleString() + ' ر.ق';
-
-            // Update quick financial summary
-            el = document.getElementById('quickIncome');
-            if (el) el.textContent = totalRevenue.toLocaleString();
-            el = document.getElementById('quickNet');
-            if (el) {
-                var totalExp = (window.dailyExpenses || []).reduce(function(s, e) { return s + (parseFloat(e.amount) || 0); }, 0);
-                el.textContent = (totalRevenue - totalExp).toLocaleString();
-            }
-        } catch(e) {}
-
-        console.log('📊 Modern performance chart built');
     }
 
     // ============================================================

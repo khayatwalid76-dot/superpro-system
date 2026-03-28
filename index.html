@@ -4809,6 +4809,7 @@
                 // تحديث الإحصائيات والشريط العلوي
                 updateAllStats();
                 updateTopBarAlerts();
+                syncNotificationBadge();
 
                 // تحديث الصفحة الحالية فقط إذا كانت لوحة التحكم
                 const dashboardEl = document.getElementById('dashboard');
@@ -4825,31 +4826,26 @@
             }
         }
 
-        // تحديث عداد التنبيهات في الشريط العلوي
+        function syncNotificationBadge() {
+            try {
+                const ac = document.getElementById('alertsCount');
+                const badge = document.getElementById('notificationBadge');
+                if (!badge || !ac) return;
+                const n = parseInt(ac.textContent, 10) || 0;
+                badge.textContent = n;
+                badge.style.display = n > 0 ? 'inline' : 'none';
+            } catch (e) {}
+        }
+
+        // تحديث عداد التنبيهات في الشريط العلوي (نفس منطق لوحة التحكم)
         function updateTopBarAlerts() {
             try {
-                const today = new Date();
-                let count = 0;
-
-                // تنبيهات العقود المنتهية أو القريبة من الانتهاء
-                (contracts || []).forEach(c => {
-                    if (!c || !c.endDate) return;
-                    const end = new Date(c.endDate);
-                    const diff = Math.ceil((end - today) / (1000 * 3600 * 24));
-                    if (diff <= 30 && c.paymentStatus !== 'مدفوع') count++;
-                });
-
-                // تنبيهات الإقامات المنتهية أو القريبة
-                (employees || []).forEach(e => {
-                    if (!e || !e.residencyExpiry) return;
-                    const exp = new Date(e.residencyExpiry);
-                    const diff = Math.ceil((exp - today) / (1000 * 3600 * 24));
-                    if (diff <= 30) count++;
-                });
-
                 const alertsCountEl = document.getElementById('alertsCount');
-                if (alertsCountEl) alertsCountEl.textContent = count;
-            } catch(e) {}
+                if (alertsCountEl && typeof getDashboardAlertCount === 'function') {
+                    alertsCountEl.textContent = getDashboardAlertCount();
+                }
+                syncNotificationBadge();
+            } catch (e) {}
         }
 
         // دالة عرض الإشعارات
@@ -5041,6 +5037,106 @@
             reader.readAsText(jsonFile);
         }
 
+        // ----- محرك إيرادات/مصروفات موحّد (بدون تكرار: عمل يومي مدفوع + مدخول "عمل يومي") -----
+        function isDailyWorkDuplicateInIncome(work) {
+            if (!work || !work.date) return false;
+            const amt = parseFloat(work.amount) || 0;
+            return (dailyIncome || []).some(function (i) {
+                if (!i || i.date !== work.date) return false;
+                const t = (i.type || '').toString();
+                if (t.indexOf('عمل') === -1) return false;
+                return Math.abs((parseFloat(i.amount) || 0) - amt) < 0.02;
+            });
+        }
+
+        function computeLedgerIncomeTotal() {
+            const fromLedger = (dailyIncome || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
+            const fromDwOnly = (dailyWork || []).reduce((s, w) => {
+                if ((w.paymentStatus || '') !== 'مدفوع') return s;
+                if (isDailyWorkDuplicateInIncome(w)) return s;
+                return s + (parseFloat(w.amount) || 0);
+            }, 0);
+            const fromContracts = (contracts || []).filter(function (c) {
+                return c && (c.paymentStatus === 'مدفوع' || c.paymentStatus === 'مدفوعة');
+            }).reduce((s, c) => s + (parseFloat(c.paidAmount || c.amount) || 0), 0);
+            return fromLedger + fromDwOnly + fromContracts;
+        }
+
+        function monthlyPaymentsTotalInMonth(month, year) {
+            let s = 0;
+            (monthlyExpenses || []).forEach(function (me) {
+                (me.payments || []).forEach(function (p) {
+                    if (!p || !p.date) return;
+                    const d = new Date(p.date);
+                    if (d.getMonth() + 1 === month && d.getFullYear() === year) s += parseFloat(p.amount) || 0;
+                });
+            });
+            return s;
+        }
+
+        function monthlyTemplateExpenseForMonth(month, year) {
+            let s = 0;
+            (monthlyExpenses || []).forEach(function (me) {
+                if ((me.status || '') === 'ملغي') return;
+                const paidThisMonth = (me.payments || []).some(function (p) {
+                    if (!p || !p.date) return false;
+                    const d = new Date(p.date);
+                    return d.getMonth() + 1 === month && d.getFullYear() === year;
+                });
+                if (!paidThisMonth) s += parseFloat(me.amount) || 0;
+            });
+            return s;
+        }
+
+        function computeLedgerExpenseTotal() {
+            const d = (dailyExpenses || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+            const adv = (salaryAdvances || []).reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
+            const m = (monthlyExpenses || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+            return d + adv + m;
+        }
+
+        function computeMonthlyIncomeForMonth(month, year) {
+            const monthIncome = (dailyIncome || [])
+                .filter(function (income) {
+                    if (!income || !income.date) return false;
+                    const incomeDate = new Date(income.date);
+                    return incomeDate.getMonth() + 1 === month && incomeDate.getFullYear() === year;
+                })
+                .reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
+
+            const dailyWorkExtra = (dailyWork || [])
+                .filter(function (work) {
+                    if (!work || !work.date) return false;
+                    const wDate = new Date(work.date);
+                    return wDate.getMonth() + 1 === month && wDate.getFullYear() === year
+                        && (work.paymentStatus || '') === 'مدفوع'
+                        && !isDailyWorkDuplicateInIncome(work);
+                })
+                .reduce((sum, work) => sum + (parseFloat(work.amount) || 0), 0);
+
+            const contractIncome = (contracts || [])
+                .filter(function (c) {
+                    if (!c || !c.paymentDate) return false;
+                    const pDate = new Date(c.paymentDate);
+                    return pDate.getMonth() + 1 === month && pDate.getFullYear() === year
+                        && (c.paymentStatus === 'مدفوع' || c.paymentStatus === 'مدفوعة');
+                })
+                .reduce((sum, c) => sum + (parseFloat(c.paidAmount || c.amount) || 0), 0);
+
+            return monthIncome + dailyWorkExtra + contractIncome;
+        }
+
+        function computeMonthlyExpenseForMonth(month, year) {
+            const daily = (dailyExpenses || [])
+                .filter(function (expense) {
+                    if (!expense || !expense.date) return false;
+                    const expenseDate = new Date(expense.date);
+                    return expenseDate.getMonth() + 1 === month && expenseDate.getFullYear() === year;
+                })
+                .reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
+            return daily + monthlyPaymentsTotalInMonth(month, year) + monthlyTemplateExpenseForMonth(month, year);
+        }
+
         // ===== إصلاح مخططات لوحة التحكم =====
         function initCharts() {
             renderPerformanceChart();
@@ -5165,45 +5261,8 @@
                 const month = date.getMonth() + 1;
                 const year = date.getFullYear();
 
-                // حساب الإيرادات لهذا الشهر
-                const monthIncome = (dailyIncome || [])
-                    .filter(income => {
-                        if (!income || !income.date) return false;
-                        const incomeDate = new Date(income.date);
-                        return incomeDate.getMonth() + 1 === month && incomeDate.getFullYear() === year;
-                    })
-                    .reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
-
-                // إيرادات العمل اليومي
-                const dailyWorkIncome = (dailyWork || [])
-                    .filter(work => {
-                        if (!work || !work.date) return false;
-                        const wDate = new Date(work.date);
-                        return wDate.getMonth() + 1 === month && wDate.getFullYear() === year;
-                    })
-                    .reduce((sum, work) => sum + (parseFloat(work.amount) || 0), 0);
-
-                // إيرادات العقود المدفوعة في هذا الشهر
-                const contractIncome = (contracts || [])
-                    .filter(c => {
-                        if (!c || !c.paymentDate) return false;
-                        const pDate = new Date(c.paymentDate);
-                        return pDate.getMonth() + 1 === month && pDate.getFullYear() === year
-                            && c.paymentStatus === 'مدفوع';
-                    })
-                    .reduce((sum, c) => sum + (parseFloat(c.paidAmount || c.amount) || 0), 0);
-
-                // حساب المصروفات لهذا الشهر
-                const monthExpense = (dailyExpenses || [])
-                    .filter(expense => {
-                        if (!expense || !expense.date) return false;
-                        const expenseDate = new Date(expense.date);
-                        return expenseDate.getMonth() + 1 === month && expenseDate.getFullYear() === year;
-                    })
-                    .reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
-
-                incomeData.push(monthIncome + dailyWorkIncome + contractIncome);
-                expenseData.push(monthExpense);
+                incomeData.push(computeMonthlyIncomeForMonth(month, year));
+                expenseData.push(computeMonthlyExpenseForMonth(month, year));
             }
 
             return { labels: months, income: incomeData, expenses: expenseData };
@@ -5240,13 +5299,7 @@
             document.getElementById('statClients').textContent = clients.length;
             document.getElementById('statContracts').textContent = contracts.length;
 
-            const totalSalaries = employees.reduce((sum, emp) => sum + (parseFloat(emp.salary) || 0), 0);
-            const totalContracts = contracts.reduce((sum, contract) => sum + (parseFloat(contract.amount) || 0), 0);
-            const totalDailyWork = dailyWork.reduce((sum, work) => sum + (parseFloat(work.amount) || 0), 0);
-            const totalIncome = dailyIncome.reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
-            const totalExpenses = dailyExpenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
-
-            const netBalance = (totalContracts + totalDailyWork + totalIncome) - (totalSalaries + totalExpenses);
+            const netBalance = calculateNetBalance();
 
             document.getElementById('statBalance').textContent = netBalance.toLocaleString() + ' ر.ق';
 
@@ -5294,13 +5347,7 @@
         }
 
         function calculateNetBalance() {
-            const totalSalaries = employees.reduce((sum, emp) => sum + (parseFloat(emp.salary) || 0), 0);
-            const totalContracts = contracts.reduce((sum, contract) => sum + (parseFloat(contract.amount) || 0), 0);
-            const totalDailyWork = dailyWork.reduce((sum, work) => sum + (parseFloat(work.amount) || 0), 0);
-            const totalIncome = dailyIncome.reduce((sum, income) => sum + (parseFloat(income.amount) || 0), 0);
-            const totalExpenses = dailyExpenses.reduce((sum, expense) => sum + (parseFloat(expense.amount) || 0), 0);
-
-            return (totalContracts + totalDailyWork + totalIncome) - (totalSalaries + totalExpenses);
+            return computeLedgerIncomeTotal() - computeLedgerExpenseTotal();
         }
 
         // ===== فصل التنبيهات =====
@@ -5350,6 +5397,7 @@
             }
 
             document.getElementById('alertsCount').textContent = totalAlerts;
+            syncNotificationBadge();
 
             if (totalAlerts === 0) {
                 alertsContainer.innerHTML = `
@@ -5514,6 +5562,14 @@
             return alerts;
         }
 
+        function getDashboardAlertCount() {
+            try {
+                return getContractAlerts().length + getResidencyAlerts().length + getPaymentAlerts().length;
+            } catch (e) {
+                return 0;
+            }
+        }
+
         function loadRecentTransactions() {
             const tbody = document.getElementById('recent-transactions');
             tbody.innerHTML = '';
@@ -5548,14 +5604,8 @@
         }
 
         function updateFinancialSummary() {
-            const totalDailyIncome = (dailyIncome || []).reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-            const totalDailyWorkIncome = (dailyWork || []).reduce((sum, w) => sum + (parseFloat(w.amount) || 0), 0);
-            const totalContractIncome = (contracts || [])
-                .filter(c => c.paymentStatus === 'مدفوع')
-                .reduce((sum, c) => sum + (parseFloat(c.paidAmount || c.amount) || 0), 0);
-
-            const totalIncome = totalDailyIncome + totalDailyWorkIncome + totalContractIncome;
-            const totalExpenses = (dailyExpenses || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            const totalIncome = computeLedgerIncomeTotal();
+            const totalExpenses = computeLedgerExpenseTotal();
             const netProfit = totalIncome - totalExpenses;
 
             const quickIncomeEl = document.getElementById('quickIncome');
@@ -5569,7 +5619,7 @@
                 quickNetEl.className = netProfit >= 0 ? 'text-success' : 'text-danger';
             }
 
-            const incomePercentage = totalIncome > 0 ? Math.min(100, (totalDailyIncome / totalIncome * 100)) : 0;
+            const incomePercentage = totalIncome > 0 ? Math.min(100, ((dailyIncome || []).reduce((s, i) => s + (parseFloat(i.amount) || 0), 0) / totalIncome * 100)) : 0;
             const expensePercentage = totalIncome > 0 ? Math.min(100, (totalExpenses / totalIncome * 100)) : 0;
 
             const incomeBar = document.getElementById('incomeBar');
@@ -9709,6 +9759,7 @@
                     }
 
                     attendance.push({
+                        id: 'att_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9),
                         employee,
                         date,
                         status,
@@ -9779,6 +9830,9 @@
                 const empName = record.employee || record.employeeName || record.name || '-';
                 const statusClass = record.status === 'حاضر' ? 'bg-success' :
                     record.status === 'غياب' ? 'bg-danger' : 'bg-warning text-dark';
+                const delArg = record.id != null && record.id !== ''
+                    ? `'${String(record.id).replace(/'/g, "\\'")}'`
+                    : String(attArr.indexOf(record));
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
@@ -9788,7 +9842,7 @@
                     <td>${record.hours || 0} ساعة</td>
                     <td>${record.source || 'يدوي'}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${attArr.indexOf(record)})">
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteAttendance(${delArg})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -9800,13 +9854,22 @@
             if (countEl) countEl.textContent = attArr.length + ' سجل';
         }
 
-        function deleteAttendance(index) {
-            if (confirm('هل تريد حذف سجل الحضور هذا؟')) {
-                attendance.splice(index, 1);
-                saveData();
-                loadAttendanceTable();
-                showToast('تم حذف سجل الحضور');
+        function deleteAttendance(indexOrId) {
+            if (!confirm('هل تريد حذف سجل الحضور هذا؟')) return;
+            if (typeof indexOrId === 'string') {
+                const idx = attendance.findIndex(r => String(r.id) === String(indexOrId));
+                if (idx === -1) {
+                    showToast('لم يُعثر على السجل', 'warning');
+                    return;
+                }
+                attendance.splice(idx, 1);
+            } else {
+                const i = parseInt(indexOrId, 10);
+                if (i >= 0 && i < attendance.length) attendance.splice(i, 1);
             }
+            saveData();
+            loadAttendanceTable();
+            showToast('تم حذف سجل الحضور');
         }
 
         // ===== قسم الخدمات =====
@@ -10541,6 +10604,32 @@
             return Number.isFinite(n) ? n : 0;
         }
 
+        /** مصروف يخصم كسلفة/تسبقة على الراتب (أنواع قديمة وحديثة) */
+        function isSalaryAdvanceExpenseType(typeStr) {
+            const raw = (typeStr || '').toString().trim();
+            if (!raw) return false;
+            if (/تسبق|سلف/i.test(raw)) return true;
+            const low = raw.toLowerCase();
+            if (low.includes('advance') || low.includes('loan')) return true;
+            return false;
+        }
+
+        /** ساعات من العمل اليومي لموظف في شهر YYYY-MM */
+        function getHoursFromDailyWorkForEmployee(empName, monthStr) {
+            let hours = 0;
+            const name = (empName || '').toString().trim();
+            if (!name || !monthStr) return 0;
+            (dailyWork || []).forEach(function (w) {
+                if (!w || !w.date || !w.date.toString().startsWith(monthStr)) return;
+                const workers = w.workers || (w.worker ? [w.worker] : []);
+                if (!workers.some(function (wn) { return (wn || '').toString().trim() === name; })) return;
+                const th = parseFloat(w.totalHours) || 0;
+                const cnt = Math.max(1, workers.length);
+                hours += th / cnt;
+            });
+            return hours;
+        }
+
         function calculatePayrollRows({ month, employeeName }) {
             const meta = getMonthMeta(month);
             if (!meta) return [];
@@ -10558,7 +10647,9 @@
 
                 const absentDays = monthAttendance.filter(r => (r?.status || '') === 'غياب').length;
                 const presentDays = monthAttendance.filter(r => (r?.status || '') === 'حاضر').length;
-                const totalHours = monthAttendance.reduce((sum, r) => sum + safeNumber(r?.hours), 0);
+                const hoursFromAttendance = monthAttendance.reduce((sum, r) => sum + safeNumber(r?.hours), 0);
+                const hoursFromDailyWork = getHoursFromDailyWorkForEmployee(emp.name, month);
+                const totalHours = hoursFromAttendance > 0 ? hoursFromAttendance : hoursFromDailyWork;
 
                 // خصم الغياب: الراتب الشهري / أيام الشهر * عدد أيام الغياب المسجلة
                 const dailyRate = meta.daysInMonth ? (baseSalary / meta.daysInMonth) : 0;
@@ -10567,10 +10658,7 @@
                 // التسبقات: من مصروفات "تسبقة عن راتب" + من salaryAdvances إن وُجدت
                 const advancesFromExpenses = (dailyExpenses || [])
                     .filter(x => (x?.date || '').toString().startsWith(month))
-                    .filter(x => {
-                        const t = (x?.type || '').toString().trim();
-                        return t === 'تسبقة عن راتب' || t === 'سلفة' || t === 'تسبقات رواتب' || t === 'سلف رواتب';
-                    })
+                    .filter(x => isSalaryAdvanceExpenseType(x?.type))
                     .filter(x => (x?.employee || '').toString().trim() === emp.name)
                     .reduce((sum, x) => sum + safeNumber(x?.amount), 0);
 
@@ -12510,6 +12598,50 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         initGlobalSearch();
         console.log("initGlobalSearch finished");
+
+        (function initNotificationPanel() {
+            const bell = document.getElementById('notificationBell');
+            const panel = document.getElementById('notificationPanel');
+            const list = document.getElementById('notificationList');
+            const closeBtn = document.getElementById('closeNotificationPanel');
+            const markAll = document.getElementById('markAllReadBtn');
+            if (!bell || !panel) return;
+
+            bell.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const recent = document.getElementById('recentAlerts');
+                if (list && recent) {
+                    list.innerHTML = recent.innerHTML && recent.innerHTML.trim() !== ''
+                        ? recent.innerHTML
+                        : '<div class="p-3 text-center text-muted">لا توجد تنبيهات</div>';
+                }
+                const hidden = panel.style.display === 'none' || !panel.style.display;
+                panel.style.display = hidden ? 'block' : 'none';
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+                    panel.style.display = 'none';
+                });
+            }
+            if (markAll) {
+                markAll.addEventListener('click', function () {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        badge.textContent = '0';
+                        badge.style.display = 'none';
+                    }
+                    panel.style.display = 'none';
+                    showToast('تم تحديد الإشعارات كمقروءة', 'success');
+                });
+            }
+
+            document.addEventListener('click', function (ev) {
+                if (panel.style.display === 'none' || !panel.style.display) return;
+                if (panel.contains(ev.target) || bell.contains(ev.target)) return;
+                panel.style.display = 'none';
+            });
+        })();
         
         // initCharts يُستدعى بعد تحميل البيانات في loadDashboard
         setupAutoBackup();
