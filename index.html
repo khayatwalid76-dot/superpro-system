@@ -4879,7 +4879,7 @@
         // الوضع الليلي
         function initDarkMode() {
             const toggle = document.getElementById('darkModeToggle');
-            const isDarkMode = sessionStorage.getItem('darkMode') === 'true';
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
@@ -4889,7 +4889,7 @@
             toggle.addEventListener('click', function () {
                 document.body.classList.toggle('dark-mode');
                 const isDark = document.body.classList.contains('dark-mode');
-                sessionStorage.setItem('darkMode', isDark);
+                localStorage.setItem('darkMode', isDark);
                 toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             });
         }
@@ -4899,10 +4899,10 @@
             const isDarkMode = document.body.classList.contains('dark-mode');
             if (isDarkMode) {
                 document.body.classList.remove('dark-mode');
-                sessionStorage.setItem('darkMode', 'false');
+                localStorage.setItem('darkMode', 'false');
             } else {
                 document.body.classList.add('dark-mode');
-                sessionStorage.setItem('darkMode', 'true');
+                localStorage.setItem('darkMode', 'true');
             }
             showToast(document.body.classList.contains('dark-mode') ? '🌙 تفعيل الوضع الليلي' : '☀️ تفعيل الوضع الفاتح');
         }
@@ -4950,7 +4950,7 @@
                     timestamp: new Date().toISOString(),
                     version: '2.5.1',
                     language: localStorage.getItem('language') || 'ar',
-                    darkMode: sessionStorage.getItem('darkMode') || 'false',
+                    darkMode: localStorage.getItem('darkMode') || 'false',
                     highContrast: localStorage.getItem('highContrast') || 'false'
                 };
                 
@@ -5004,7 +5004,7 @@
                         }
                         
                         if (backup.darkMode) {
-                            sessionStorage.setItem('darkMode', backup.darkMode);
+                            localStorage.setItem('darkMode', backup.darkMode);
                             if (backup.darkMode === 'true') {
                                 document.body.classList.add('dark-mode');
                             } else {
@@ -5532,7 +5532,7 @@
                             alert.className = 'alert alert-danger alert-dismissible fade show mb-2';
                             alert.innerHTML = `
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                تأخر في دفع عقد ${contract.number || ''} مع ${contract.client}: ${remaining.toLocaleString()} ر.ق
+                                تأخر في دفع عقد ${contract.number || ''} مع ${contract.client || contract.clientName || 'عميل غير محدد'}: ${remaining.toLocaleString()} ر.ق
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             `;
                             alerts.push(alert);
@@ -5553,7 +5553,7 @@
                 alert.className = 'alert alert-warning alert-dismissible fade show mb-2';
                 alert.innerHTML = `
                     <i class="fas fa-calendar-day me-2"></i>
-                    عمل غير مدفوع بتاريخ ${work.date} للعميل ${work.client}: ${work.amount} ر.ق
+                    عمل غير مدفوع بتاريخ ${work.date} للعميل ${work.client || work.clientName || 'غير محدد'}: ${work.amount} ر.ق
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
                 alerts.push(alert);
@@ -12808,6 +12808,8 @@ window.addEventListener('load', function() {
     <script src="data-import-v4.js"></script>
 
     <script src="superpro-hotfix.js"></script>
+    <!-- ✅ SuperPro Master Fix v3.0 - إصلاح شامل لجميع المشاكل -->
+    <script src="superpro-master-fix.js"></script>
 </body>
 
 </html>
