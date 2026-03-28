@@ -4735,6 +4735,7 @@
             financialTransactions: 'superpro_financialTransactions',
             salaryAdvances: 'superpro_salaryAdvances',
             monthlyExpenses: 'superpro_monthlyExpenses',
+            invoices: 'superpro_financialTransactions',
             authUser: 'superpro_auth_user',
             activityLog: 'superpro_activity_log'
         };
@@ -8862,8 +8863,8 @@
                                     ${invoiceList.length === 0 ? '<tr><td colspan="7" class="text-center py-3 text-muted">لا توجد فواتير</td></tr>' : invoiceList.map((inv, idx) => `
                                         <tr>
                                             <td>${idx + 1}</td>
-                                            <td><strong>${inv.id || 'جديدة'}</strong></td>
-                                            <td>${inv.clientName || 'عميل'}</td>
+                                            <td><strong>${inv.id || inv.invoiceId || 'جديدة'}</strong></td>
+                                            <td>${inv.clientName || inv.client || 'عميل'}</td>
                                             <td>${new Date(inv.date).toLocaleDateString('ar-SA') || 'N/A'}</td>
                                             <td class="fw-bold text-success">${(parseFloat(inv.amount) || 0).toLocaleString()} ر.ق</td>
                                             <td>
@@ -11275,6 +11276,9 @@
             tasks = window.tasks;
             events = window.events;
             monthlyExpenses = window.monthlyExpenses || [];
+            // FIX: Restore financialTransactions
+            window.financialTransactions = data.financialTransactions || [];
+            financialTransactions = window.financialTransactions;
 
             const d = data;
             sessionStorage.setItem(LS_KEYS.employees, JSON.stringify(d.employees || []));
@@ -11561,32 +11565,7 @@
         }
 
         // ===== دوال التصدير المخصصة =====
-        function exportEmployeesData() {
-            const employeesExport = {
-                date: new Date().toISOString(),
-                count: employees.length,
-                data: employees.map(emp => ({
-                    name: emp.name,
-                    job: emp.job,
-                    salary: emp.salary,
-                    phone: emp.phone,
-                    status: emp.status,
-                    nationality: emp.nationality,
-                    residencyExpiry: emp.residencyExpiry
-                }))
-            };
-            
-            const blob = new Blob([JSON.stringify(employeesExport, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'employees_' + new Date().toISOString().split('T')[0] + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            showToast(`تم تصدير ${employees.length} موظف بنجاح`, 'success');
-            logActivity('تصدير بيانات الموظفين', `تم تصدير ${employees.length} موظف`);
-        }
+        function exportEmployeesData() { /* duplicate removed - using definition above */ if(typeof exportEmployeesData._orig === "function") exportEmployeesData._orig(); }
 
         function exportFinancialData() {
             const financialExport = {
@@ -12589,6 +12568,7 @@ window.addEventListener('load', function() {
     <!-- Data Import -->
     <script src="data-import-v4.js"></script>
 
+    <script src="superpro-hotfix.js"></script>
 </body>
 
 </html>

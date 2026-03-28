@@ -86,7 +86,7 @@
 
                 // Firebase cloud
                 if (typeof firebaseDb !== 'undefined' && firebaseDb && firebaseDb.ref) {
-                    var fbPath = window.FB_PATH || 'superpro-data';
+                    var fbPath = window.FB_PATH || 'superpro_data'; // FIXED: was 'superpro-data' (wrong path)
                     firebaseDb.ref(fbPath).set(data).catch(function(){});
                 }
 
